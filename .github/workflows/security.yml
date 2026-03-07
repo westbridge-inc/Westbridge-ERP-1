@@ -56,6 +56,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Start app stack
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test
         run: docker compose up -d && sleep 30
       - name: ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.11.0
