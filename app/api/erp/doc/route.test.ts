@@ -29,13 +29,14 @@ describe("POST /api/erp/doc", () => {
     validateSessionMock.mockReset();
   });
 
-  it("returns 403 when session role is member (create requires owner or admin)", async () => {
+  it("returns 403 when session role is viewer (create requires invoices:write permission)", async () => {
+    // RBAC: viewer does not have invoices:write — only member, manager, admin, owner do
     validateSessionMock.mockResolvedValue({
       ok: true,
       data: {
         userId: "u1",
         accountId: "a1",
-        role: "member",
+        role: "viewer",
         erpnextSid: "erpsid",
       },
     });
