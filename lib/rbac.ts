@@ -12,7 +12,9 @@
  * </PermissionGate>
  */
 
-// ─── Permission definitions ───────────────────────────────────────────────────
+import { logger } from "@/lib/logger";
+
+// --- Permission definitions ---
 
 export type Permission =
   | "invoices:read"    | "invoices:write"    | "invoices:delete"
@@ -30,11 +32,13 @@ export type Permission =
   | "api_keys:read"    | "api_keys:write"    | "api_keys:delete"
   | "webhooks:read"    | "webhooks:write"    | "webhooks:delete"
   | "audit_logs:read"
+  // Superuser wildcard — granted only to owner. Named "admin:*" for historical
+  // reasons but admin role does NOT have this permission; only owner does.
   | "admin:*";
 
 export type Role = "owner" | "admin" | "manager" | "member" | "viewer";
 
-// ─── Role definitions with inheritance ───────────────────────────────────────
+// --- Role definitions with inheritance ---
 
 interface RoleDefinition {
   permissions: Permission[];
@@ -46,7 +50,10 @@ const ROLE_DEFINITIONS: Record<Role, RoleDefinition> = {
     permissions: [
       "invoices:read", "expenses:read", "orders:read", "customers:read",
       "inventory:read", "hr:read", "accounting:read", "analytics:read",
-      "users:read", "settings:read", "billing:read",
+      "users:read", "settings:read",
+      // NOTE: billing:read is intentionally NOT granted to viewer.
+      // Billing information (plan tier, payment methods, invoices) is sensitive
+      // and is restricted to manager and above.
     ],
   },
   member: {
@@ -60,6 +67,7 @@ const ROLE_DEFINITIONS: Record<Role, RoleDefinition> = {
     permissions: [
       "invoices:delete", "expenses:delete", "orders:delete", "customers:delete",
       "inventory:write", "hr:write", "payroll:read",
+      "billing:read",
       "api_keys:read", "webhooks:read",
     ],
   },
@@ -78,12 +86,13 @@ const ROLE_DEFINITIONS: Record<Role, RoleDefinition> = {
     permissions: [
       "users:manage_roles",
       "billing:manage",
+      // Superuser wildcard: owner can do anything. admin role does NOT have this.
       "admin:*",
     ],
   },
 };
 
-// ─── Permission resolution (with inheritance) ─────────────────────────────────
+// --- Permission resolution (with inheritance) ---
 
 const _resolved = new Map<Role, Set<Permission>>();
 
@@ -105,18 +114,26 @@ function resolvePermissions(role: Role, visited = new Set<Role>()): Set<Permissi
   return perms;
 }
 
-// Pre-resolve all roles at module load time
+// Pre-resolve all roles at module load time.
 for (const role of Object.keys(ROLE_DEFINITIONS) as Role[]) {
   resolvePermissions(role);
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+// --- Public API ---
 
 /**
  * Check if a role has the given permission (supports wildcard admin:*).
+ * Unknown role strings return false (deny by default) and are logged as a
+ * warning so data integrity issues are visible in the audit trail.
  */
 export function hasPermission(role: Role | string, permission: Permission): boolean {
-  if (!ROLE_DEFINITIONS[role as Role]) return false;
+  if (!ROLE_DEFINITIONS[role as Role]) {
+    logger.warn("hasPermission: unknown role encountered — denying access", {
+      role,
+      permission,
+    });
+    return false;
+  }
   const perms = resolvePermissions(role as Role);
   return perms.has("admin:*") || perms.has(permission);
 }
