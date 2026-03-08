@@ -8,9 +8,11 @@ import { ErpConnectionBanner } from "@/components/dashboard/ErpConnectionBanner"
 import { ErpConnectionProvider } from "@/components/dashboard/ErpConnectionContext";
 import { PageTransition } from "@/components/dashboard/PageTransition";
 import { ShortcutsProvider } from "@/components/dashboard/ShortcutsContext";
+import { QueryProvider } from "@/components/dashboard/QueryProvider";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
+    <QueryProvider>
     <SidebarProvider>
       <ShortcutsProvider>
         <ErpConnectionProvider>
@@ -30,5 +32,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </ErpConnectionProvider>
       </ShortcutsProvider>
     </SidebarProvider>
+    </QueryProvider>
   );
 }
