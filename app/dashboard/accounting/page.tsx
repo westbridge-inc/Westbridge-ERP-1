@@ -39,7 +39,8 @@ import { formatCurrency } from "@/lib/locale/currency";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 
 /* ------------------------------------------------------------------ */
-/*  Static data (replace with API call in production)                  */
+/*  Sample data — displayed when ERP accounts are present but the      */
+/*  GL endpoints are not yet wired up. Clearly labelled in the UI.     */
 /* ------------------------------------------------------------------ */
 
 const barData = [
@@ -164,8 +165,21 @@ export default function AccountingPage() {
   const retry = useCallback(() => {
     setErrorMessage(null);
     setState("loading");
-    // Simulate reload
-    setTimeout(() => setState("success"), 800);
+    // Re-run the same fetch used in the initial useEffect
+    fetch("/api/erp/list?doctype=Account&limit_page_length=1")
+      .then((res) => {
+        if (!res.ok) { setState("empty"); return; }
+        return res.json();
+      })
+      .then((json) => {
+        if (json === undefined) return;
+        const hasAccounts = Array.isArray(json?.data) && json.data.length > 0;
+        setState(hasAccounts ? "success" : "empty");
+      })
+      .catch(() => {
+        setState("error");
+        setErrorMessage("Failed to load accounting data.");
+      });
   }, []);
 
   const header = (
@@ -246,6 +260,12 @@ export default function AccountingPage() {
   return (
     <div className="space-y-6">
       {header}
+      <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+        <span className="shrink-0">⚠</span>
+        <span>
+          <strong>Sample data</strong> — financial figures shown here are illustrative. Full GL reconciliation will be available once ERP Journal Entry endpoints are connected.
+        </span>
+      </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {metrics.map((m) => (
           <MetricCard

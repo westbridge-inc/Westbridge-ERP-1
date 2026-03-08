@@ -38,17 +38,8 @@ interface PayrollStats {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Demo data (swap for API call in production)                        */
+/*  No local demo data — real data comes from /api/erp/list            */
 /* ------------------------------------------------------------------ */
-
-const DEMO_RECORDS: PayrollRecord[] = [
-  { id: "PAY-001", employee: "Priya Ramdeen", period: "2025-02-28", grossPay: 285000, deductions: 82700, netPay: 202300, status: "Processed" },
-  { id: "PAY-002", employee: "Devendra Singh", period: "2025-02-28", grossPay: 320000, deductions: 92800, netPay: 227200, status: "Processed" },
-  { id: "PAY-003", employee: "Shantelle Williams", period: "2025-02-28", grossPay: 310000, deductions: 89900, netPay: 220100, status: "Processed" },
-  { id: "PAY-004", employee: "Rajiv Persaud", period: "2025-02-28", grossPay: 295000, deductions: 85600, netPay: 209400, status: "Processed" },
-  { id: "PAY-005", employee: "Camille Thomas", period: "2025-02-28", grossPay: 268000, deductions: 77700, netPay: 190300, status: "Pending" },
-  { id: "PAY-006", employee: "Akash Doobay", period: "2025-02-28", grossPay: 275000, deductions: 79800, netPay: 195200, status: "Processed" },
-];
 
 function deriveStats(records: PayrollRecord[]): PayrollStats {
   return records.reduce(
@@ -132,19 +123,44 @@ export default function PayrollPage() {
   const fetchPayroll = () => {
     setLoading(true);
     setError(null);
+    let cancelled = false;
 
-    // Simulate async fetch -- replace with real API call
-    const timer = setTimeout(() => {
-      try {
-        setRecords(DEMO_RECORDS);
-      } catch {
-        setError("Failed to load payroll records.");
-      } finally {
+    fetch('/api/erp/list?doctype=Salary+Slip&limit_page_length=100&fields=["name","employee_name","start_date","gross_pay","total_deduction","net_pay","docstatus"]')
+      .then(async (res) => {
+        if (cancelled) return;
+        if (!res.ok) {
+          setRecords([]);
+          setLoading(false);
+          return;
+        }
+        const json = await res.json();
+        if (cancelled) return;
+        const raw: Record<string, unknown>[] = Array.isArray(json?.data) ? json.data : [];
+        const mapped: PayrollRecord[] = raw.map((r, i) => {
+          const docstatus = Number(r.docstatus ?? 0);
+          const status: PayrollRecord["status"] =
+            docstatus === 1 ? "Processed" : docstatus === 2 ? "Rejected" : "Pending";
+          return {
+            id: String(r.name ?? `PAY-${i}`),
+            employee: String(r.employee_name ?? r.name ?? ""),
+            period: String(r.start_date ?? ""),
+            grossPay: Number(r.gross_pay ?? 0),
+            deductions: Number(r.total_deduction ?? 0),
+            netPay: Number(r.net_pay ?? 0),
+            status,
+          };
+        });
+        setRecords(mapped);
         setLoading(false);
-      }
-    }, 600);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setRecords([]);
+          setLoading(false);
+        }
+      });
 
-    return () => clearTimeout(timer);
+    return () => { cancelled = true; };
   };
 
   useEffect(() => {

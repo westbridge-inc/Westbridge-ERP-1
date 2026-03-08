@@ -36,10 +36,13 @@ interface DashboardPayload {
   employeeDelta: number;
   revenueData: RevenuePoint[];
   activity: ActivityItem[];
+  /** True when ERP is unreachable and the response contains sample data, not live data. */
+  isDemo?: boolean;
 }
 
 // ─── Demo / fallback data ─────────────────────────────────────────────────────
 // Returned when ERPNext is unreachable so the page always renders.
+// isDemo is always set to true so the frontend can show a "sample data" notice.
 const DEMO_DATA: DashboardPayload = {
   revenueMTD: 48250,
   revenueChange: 12,
@@ -62,6 +65,7 @@ const DEMO_DATA: DashboardPayload = {
     { text: "Payroll run completed for 23 employees", time: "1d ago", type: "success" },
     { text: "Invoice #SI-00039 overdue — $1,800", time: "2d ago", type: "error" },
   ],
+  isDemo: true,
 };
 
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -186,6 +190,12 @@ async function buildDashboardData(
     }
   }
 
+  // isDemo is true if any metric fell back to DEMO_DATA values
+  const usingDemoActivity = activityItems.length === 0;
+  const usingDemoOrders = !(ordersRes.status === "fulfilled" && ordersRes.value.ok);
+  const usingDemoEmployees = activeEmployees.length === 0;
+  const isDemo = usingDemoActivity || usingDemoOrders || usingDemoEmployees;
+
   return {
     revenueMTD,
     revenueChange,
@@ -195,6 +205,7 @@ async function buildDashboardData(
     employeeDelta,
     revenueData,
     activity: activityItems.length > 0 ? activityItems.slice(0, 5) : DEMO_DATA.activity,
+    isDemo,
   };
 }
 

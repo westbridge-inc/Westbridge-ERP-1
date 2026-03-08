@@ -35,19 +35,8 @@ interface HRStats {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Demo data (swap for API call in production)                        */
+/*  No local demo data — real data comes from /api/erp/list            */
 /* ------------------------------------------------------------------ */
-
-const DEMO_EMPLOYEES: Employee[] = [
-  { id: "EMP-001", name: "Priya Ramdeen", designation: "Accountant", department: "Finance", status: "Active", dateJoined: "2024-01-15" },
-  { id: "EMP-002", name: "Devendra Singh", designation: "Operations Manager", department: "Operations", status: "Active", dateJoined: "2024-03-04" },
-  { id: "EMP-003", name: "Shantelle Williams", designation: "HR Manager", department: "HR", status: "Active", dateJoined: "2024-05-20" },
-  { id: "EMP-004", name: "Rajiv Persaud", designation: "Sales Lead", department: "Sales", status: "Active", dateJoined: "2024-06-10" },
-  { id: "EMP-005", name: "Camille Thomas", designation: "Payroll Officer", department: "Finance", status: "Active", dateJoined: "2024-08-01" },
-  { id: "EMP-006", name: "Akash Doobay", designation: "Systems Admin", department: "IT", status: "Active", dateJoined: "2024-09-12" },
-  { id: "EMP-007", name: "Natasha Charles", designation: "Account Executive", department: "Sales", status: "Inactive", dateJoined: "2024-10-03" },
-  { id: "EMP-008", name: "Marcus Fernandes", designation: "Warehouse Supervisor", department: "Operations", status: "Active", dateJoined: "2024-11-18" },
-];
 
 function deriveStats(employees: Employee[]): HRStats {
   const active = employees.filter((e) => e.status === "Active").length;
@@ -111,19 +100,38 @@ export default function HRPage() {
   const fetchEmployees = () => {
     setLoading(true);
     setError(null);
+    let cancelled = false;
 
-    // Simulate async fetch -- replace with real API call
-    const timer = setTimeout(() => {
-      try {
-        setEmployees(DEMO_EMPLOYEES);
-      } catch {
-        setError("Failed to load employee directory.");
-      } finally {
+    fetch('/api/erp/list?doctype=Employee&limit_page_length=100&fields=["name","employee_name","designation","department","status","date_of_joining"]')
+      .then(async (res) => {
+        if (cancelled) return;
+        if (!res.ok) {
+          setEmployees([]);
+          setLoading(false);
+          return;
+        }
+        const json = await res.json();
+        if (cancelled) return;
+        const raw: Record<string, unknown>[] = Array.isArray(json?.data) ? json.data : [];
+        const mapped: Employee[] = raw.map((r, i) => ({
+          id: String(r.name ?? `EMP-${i}`),
+          name: String(r.employee_name ?? r.name ?? ""),
+          designation: String(r.designation ?? "—"),
+          department: String(r.department ?? "—"),
+          status: String(r.status ?? "") === "Active" ? "Active" : "Inactive",
+          dateJoined: String(r.date_of_joining ?? ""),
+        }));
+        setEmployees(mapped);
         setLoading(false);
-      }
-    }, 600);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setEmployees([]);
+          setLoading(false);
+        }
+      });
 
-    return () => clearTimeout(timer);
+    return () => { cancelled = true; };
   };
 
   useEffect(() => {

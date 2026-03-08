@@ -47,19 +47,8 @@ function inventoryBadgeVariant(status: string): "success" | "warning" | "error" 
 }
 
 /* ------------------------------------------------------------------ */
-/*  Demo data (swap for API call in production)                        */
+/*  No local demo data — real data comes from /api/erp/list            */
 /* ------------------------------------------------------------------ */
-
-const DEMO_ITEMS: InventoryItem[] = [
-  { id: "ITM-001", item: "Portland Cement", warehouse: "Georgetown Main", qty: 450, value: 2250000, uom: "Bags", status: "In Stock" },
-  { id: "ITM-002", item: "Demerara Gold Rum", warehouse: "Demerara Warehouse", qty: 12, value: 480000, uom: "Cases", status: "Low Stock" },
-  { id: "ITM-003", item: "Galvanize Sheets", warehouse: "Georgetown Main", qty: 0, value: 0, uom: "Sheets", status: "Out of Stock" },
-  { id: "ITM-004", item: "Basmati Rice", warehouse: "Berbice Store", qty: 320, value: 1280000, uom: "Bags", status: "In Stock" },
-  { id: "ITM-005", item: "Car Battery", warehouse: "Georgetown Main", qty: 8, value: 320000, uom: "Units", status: "Low Stock" },
-  { id: "ITM-006", item: "Printer Paper", warehouse: "Head Office", qty: 85, value: 85000, uom: "Reams", status: "In Stock" },
-  { id: "ITM-007", item: "Safety Helmets", warehouse: "Georgetown Main", qty: 0, value: 0, uom: "Units", status: "Out of Stock" },
-  { id: "ITM-008", item: "Diesel Fuel", warehouse: "Fuel Depot", qty: 1200, value: 3600000, uom: "Litres", status: "In Stock" },
-];
 
 function deriveStats(items: InventoryItem[]): InventoryStats {
   return items.reduce(
@@ -147,19 +136,44 @@ export default function InventoryPage() {
   const fetchInventory = () => {
     setLoading(true);
     setError(null);
+    let cancelled = false;
 
-    // Simulate async fetch -- replace with real API call
-    const timer = setTimeout(() => {
-      try {
-        setItems(DEMO_ITEMS);
-      } catch {
-        setError("Failed to load inventory data.");
-      } finally {
+    fetch("/api/erp/list?doctype=Item&limit_page_length=100")
+      .then(async (res) => {
+        if (cancelled) return;
+        if (!res.ok) {
+          setItems([]);
+          setLoading(false);
+          return;
+        }
+        const json = await res.json();
+        if (cancelled) return;
+        // Map ERPNext Item fields to our display shape
+        const raw: Record<string, unknown>[] = Array.isArray(json?.data) ? json.data : [];
+        const mapped: InventoryItem[] = raw.map((r, i) => ({
+          id: String(r.name ?? `ITM-${i}`),
+          item: String(r.item_name ?? r.name ?? ""),
+          warehouse: String(r.default_warehouse ?? "—"),
+          qty: Number(r.total_projected_qty ?? 0),
+          value: Number(r.valuation_rate ?? 0) * Number(r.total_projected_qty ?? 0),
+          uom: String(r.stock_uom ?? ""),
+          status: Number(r.total_projected_qty ?? 0) <= 0
+            ? "Out of Stock"
+            : Number(r.total_projected_qty ?? 0) < 10
+            ? "Low Stock"
+            : "In Stock",
+        }));
+        setItems(mapped);
         setLoading(false);
-      }
-    }, 600);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setItems([]);
+          setLoading(false);
+        }
+      });
 
-    return () => clearTimeout(timer);
+    return () => { cancelled = true; };
   };
 
   useEffect(() => {

@@ -52,6 +52,7 @@ interface DashboardData {
   employeeDelta: number;
   revenueData: RevenuePoint[];
   activity: ActivityItem[];
+  isDemo?: boolean;
 }
 
 async function fetchDashboardData(): Promise<DashboardData> {
@@ -204,6 +205,15 @@ export default function DashboardPage() {
         )}
       </div>
       <OnboardingChecklist checklistRef={checklistRef} />
+
+      {data.isDemo && (
+        <div className="mt-4 flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-700 dark:text-amber-400">
+          <span className="shrink-0">⚠</span>
+          <span>
+            <strong>Sample data</strong> — your ERP is offline or not yet connected. These numbers are for illustration only.
+          </span>
+        </div>
+      )}
 
       <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
