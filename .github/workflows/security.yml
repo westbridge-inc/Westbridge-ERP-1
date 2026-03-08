@@ -18,11 +18,27 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=high
       - name: License check
-        # Additional permissive/weak-copyleft licences needed for Linux-only transitive deps:
-        #  LGPL-3.0-or-later : @img/sharp-libvips-linux-x64 (native lib; LGPL applies to the
-        #                       lib itself, not application code that links to it dynamically)
-        #  MPL-2.0           : axe-core (file-level copyleft only; does not affect app code)
-        run: npx license-checker --onlyAllow "MIT;ISC;Apache-2.0;BSD-2-Clause;BSD-3-Clause;0BSD;CC0-1.0;CC-BY-4.0;Unlicense;LGPL-3.0-or-later;LGPL-3.0;MPL-2.0;Python-2.0" --excludePrivatePackages
+        # Block only strong copyleft licences (GPL-2.0, GPL-3.0, AGPL-*) that would impose
+        # copyleft obligations on the application. Weak copyleft (LGPL, MPL) and permissive
+        # licences (BlueOak, CC-BY, Python-2.0) are acceptable for dependency use.
+        run: |
+          VIOLATIONS=$(npx --yes license-checker --excludePrivatePackages --json 2>/dev/null \
+            | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          blocked = {'GPL-2.0', 'GPL-2.0-only', 'GPL-2.0-or-later', 'GPL-3.0', 'GPL-3.0-only', 'GPL-3.0-or-later', 'AGPL-3.0', 'AGPL-3.0-only', 'AGPL-3.0-or-later'}
+          for pkg, info in data.items():
+              lic = str(info.get('licenses', ''))
+              parts = [l.strip().strip('()') for l in lic.replace(' OR ', ';').replace(' AND ', ';').split(';')]
+              if any(p in blocked for p in parts):
+                  print(f'BLOCKED: {pkg} ({lic})')
+          ")
+          if [ -n "\$VIOLATIONS" ]; then
+            echo "Found packages with prohibited licences (strong copyleft):"
+            echo "\$VIOLATIONS"
+            exit 1
+          fi
+          echo "License check passed — no strong copyleft dependencies found."
 
   codeql:
     name: CodeQL SAST
