@@ -16,6 +16,13 @@ vi.mock("@/lib/services/erp.service", () => ({ getDoc: vi.fn(), createDoc: vi.fn
 vi.mock("@/lib/services/audit.service", () => ({ logAudit: vi.fn(), auditContext: () => ({ ipAddress: "127.0.0.1", userAgent: "test" }) }));
 vi.mock("@/lib/security-monitor", () => ({ reportSecurityEvent: vi.fn() }));
 vi.mock("@/lib/csrf", () => ({ validateCsrf: vi.fn(() => true), CSRF_COOKIE_NAME: "westbridge_csrf" }));
+// Route uses checkTieredRateLimit from rate-limit-tiers (not @/lib/ratelimit)
+vi.mock("@/lib/api/rate-limit-tiers", () => ({
+  checkTieredRateLimit: () => Promise.resolve({ allowed: true }),
+  getClientIdentifier: () => "id",
+  rateLimitHeaders: () => ({}),
+}));
+vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
 
 describe("POST /api/erp/doc", () => {
   beforeEach(() => {

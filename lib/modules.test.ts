@@ -31,17 +31,21 @@ describe("modules", () => {
     expect(getModule("nonexistent")).toBeUndefined();
   });
   it("isModuleIncludedInPlan", () => {
+    // general-ledger is in the finance bundle → included in starter
     expect(isModuleIncludedInPlan("general-ledger", "starter")).toBe(true);
-    expect(isModuleIncludedInPlan("lead-management", "starter")).toBe(false);
+    // stock-management is in the inventory bundle → NOT included in starter (only finance + crm)
+    expect(isModuleIncludedInPlan("stock-management", "starter")).toBe(false);
   });
   it("getAddOnPrice enterprise returns null", () => {
-    expect(getAddOnPrice("lead-management", "enterprise")).toBeNull();
+    // enterprise includes all bundles so add-on price is null
+    expect(getAddOnPrice("stock-management", "enterprise")).toBeNull();
   });
   it("getAddOnPrice included module returns null", () => {
     expect(getAddOnPrice("general-ledger", "starter")).toBeNull();
   });
   it("getAddOnPrice add-on returns number", () => {
-    expect(getAddOnPrice("lead-management", "starter")).toBeGreaterThan(0);
+    // stock-management is an add-on for starter → should return a positive price
+    expect(getAddOnPrice("stock-management", "starter")).toBeGreaterThan(0);
   });
   it("CATEGORIES and MODULE_ROWS", () => {
     expect(CATEGORIES).toContain("Finance & Accounting");

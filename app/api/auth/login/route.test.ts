@@ -12,7 +12,13 @@ vi.mock("@/lib/data/prisma", () => ({
     user: { findUnique: vi.fn(), create: vi.fn(), count: vi.fn(), update: vi.fn() },
   },
 }));
-vi.mock("@/lib/ratelimit", () => ({ checkRateLimit: () => Promise.resolve({ allowed: true }), getClientIdentifier: () => "id" }));
+// Route uses checkTieredRateLimit and checkEmailRateLimit from rate-limit-tiers, not @/lib/ratelimit
+vi.mock("@/lib/api/rate-limit-tiers", () => ({
+  checkTieredRateLimit: () => Promise.resolve({ allowed: true }),
+  checkEmailRateLimit: () => Promise.resolve({ allowed: true }),
+  getClientIdentifier: () => "id",
+  rateLimitHeaders: () => ({}),
+}));
 vi.mock("next/headers", () => ({
   cookies: () =>
     Promise.resolve({
@@ -22,6 +28,7 @@ vi.mock("next/headers", () => ({
 vi.mock("@/lib/csrf", () => ({ validateCsrf: vi.fn(() => true), CSRF_COOKIE_NAME: "westbridge_csrf" }));
 vi.mock("@/lib/services/audit.service", () => ({ logAudit: vi.fn(), auditContext: () => ({ ipAddress: "127.0.0.1", userAgent: "test" }) }));
 vi.mock("@/lib/security-monitor", () => ({ reportSecurityEvent: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({ captureException: vi.fn() }));
 
 describe("POST /api/auth/login", () => {
   beforeEach(() => {
@@ -29,7 +36,7 @@ describe("POST /api/auth/login", () => {
     vi.mocked(csrf.validateCsrf).mockReturnValue(true);
   });
 
-  it("returns 401 and Invalid credentials for bad credentials", async () => {
+  it("returns 401 and auth-failed for bad credentials", async () => {
     loginMock.mockResolvedValue({ ok: false, error: "Invalid credentials" });
     const { prisma } = await import("@/lib/data/prisma");
     vi.mocked(prisma.account.findUnique).mockResolvedValue({ id: "acc-1", email: "u@x.com" } as never);
@@ -50,7 +57,8 @@ describe("POST /api/auth/login", () => {
     const response = await POST(request);
     expect(response.status).toBe(401);
     const json = await response.json();
-    expect(json.error?.message).toBe("Invalid credentials");
+    // Route returns "Invalid email or password." (not "Invalid credentials")
+    expect(json.error?.message).toBe("Invalid email or password.");
     expect(json.error?.code).toBe("AUTH_FAILED");
   });
 

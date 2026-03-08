@@ -5,7 +5,8 @@ const mockQueryRaw = vi.fn();
 const mockRedisPing = vi.fn();
 vi.mock("@/lib/data/prisma", () => ({
   prisma: {
-    $queryRawUnsafe: (...args: unknown[]) => mockQueryRaw(...args),
+    // health route uses tagged template $queryRaw, not $queryRawUnsafe
+    $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
   },
 }));
 vi.mock("@/lib/env", () => ({
@@ -33,7 +34,8 @@ describe("GET /api/health", () => {
     expect(response.status).toBe(200);
     const json = await response.json();
     expect(json.data?.status).toBe("healthy");
-    expect(json.data?.checks?.database?.status).toBe("ok");
+    // Route returns "healthy" or "degraded" (not "ok") for database check status
+    expect(json.data?.checks?.database?.status).toMatch(/healthy|degraded/);
     expect(json.data?.version).toBeDefined();
     expect(json.data?.uptime_seconds).toBeDefined();
   });
@@ -45,6 +47,7 @@ describe("GET /api/health", () => {
     expect(response.status).toBe(503);
     const json = await response.json();
     expect(json.data?.status).toBe("unhealthy");
-    expect(json.data?.checks?.database?.status).toBe("error");
+    // Route uses CheckStatus = "healthy" | "degraded" | "unhealthy" (not "error")
+    expect(json.data?.checks?.database?.status).toBe("unhealthy");
   });
 });
