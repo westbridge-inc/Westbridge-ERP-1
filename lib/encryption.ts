@@ -34,11 +34,14 @@ export function decrypt(ciphertext: string): string {
   const encrypted = Buffer.from(encryptedHex, "hex");
 
   const tryDecrypt = (key: Buffer): string => {
-    const decipher = createDecipheriv(ALGORITHM, key, iv);
-    // Explicitly enforce 128-bit (16-byte) auth tag length before accepting the tag.
-    // This prevents tag-truncation attacks where an attacker supplies a shorter tag
-    // that may still pass verification under some implementations.
-    decipher.setAuthTagLength(16);
+    // Enforce the expected 128-bit (16-byte) GCM authentication tag length
+    // before decryption to prevent tag-truncation forgery attacks.
+    // An attacker who controls the ciphertext could otherwise supply a
+    // shorter auth tag that passes verification by chance.
+    if (authTag.length !== 16) {
+      throw new Error("Invalid authentication tag length — expected 16 bytes");
+    }
+    const decipher = createDecipheriv(ALGORITHM, key, iv); // nosemgrep: javascript.node-crypto.security.gcm-no-tag-length.gcm-no-tag-length
     decipher.setAuthTag(authTag);
     return decipher.update(encrypted, undefined, "utf8") + decipher.final("utf8");
   };
