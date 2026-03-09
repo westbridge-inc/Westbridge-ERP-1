@@ -3,6 +3,7 @@
  */
 
 import { createHash, randomBytes } from "crypto";
+import { isIP } from "net";
 import { prisma } from "@/lib/data/prisma";
 import type { Result } from "@/lib/utils/result";
 import { ok, err } from "@/lib/utils/result";
@@ -24,14 +25,11 @@ function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
-// Only trust X-Forwarded-For values that look like valid IPv4 or IPv6 addresses.
-// An attacker can set this header to an arbitrary string; without validation it
-// would pollute the fingerprint and audit log with injected values.
-const IPV4_REGEX = /^(\d{1,3}\.){3}\d{1,3}$/;
-const IPV6_REGEX = /^[0-9a-fA-F:]+$/;
-
+// Only trust X-Forwarded-For values that are valid IPv4 or IPv6 addresses.
+// net.isIP() strictly validates RFC 3513/791 format; the previous regex
+// /^[0-9a-fA-F:]+$/ accepted invalid patterns like "::::::::::".
 function isValidIp(ip: string): boolean {
-  return IPV4_REGEX.test(ip) || IPV6_REGEX.test(ip);
+  return isIP(ip) !== 0;
 }
 
 function getIp(request: Request): string | null {
@@ -95,10 +93,10 @@ export async function createSession(
       if (activeSessions.length >= MAX_CONCURRENT_SESSIONS) {
         const oldest = activeSessions[0];
         // Delete the oldest session and remove it from Redis cache.
-        await tx.session.delete({ where: { id: oldest.id } }).catch(() => {});
+        await tx.session.delete({ where: { id: oldest.id } }).catch((e) => logger.warn("createSession: failed to delete oldest session", { error: e?.message }));
         // Best-effort Redis cleanup outside transaction (non-critical).
         setImmediate(() => {
-          getRedis()?.del(`${SESSION_CACHE_PREFIX}${oldest.token}`).catch(() => {});
+          getRedis()?.del(`${SESSION_CACHE_PREFIX}${oldest.token}`).catch((e) => logger.error("createSession: Redis cache eviction failed", { error: e?.message }));
         });
       }
 
@@ -127,11 +125,11 @@ export async function createSession(
         // Keep index alive for slightly longer than the session itself.
         .expire(indexKey, SESSION_EXPIRY_DAYS * 24 * 60 * 60 + 60)
         .exec()
-        .catch(() => {});
+        .catch((e) => logger.error("createSession: Redis user index update failed", { userId, error: e?.message }));
     }
 
     // Audit oldest-session eviction after the transaction commits.
-    const user = await prisma.user.findUnique({ where: { id: userId }, include: { account: true } }).catch(() => null);
+    const user = await prisma.user.findUnique({ where: { id: userId }, include: { account: true } }).catch((e) => { logger.error("createSession: failed to load user for audit", { userId, error: e?.message }); return null; });
     if (user) {
       const ctx = auditContext(request);
       void logAudit({
@@ -181,15 +179,15 @@ export async function validateSession(
           // Validate expiry from cached value — do not skip even on cache hits.
           if (parsed.expiresAt <= nowMs) {
             // Session expired: delete from DB and cache, return error.
-            void prisma.session.deleteMany({ where: { token: tokenHash } }).catch(() => {});
-            await redis.del(cacheKey).catch(() => {});
+            void prisma.session.deleteMany({ where: { token: tokenHash } }).catch((e) => logger.error("validateSession: DB cleanup failed (expiry)", { error: e?.message }));
+            await redis.del(cacheKey).catch((e) => logger.error("validateSession: Redis cleanup failed (expiry)", { error: e?.message }));
             return err("Session expired");
           }
 
           // Validate idle timeout from cached lastActiveAt.
           if (nowMs - parsed.lastActiveAt > idleTimeoutMs) {
-            void prisma.session.deleteMany({ where: { token: tokenHash } }).catch(() => {});
-            await redis.del(cacheKey).catch(() => {});
+            void prisma.session.deleteMany({ where: { token: tokenHash } }).catch((e) => logger.error("validateSession: DB cleanup failed (idle)", { error: e?.message }));
+            await redis.del(cacheKey).catch((e) => logger.error("validateSession: Redis cleanup failed (idle)", { error: e?.message }));
             return err("Session expired");
           }
 
@@ -205,7 +203,7 @@ export async function validateSession(
                 ipAddress: ctx.ipAddress,
                 details: "Session fingerprint mismatch (cache hit path)",
               });
-              await redis.del(cacheKey).catch(() => {});
+              await redis.del(cacheKey).catch((e) => logger.error("validateSession: Redis del failed (fingerprint)", { error: e?.message }));
               return err("Invalid session");
             }
           }
@@ -246,7 +244,7 @@ export async function validateSession(
           outcome: "failure",
         });
       }
-      await prisma.session.delete({ where: { id: session.id } }).catch(() => {});
+      await prisma.session.delete({ where: { id: session.id } }).catch((e) => logger.warn("validateSession: DB delete failed (expiry)", { error: e?.message }));
       return err("Session expired");
     }
 
@@ -265,7 +263,7 @@ export async function validateSession(
           outcome: "failure",
         });
       }
-      await prisma.session.delete({ where: { id: session.id } }).catch(() => {});
+      await prisma.session.delete({ where: { id: session.id } }).catch((e) => logger.warn("validateSession: DB delete failed (idle)", { error: e?.message }));
       return err("Session expired");
     }
 
@@ -316,7 +314,7 @@ export async function validateSession(
         lastActiveAt: (shouldUpdate ? now : lastActiveTs).getTime(),
         fingerprint: session.fingerprint ?? null,
       };
-      redis.set(cacheKey, JSON.stringify(cached), "EX", SESSION_CACHE_TTL_SEC).catch(() => {});
+      redis.set(cacheKey, JSON.stringify(cached), "EX", SESSION_CACHE_TTL_SEC).catch((e) => logger.error("validateSession: Redis cache write failed", { error: e?.message }));
     }
 
     return ok(result);
@@ -326,19 +324,36 @@ export async function validateSession(
 }
 
 export async function deleteExpiredSessions(): Promise<void> {
-  await prisma.session.deleteMany({ where: { expiresAt: { lt: new Date() } } }).catch(() => {});
+  await prisma.session.deleteMany({ where: { expiresAt: { lt: new Date() } } }).catch((e) => logger.error("deleteExpiredSessions: DB delete failed", { error: e?.message }));
 }
 
 /**
  * Revoke a session by token (e.g. on logout).
+ * Pass audit context to emit a structured audit log entry for the revocation.
  */
-export async function revokeSession(token: string): Promise<Result<{ revoked: boolean }, string>> {
+export async function revokeSession(
+  token: string,
+  audit?: { userId: string; accountId: string; reason?: string; request?: Request }
+): Promise<Result<{ revoked: boolean }, string>> {
   if (!token?.trim()) return ok({ revoked: false });
   const tokenHash = hashToken(token);
   try {
     const deleted = await prisma.session.deleteMany({ where: { token: tokenHash } });
     const cacheKey = `${SESSION_CACHE_PREFIX}${tokenHash}`;
-    getRedis()?.del(cacheKey).catch(() => {});
+    getRedis()?.del(cacheKey).catch((e) => logger.error("revokeSession: Redis del failed", { error: e?.message }));
+    if (audit && deleted.count > 0) {
+      const ctx = audit.request ? auditContext(audit.request) : { ipAddress: null, userAgent: null };
+      void logAudit({
+        accountId: audit.accountId,
+        userId: audit.userId,
+        action: "auth.session.revoked",
+        metadata: { reason: audit.reason ?? "logout" },
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+        severity: "info",
+        outcome: "success",
+      });
+    }
     return ok({ revoked: deleted.count > 0 });
   } catch {
     return ok({ revoked: false });
@@ -366,7 +381,7 @@ export async function revokeAllUserSessions(userId: string): Promise<Result<{ co
           pipeline.del(indexKey);
           await pipeline.exec();
         } else {
-          await redis.del(indexKey).catch(() => {});
+          await redis.del(indexKey).catch((e) => logger.error("revokeAllUserSessions: Redis del indexKey failed", { userId, error: e?.message }));
         }
       } catch {
         // Non-fatal: DB sessions are already deleted. Cache entries will expire.

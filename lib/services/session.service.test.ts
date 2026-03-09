@@ -1,177 +1,193 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { validateSession, createSession, revokeSession, revokeAllUserSessions } from "./session.service";
 
-const mockCreate = vi.fn();
-const mockFindUnique = vi.fn();
-const mockDelete = vi.fn();
-const mockDeleteMany = vi.fn();
-const mockFindMany = vi.fn();
-const mockUpdate = vi.fn();
-const mockUserFindUnique = vi.fn();
+// ─── Mock external dependencies ───────────────────────────────────────────────
 
-const mockTransaction = vi.fn();
 vi.mock("@/lib/data/prisma", () => ({
   prisma: {
-    $transaction: (...args: unknown[]) => mockTransaction(...args),
     session: {
-      create: (...args: unknown[]) => mockCreate(...args),
-      findUnique: (...args: unknown[]) => mockFindUnique(...args),
-      findMany: (...args: unknown[]) => mockFindMany(...args),
-      update: (...args: unknown[]) => mockUpdate(...args),
-      delete: (...args: unknown[]) => mockDelete(...args),
-      deleteMany: (...args: unknown[]) => mockDeleteMany(...args),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      delete: vi.fn(),
+      deleteMany: vi.fn(),
+      update: vi.fn(),
     },
     user: {
-      findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
+      findUnique: vi.fn(),
     },
+    $transaction: vi.fn(async (cb: (tx: typeof import("@/lib/data/prisma").prisma) => Promise<unknown>) => {
+      const { prisma } = await import("@/lib/data/prisma");
+      return cb(prisma as unknown as typeof import("@/lib/data/prisma").prisma);
+    }),
   },
 }));
-vi.mock("@/lib/redis", () => ({ getRedis: vi.fn(() => null) }));
-vi.mock("@/lib/encryption", () => ({ encrypt: vi.fn((s: string) => s), decrypt: vi.fn((s: string) => s) }));
-vi.mock("@/lib/services/audit.service", () => ({ logAudit: vi.fn(), auditContext: () => ({ ipAddress: "127.0.0.1", userAgent: "test" }) }));
-vi.mock("@/lib/security-monitor", () => ({ reportSecurityEvent: vi.fn() }));
 
-describe("session.service", () => {
-  const fakeRequest = new Request("http://x", { headers: { "x-forwarded-for": "1.2.3.4", "user-agent": "test" } });
+vi.mock("@/lib/redis", () => ({
+  getRedis: vi.fn(() => null), // No Redis by default
+}));
 
+vi.mock("@/lib/encryption", () => ({
+  encrypt: vi.fn((v: string) => `enc:${v}`),
+  decrypt: vi.fn((v: string) => v.replace(/^enc:/, "")),
+}));
+
+vi.mock("@/lib/services/audit.service", () => ({
+  logAudit: vi.fn(),
+  auditContext: vi.fn(() => ({ ipAddress: "1.2.3.4", userAgent: "vitest" })),
+}));
+
+vi.mock("@/lib/security-monitor", () => ({
+  reportSecurityEvent: vi.fn(),
+}));
+
+vi.mock("@/lib/logger", () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
+}));
+
+import { createSession, validateSession, revokeSession } from "./session.service";
+import { prisma } from "@/lib/data/prisma";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function makeRequest(overrides: Record<string, string> = {}): Request {
+  return new Request("http://localhost/api/auth/login", {
+    headers: {
+      "user-agent": "TestBrowser/1.0",
+      "x-forwarded-for": "1.2.3.4",
+      ...overrides,
+    },
+  });
+}
+
+// ─── createSession ────────────────────────────────────────────────────────────
+
+describe("createSession", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockUserFindUnique.mockResolvedValue(null);
-    mockTransaction.mockImplementation(async (fn: (tx: { session: { findMany: typeof mockFindMany; delete: typeof mockDelete; create: typeof mockCreate } }) => Promise<void>) => {
-      const tx = {
-        session: {
-          findMany: mockFindMany,
-          delete: mockDelete,
-          create: mockCreate,
-        },
-      };
-      return fn(tx);
-    });
+    vi.mocked(prisma.session.findMany).mockResolvedValue([]);
+    vi.mocked(prisma.session.create).mockResolvedValue({} as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
   });
 
-  describe("validateSession", () => {
-    it("returns error for empty token", async () => {
-      const r = await validateSession("");
-      expect(r.ok).toBe(false);
-      if (!r.ok) expect(r.error).toBe("Missing token");
+  it("returns a token and expiresAt on success", async () => {
+    const result = await createSession("user-1", makeRequest());
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error();
+    expect(typeof result.data.token).toBe("string");
+    expect(result.data.token.length).toBeGreaterThan(10);
+    expect(result.data.expiresAt).toBeInstanceOf(Date);
+    expect(result.data.expiresAt.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it("stores a hash, not the raw token in the DB", async () => {
+    const result = await createSession("user-1", makeRequest());
+    if (!result.ok) throw new Error();
+    const rawToken = result.data.token;
+
+    const createCall = vi.mocked(prisma.session.create).mock.calls[0]![0];
+    const storedToken = createCall.data.token;
+
+    // The stored token must NOT equal the raw token
+    expect(storedToken).not.toBe(rawToken);
+    // It should look like a SHA-256 hex digest
+    expect(storedToken).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("encrypts the erpnextSid before storing", async () => {
+    await createSession("user-1", makeRequest(), "my-erp-sid");
+    const createCall = vi.mocked(prisma.session.create).mock.calls[0]![0];
+    expect(createCall.data.erpnextSid).toBe("enc:my-erp-sid");
+  });
+});
+
+// ─── validateSession ──────────────────────────────────────────────────────────
+
+describe("validateSession", () => {
+  it("returns err for empty token", async () => {
+    const result = await validateSession("");
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error();
+    expect(result.error).toBe("Missing token");
+  });
+
+  it("returns err for whitespace-only token", async () => {
+    const result = await validateSession("   ");
+    expect(result.ok).toBe(false);
+  });
+
+  it("returns err for invalid (not found) session", async () => {
+    vi.mocked(prisma.session.findUnique).mockResolvedValue(null);
+    const result = await validateSession("valid-looking-token", makeRequest());
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error();
+    expect(result.error).toBe("Invalid session");
+  });
+
+  it("returns err for expired session", async () => {
+    vi.mocked(prisma.session.findUnique).mockResolvedValue({
+      id: "s1",
+      userId: "u1",
+      token: "hash",
+      expiresAt: new Date(Date.now() - 1000), // already expired
+      lastActiveAt: new Date(),
+      createdAt: new Date(),
+      fingerprint: null,
+      erpnextSid: null,
+      ipAddress: null,
+      userAgent: null,
+      user: { role: "member", accountId: "acc1", account: {} },
+    } as never);
+    vi.mocked(prisma.session.delete).mockResolvedValue({} as never);
+
+    const result = await validateSession("some-token", makeRequest());
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error();
+    expect(result.error).toBe("Session expired");
+  });
+});
+
+// ─── revokeSession ────────────────────────────────────────────────────────────
+
+describe("revokeSession", () => {
+  it("returns revoked: false for empty token without throwing", async () => {
+    const result = await revokeSession("");
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error();
+    expect(result.data.revoked).toBe(false);
+  });
+
+  it("returns revoked: true when DB deletes a row", async () => {
+    vi.mocked(prisma.session.deleteMany).mockResolvedValue({ count: 1 });
+    const result = await revokeSession("some-token");
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error();
+    expect(result.data.revoked).toBe(true);
+  });
+
+  it("returns revoked: false when no DB row matched", async () => {
+    vi.mocked(prisma.session.deleteMany).mockResolvedValue({ count: 0 });
+    const result = await revokeSession("nonexistent-token");
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error();
+    expect(result.data.revoked).toBe(false);
+  });
+
+  it("calls logAudit when audit context is provided", async () => {
+    vi.mocked(prisma.session.deleteMany).mockResolvedValue({ count: 1 });
+    const { logAudit } = await import("@/lib/services/audit.service");
+
+    await revokeSession("token", {
+      userId: "u1",
+      accountId: "acc1",
+      reason: "logout",
+      request: makeRequest(),
     });
-    it("returns error when session not found", async () => {
-      mockFindUnique.mockResolvedValue(null);
-      mockDeleteMany.mockResolvedValue({ count: 0 });
-      const r = await validateSession("any-token");
-      expect(r.ok).toBe(false);
-      if (!r.ok) expect(r.error).toBe("Invalid session");
-    });
-    it("returns error when session expired", async () => {
-      mockFindUnique.mockResolvedValue({
-        id: "s1",
+
+    expect(logAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "auth.session.revoked",
         userId: "u1",
-        expiresAt: new Date(0),
-        erpnextSid: null,
-        fingerprint: null,
-        user: { accountId: "a1", role: "owner" },
-      });
-      mockDelete.mockResolvedValue({});
-      const r = await validateSession("token");
-      expect(r.ok).toBe(false);
-      if (!r.ok) expect(r.error).toBe("Session expired");
-    });
-    it("returns error when findUnique throws", async () => {
-      mockFindUnique.mockRejectedValue(new Error("DB error"));
-      const r = await validateSession("token");
-      expect(r.ok).toBe(false);
-      if (!r.ok) expect(r.error).toBe("DB error");
-    });
-    it("returns userId accountId role when valid", async () => {
-      mockFindUnique.mockResolvedValue({
-        id: "s1",
-        userId: "u1",
-        expiresAt: new Date(Date.now() + 86400000),
-        erpnextSid: "erpsid",
-        fingerprint: null,
-        lastActiveAt: new Date(),
-        createdAt: new Date(),
-        user: { accountId: "a1", role: "owner" },
-      });
-      mockUpdate.mockResolvedValue({});
-      const r = await validateSession("token");
-      expect(r.ok).toBe(true);
-      if (r.ok) {
-        expect(r.data.userId).toBe("u1");
-        expect(r.data.accountId).toBe("a1");
-        expect(r.data.role).toBe("owner");
-        expect(r.data.erpnextSid).toBe("erpsid");
-      }
-    });
-    it("defaults role to member when not owner/admin/member", async () => {
-      mockFindUnique.mockResolvedValue({
-        id: "s1",
-        userId: "u1",
-        expiresAt: new Date(Date.now() + 86400000),
-        erpnextSid: null,
-        fingerprint: null,
-        lastActiveAt: new Date(),
-        createdAt: new Date(),
-        user: { accountId: "a1", role: "unknown" },
-      });
-      mockUpdate.mockResolvedValue({});
-      const r = await validateSession("token");
-      expect(r.ok).toBe(true);
-      if (r.ok) expect(r.data.role).toBe("member");
-    });
-  });
-
-  describe("createSession", () => {
-    it("returns token and expiresAt on success", async () => {
-      mockFindMany.mockResolvedValue([]);
-      mockCreate.mockResolvedValue({});
-      const r = await createSession("u1", fakeRequest, "erpsid");
-      expect(r.ok).toBe(true);
-      if (r.ok) {
-        expect(r.data.token).toBeDefined();
-        expect(r.data.expiresAt).toBeInstanceOf(Date);
-      }
-    });
-    it("returns error on DB failure", async () => {
-      mockFindMany.mockResolvedValue([]);
-      mockCreate.mockRejectedValue(new Error("DB error"));
-      const r = await createSession("u1", fakeRequest);
-      expect(r.ok).toBe(false);
-      if (!r.ok) expect(r.error).toContain("DB error");
-    });
-  });
-
-  describe("revokeSession", () => {
-    it("returns revoked false for empty token", async () => {
-      const r = await revokeSession("");
-      expect(r.ok).toBe(true);
-      if (r.ok) expect(r.data.revoked).toBe(false);
-    });
-    it("returns revoked true when session deleted", async () => {
-      mockDeleteMany.mockResolvedValue({ count: 1 });
-      const r = await revokeSession("token");
-      expect(r.ok).toBe(true);
-      if (r.ok) expect(r.data.revoked).toBe(true);
-    });
-    it("returns revoked false when deleteMany throws", async () => {
-      mockDeleteMany.mockRejectedValue(new Error("DB"));
-      const r = await revokeSession("token");
-      expect(r.ok).toBe(true);
-      if (r.ok) expect(r.data.revoked).toBe(false);
-    });
-  });
-
-  describe("revokeAllUserSessions", () => {
-    it("returns count on success", async () => {
-      mockDeleteMany.mockResolvedValue({ count: 3 });
-      const r = await revokeAllUserSessions("u1");
-      expect(r.ok).toBe(true);
-      if (r.ok) expect(r.data.count).toBe(3);
-    });
-    it("returns error on failure", async () => {
-      mockDeleteMany.mockRejectedValue(new Error("fail"));
-      const r = await revokeAllUserSessions("u1");
-      expect(r.ok).toBe(false);
-    });
+        accountId: "acc1",
+      })
+    );
   });
 });

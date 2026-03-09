@@ -103,6 +103,18 @@ export interface WebhookJobData {
 
 /** Add an email job to the queue (preferred over sending inline). */
 export async function enqueueEmail(data: EmailJobData): Promise<void> {
+  // Guard against runaway queue growth: if the email queue is already deeply
+  // backlogged, reject rather than making the backlog worse. The threshold of
+  // 10,000 gives meaningful headroom while still protecting Redis memory.
+  const MAX_EMAIL_QUEUE_DEPTH = 10_000;
+  const waiting = await emailQueue.getWaitingCount();
+  if (waiting > MAX_EMAIL_QUEUE_DEPTH) {
+    const { logger } = await import("@/lib/logger");
+    logger.error("enqueueEmail: queue depth exceeded — rejecting new job", {
+      waiting, limit: MAX_EMAIL_QUEUE_DEPTH,
+    });
+    throw new Error("Email service temporarily unavailable — queue capacity reached");
+  }
   await emailQueue.add("send", data, {
     attempts: 3,
     backoff: { type: "exponential", delay: 2000 },

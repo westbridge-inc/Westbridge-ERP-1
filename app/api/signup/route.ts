@@ -59,6 +59,17 @@ export async function POST(request: Request) {
   const csrfCookie = cookieStore.get(CSRF_COOKIE_NAME)?.value;
   const csrfHeader = request.headers.get("x-csrf-token") ?? request.headers.get("X-CSRF-Token");
   if (!validateCsrf(csrfHeader, csrfCookie)) {
+    const systemAccountId = process.env.SYSTEM_ACCOUNT_ID;
+    if (systemAccountId) {
+      void logAudit({
+        accountId: systemAccountId,
+        action: "auth.signup.csrf_failure",
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+        severity: "warn",
+        outcome: "failure",
+      });
+    }
     return NextResponse.json(
       apiError("FORBIDDEN", "Invalid or missing CSRF token.", undefined, meta()),
       { status: 403, headers: headers() }

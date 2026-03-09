@@ -8,6 +8,7 @@ import { checkTieredRateLimit, checkErpAccountRateLimit, getClientIdentifier, ra
 import { withPermission } from "@/lib/api/middleware";
 import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/lib/data/prisma";
+import { ALLOWED_DOCTYPES_SET } from "@/lib/erp-constants";
 
 /**
  * GET /api/erp/list?doctype=Sales%20Invoice
@@ -47,13 +48,6 @@ export async function GET(request: Request) {
   }
   const sid = erpnextSid;
 
-  const ALLOWED_DOCTYPES = new Set([
-    "Sales Invoice", "Sales Order", "Purchase Invoice", "Purchase Order",
-    "Quotation", "Customer", "Supplier", "Item", "Employee",
-    "Journal Entry", "Payment Entry", "Stock Entry", "Expense Claim",
-    "Leave Application", "Salary Slip", "BOM",
-  ]);
-
   const { searchParams } = new URL(request.url);
   const doctype = searchParams.get("doctype");
   if (!doctype) {
@@ -62,7 +56,7 @@ export async function GET(request: Request) {
       { status: 400, headers: headers() }
     );
   }
-  if (!ALLOWED_DOCTYPES.has(doctype)) {
+  if (!ALLOWED_DOCTYPES_SET.has(doctype)) {
     return NextResponse.json(
       apiError("BAD_REQUEST", "Invalid or unsupported document type", undefined, meta()),
       { status: 400, headers: headers() }
@@ -82,6 +76,13 @@ export async function GET(request: Request) {
   if (Number.isNaN(pageNum) || pageNum < 0 || !Number.isInteger(pageNum)) {
     return NextResponse.json(
       apiError("BAD_REQUEST", "page must be a non-negative integer", undefined, meta()),
+      { status: 400, headers: headers() }
+    );
+  }
+  const MAX_PAGE = 10_000;
+  if (pageNum > MAX_PAGE) {
+    return NextResponse.json(
+      apiError("BAD_REQUEST", , undefined, meta()),
       { status: 400, headers: headers() }
     );
   }

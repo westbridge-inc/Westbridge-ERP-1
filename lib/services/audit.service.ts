@@ -139,3 +139,21 @@ export function auditContext(request: Request): { ipAddress: string; userAgent: 
     userAgent: request.headers.get("user-agent") ?? "unknown",
   };
 }
+
+/**
+ * Fire-and-forget audit log with error visibility.
+ *
+ * Use this instead of `void logAudit(...)` so that failures are always
+ * logged and metered — never silently swallowed.
+ *
+ * @example
+ * void safeLogAudit({ accountId, action: "auth.login.success", ... });
+ */
+export function safeLogAudit(entry: Parameters<typeof logAudit>[0]): void {
+  logAudit(entry).catch((e) => {
+    logger.error("safeLogAudit: audit write failed", {
+      action: entry.action,
+      error: e instanceof Error ? e.message : String(e),
+    });
+  });
+}

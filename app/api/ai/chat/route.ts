@@ -95,7 +95,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: { code: "INVALID_REQUEST" } }, { status: 400, headers: hdrs });
   }
 
-  const { message, module: aiModule, conversationId = crypto.randomUUID() } = parsed.data;
+  const { message, module: rawModule, conversationId = crypto.randomUUID() } = parsed.data;
   const history = await getHistory(conversationId);
 
   // Load user name for system prompt
@@ -109,13 +109,20 @@ export async function POST(req: Request) {
     { role: "user", content: message },
   ];
 
+  // Validate module against known allowlist at runtime — TypeScript casts do not exist
+  // at runtime, so an attacker could send an arbitrary string without this check.
+  const VALID_AI_MODULES: readonly AiModule[] = ["finance", "crm", "inventory", "hr", "manufacturing", "projects", "biztools", "general"];
+  const moduleContext: AiModule = (VALID_AI_MODULES as readonly string[]).includes(rawModule)
+    ? (rawModule as AiModule)
+    : "general";
+
   const system = buildSystemPrompt({
     companyName: account.companyName,
     planId,
     userName: user?.name ?? "User",
     userRole: session.role,
     currentDate: new Date().toISOString().slice(0, 10),
-    moduleContext: aiModule as AiModule,
+    moduleContext,
   });
 
   let totalInputTokens = 0;

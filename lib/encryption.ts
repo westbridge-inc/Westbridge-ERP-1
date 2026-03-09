@@ -6,18 +6,25 @@ const ALGORITHM = "aes-256-gcm";
 // to non-96-bit IVs, which is slightly slower and less well-analysed.
 const IV_BYTES = 12;
 
+const HEX_KEY_REGEX = /^[0-9a-fA-F]{64}$/;
+
 function getKey(): Buffer {
   const secret = process.env.ENCRYPTION_KEY;
-  if (!secret || secret.length < 64) throw new Error("ENCRYPTION_KEY must be a 64 valid hex characters (32 bytes)");
+  // Validate strict hex format BEFORE Buffer.from — Buffer.from(secret, "hex") silently
+  // truncates non-hex characters, so a 64-char string with invalid chars would produce
+  // a short key that passes the length check but is cryptographically weak.
+  if (!secret || !HEX_KEY_REGEX.test(secret))
+    throw new Error("ENCRYPTION_KEY must be exactly 64 hex characters (0-9, a-f) — generate with: openssl rand -hex 32");
   const key = Buffer.from(secret, "hex");
-  if (key.length !== 32) throw new Error("ENCRYPTION_KEY must decode to exactly 32 bytes — ensure it contains only valid hex characters");
+  if (key.length !== 32) throw new Error("ENCRYPTION_KEY decoded to unexpected length — internal error");
   return key;
 }
 
 function getKeyFromHex(secret: string): Buffer {
-  if (!secret || secret.length < 64) throw new Error("Encryption key must be 64 valid hex characters (32 bytes)");
+  if (!secret || !HEX_KEY_REGEX.test(secret))
+    throw new Error("Encryption key must be exactly 64 hex characters (0-9, a-f)");
   const key = Buffer.from(secret, "hex");
-  if (key.length !== 32) throw new Error("Encryption key must decode to exactly 32 bytes — ensure it contains only valid hex characters");
+  if (key.length !== 32) throw new Error("Encryption key decoded to unexpected length — internal error");
   return key;
 }
 

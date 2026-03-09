@@ -169,7 +169,7 @@ export async function recordFailure(endpointId: string, accountId: string): Prom
     });
     logger.warn("Webhook circuit breaker tripped", { endpointId, accountId, failures: updated.consecutiveFailures });
 
-    notifyCircuitBreakerTripped(endpointId, accountId).catch(() => {});
+    notifyCircuitBreakerTripped(endpointId, accountId).catch((e) => logger.error("delivery: Redis operation failed", { error: e?.message }));
 
     return true;
   }

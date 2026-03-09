@@ -137,7 +137,7 @@ export async function POST(request: Request) {
         outcome: "failure",
         metadata: { email },
       });
-      log(403);
+      log(401);
       return NextResponse.json(
         apiError("AUTH_FAILED", "Invalid email or password.", undefined, meta()),
         { status: 401, headers: headers() }

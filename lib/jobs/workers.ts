@@ -138,18 +138,36 @@ const reportsWorker = new Worker<ReportJobData>(
     }
 
     const { erpList } = await import("@/lib/data/erpnext.client");
-    const result = await erpList(doctype, session.erpnextSid, {
-      limit_page_length: "500",
-    });
+
+    // Paginate through all results instead of fetching a single hard-coded 500-row page.
+    // Cap at MAX_DOCS to prevent runaway memory usage on large accounts.
+    const PAGE_SIZE = 500;
+    const MAX_DOCS = 50_000;
+    let allRows: Array<Record<string, unknown>> = [];
+    let page = 0;
+
+    while (allRows.length < MAX_DOCS) {
+      const pageResult = await erpList(doctype, session.erpnextSid, {
+        limit_page_length: String(PAGE_SIZE),
+        limit_start: String(page * PAGE_SIZE),
+      });
+      if (!pageResult.ok) throw new Error(`ERPNext list failed: ${pageResult.error}`);
+      const pageRows = pageResult.data as Array<Record<string, unknown>>;
+      allRows = allRows.concat(pageRows);
+      if (pageRows.length < PAGE_SIZE) break;
+      page++;
+    }
+
+    if (allRows.length >= MAX_DOCS) {
+      logger.warn("Report generation: MAX_DOCS limit reached — report may be incomplete", {
+        accountId, reportType, maxDocs: MAX_DOCS,
+      });
+    }
 
     await job.updateProgress(60);
 
-    if (!result.ok) {
-      throw new Error(`ERPNext list failed: ${result.error}`);
-    }
-
     // Basic aggregation: count by status and compute total if grand_total exists
-    const rows = result.data as Array<Record<string, unknown>>;
+    const rows = allRows;
     const counts: Record<string, number> = {};
     let total = 0;
     for (const row of rows) {
