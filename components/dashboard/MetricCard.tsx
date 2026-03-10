@@ -1,5 +1,5 @@
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 
 interface MetricCardProps {
@@ -24,9 +24,7 @@ export function MetricCard({
       ? "text-success"
       : subtextVariant === "error"
         ? "text-destructive"
-        : subtextVariant === "default"
-          ? "text-muted-foreground"
-          : "text-muted-foreground/60";
+        : "text-muted-foreground";
 
   const TrendIcon =
     trend != null
@@ -47,23 +45,33 @@ export function MetricCard({
       : "";
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        {Icon && <Icon className="size-4 text-muted-foreground" />}
-      </CardHeader>
-      <CardContent>
-        <p className="text-2xl font-bold tracking-tight text-foreground">
-          {value}
-        </p>
-        {(subtext != null || trend != null) && (
-          <div className="mt-1 flex items-center gap-1">
-            {TrendIcon && <TrendIcon className={cn("size-3.5", trendClass)} />}
-            {subtext != null && (
-              <p className={cn("text-xs", subtextClass)}>{subtext}</p>
+    <Card className="hover:shadow-md">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-muted-foreground tracking-wide truncate">
+              {label}
+            </p>
+            <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground font-display">
+              {value}
+            </p>
+            {(subtext != null || trend != null) && (
+              <div className="mt-2 flex items-center gap-1">
+                {TrendIcon && (
+                  <TrendIcon className={cn("size-3.5 shrink-0", trendClass)} />
+                )}
+                {subtext != null && (
+                  <p className={cn("text-xs", subtextClass)}>{subtext}</p>
+                )}
+              </div>
             )}
           </div>
-        )}
+          {Icon && (
+            <div className="ml-4 shrink-0 size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+              <Icon className="size-5" />
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

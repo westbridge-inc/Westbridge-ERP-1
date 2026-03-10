@@ -68,16 +68,42 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      {/* Left: black panel with WB monogram — hidden on mobile except minimal */}
-      <div className="hidden min-h-screen w-[50%] flex-col items-center justify-center bg-black px-12 md:flex">
-        <div className="flex flex-col items-center text-center">
-          <span className="font-serif text-8xl font-bold leading-none text-white">WB</span>
-          <span className="mt-4 font-sans text-[10px] font-medium uppercase tracking-[0.25em] text-white/90">
-            Westbridge
-          </span>
-          <span className="mt-1 font-sans text-[8px] font-light uppercase tracking-[0.2em] text-white/70">
-            Inc.
-          </span>
+      {/* Left: brand panel — hidden on mobile */}
+      <div className="hidden min-h-screen w-[50%] flex-col items-center justify-center md:flex relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, oklch(0.40 0.18 250) 0%, oklch(0.25 0.18 255) 100%)" }}
+      >
+        {/* Decorative dot grid */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+        <div className="relative z-10 flex flex-col items-center text-center px-12">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="size-10 rounded-xl bg-white/15 flex items-center justify-center">
+              <span className="text-white font-bold text-lg font-display">W</span>
+            </div>
+            <span className="text-white font-semibold text-xl tracking-wide font-display">
+              WESTBRIDGE
+            </span>
+          </div>
+          <p className="text-white/70 text-sm leading-relaxed max-w-[280px]">
+            Enterprise intelligence for the Caribbean
+          </p>
+          <div className="mt-12 w-full max-w-[280px] space-y-3">
+            {[
+              "Multi-module ERP dashboard",
+              "Real-time financial insights",
+              "Enterprise-grade security",
+            ].map((f) => (
+              <div key={f} className="flex items-center gap-3">
+                <div className="size-1.5 rounded-full bg-white/50 shrink-0" />
+                <span className="text-white/60 text-xs">{f}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -89,11 +115,11 @@ export default function LoginPage() {
             <Logo variant="mark" size="md" className="text-foreground" />
           </div>
 
-          <h1 className="font-serif text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="font-display text-[1.75rem] font-semibold tracking-tight text-foreground">
             Welcome back
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sign in to your account
+            Sign in to your Westbridge account
           </p>
 
           {csrfToken === null ? (

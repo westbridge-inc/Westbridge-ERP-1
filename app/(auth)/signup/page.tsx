@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { MODULES as MODULE_LIST, PLANS, CATEGORIES, getPlan, isModuleIncludedInPlan } from "@/lib/modules";
 import { CARIBBEAN_COUNTRIES, INDUSTRIES } from "@/lib/demo-data";
-import { ROUTES, SITE } from "@/lib/config/site";
+import { ROUTES } from "@/lib/config/site";
 import type { PlanId } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/Input";
@@ -87,8 +86,9 @@ function SignupContent() {
     <div className="min-h-screen bg-background">
       <nav className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href={ROUTES.home} className="flex shrink-0 items-center">
-            <Image src={SITE.logoPath} alt={`${SITE.name} ${SITE.legal}`} width={140} height={42} priority sizes="140px" className="h-9 w-auto object-contain" />
+          <Link href={ROUTES.home} className="flex shrink-0 items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">W</div>
+            <span className="font-semibold text-sm tracking-wide text-foreground font-display">WESTBRIDGE</span>
           </Link>
           <Link href={ROUTES.login} className="text-sm text-muted-foreground">Sign in</Link>
         </div>
@@ -106,7 +106,7 @@ function SignupContent() {
 
         {step === 1 && (
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Tell us about your business</h1>
+            <h1 className="text-2xl font-semibold text-foreground font-display">Tell us about your business</h1>
             <form
               className="mt-8 space-y-4"
               onSubmit={(e) => {
@@ -166,7 +166,7 @@ function SignupContent() {
 
         {step === 2 && (
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Choose your plan</h1>
+            <h1 className="text-2xl font-semibold text-foreground font-display">Choose your plan</h1>
             <p className="mt-2 text-sm text-muted-foreground/60">Flat monthly pricing. No per-user fees. Scale with overage billing.</p>
             <div className="mt-6 space-y-3">
               {PLANS.map((p) => (
@@ -200,7 +200,7 @@ function SignupContent() {
 
         {step === 3 && (
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">Pick modules</h1>
+            <h1 className="text-2xl font-semibold text-foreground font-display">Pick modules</h1>
             <p className="mt-2 text-sm text-muted-foreground/60">Included in {plan.name}. Add more below if needed.</p>
             <div className="mt-6 max-h-[60vh] overflow-y-auto pr-2 md:max-h-80">
               {CATEGORIES.map((cat) => {
@@ -256,7 +256,7 @@ function SignupContent() {
           <div>
             {returnFromPayment ? (
               <>
-                <h1 className="text-2xl font-semibold text-foreground">Payment submitted</h1>
+                <h1 className="text-2xl font-semibold text-foreground font-display">Payment submitted</h1>
                 <p className="mt-2 text-muted-foreground">
                   Your payment is being processed. We&apos;ll activate your account shortly and email you at <strong>{email || "your email"}</strong>.
                 </p>
@@ -269,7 +269,7 @@ function SignupContent() {
               </>
             ) : (
               <>
-                <h1 className="text-2xl font-semibold text-foreground">Create your account</h1>
+                <h1 className="text-2xl font-semibold text-foreground font-display">Create your account</h1>
                 <form
                   className="mt-8 space-y-4"
                   onSubmit={async (e) => {

@@ -138,7 +138,7 @@ export default function InvoicesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Invoices</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Invoices</h1>
             <p className="text-sm text-muted-foreground">Manage and track invoices</p>
           </div>
           <Button variant="primary" onClick={handleCreateInvoice}>+ Create New</Button>
@@ -163,7 +163,7 @@ export default function InvoicesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Invoices</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Invoices</h1>
             <p className="text-sm text-muted-foreground">Manage and track invoices</p>
           </div>
           <Button variant="primary" disabled>+ Create New</Button>
@@ -183,7 +183,7 @@ export default function InvoicesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Invoices</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Invoices</h1>
             <p className="text-sm text-muted-foreground">Manage and track invoices</p>
           </div>
           <Button variant="primary" onClick={handleCreateInvoice}>+ Create New</Button>

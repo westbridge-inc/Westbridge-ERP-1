@@ -80,14 +80,10 @@ function MetricCard({
   variant?: "default" | "success";
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <p className="text-sm text-muted-foreground/60">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-foreground">
-        {variant === "success" ? (
-          <span className="text-success">{formatCurrency(value, "USD")}</span>
-        ) : (
-          formatCurrency(value, "USD")
-        )}
+    <div className="rounded-xl border border-border/70 bg-card p-6 transition-shadow hover:shadow-md">
+      <p className="text-sm font-medium text-muted-foreground tracking-wide">{label}</p>
+      <p className={`mt-2 text-3xl font-semibold tracking-tight font-display ${variant === "success" ? "text-success" : "text-foreground"}`}>
+        {formatCurrency(value, "USD")}
       </p>
     </div>
   );
@@ -185,7 +181,7 @@ export default function AccountingPage() {
   const header = (
     <div className="flex items-center justify-between">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Accounting</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Accounting</h1>
         <p className="text-sm text-muted-foreground">General ledger and financial overview</p>
       </div>
       <Button variant="primary">+ Create New</Button>
@@ -278,7 +274,7 @@ export default function AccountingPage() {
       </div>
       <Card>
         <CardContent className="p-6">
-        <p className="text-base font-semibold text-foreground">
+        <p className="text-base font-semibold text-foreground font-display">
           Revenue vs Expenses
         </p>
         <p className="text-sm text-muted-foreground/60">
@@ -331,7 +327,7 @@ export default function AccountingPage() {
       </Card>
       <Card>
         <CardContent className="p-6">
-        <p className="text-base font-semibold text-foreground">
+        <p className="text-base font-semibold text-foreground font-display">
           Accounts Receivable Aging
         </p>
         <div className="mt-4 space-y-3">

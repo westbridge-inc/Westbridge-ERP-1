@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,7 +22,7 @@ import {
   LogOut,
   Keyboard,
 } from "lucide-react";
-import { SITE, ROUTES } from "@/lib/config/site";
+import { ROUTES } from "@/lib/config/site";
 import { useShortcuts } from "@/components/dashboard/ShortcutsContext";
 import { useSidebar } from "@/components/dashboard/SidebarContext";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/Tooltip";
@@ -155,7 +154,7 @@ function SidebarProfile({
         href="/dashboard/settings"
         prefetch={true}
         onClick={() => { setOpen(false); onNavClick?.(); }}
-        className="flex items-center gap-2 px-3 py-2 text-[0.9375rem] text-muted-foreground transition-colors hover:bg-muted"
+        className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent/50"
       >
         <Settings className="h-4 w-4" />
         Account settings
@@ -163,7 +162,7 @@ function SidebarProfile({
       <button
         type="button"
         onClick={() => { setOpen(false); openShortcutsModal(); onNavClick?.(); }}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left text-[0.9375rem] text-muted-foreground transition-colors hover:bg-muted"
+        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent/50"
       >
         <Keyboard className="h-4 w-4" />
         Keyboard shortcuts
@@ -171,7 +170,7 @@ function SidebarProfile({
       <button
         type="button"
         onClick={handleSignOut}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left text-[0.9375rem] text-muted-foreground transition-colors hover:bg-muted"
+        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-sidebar-accent/50"
       >
         <LogOut className="h-4 w-4" />
         Sign out
@@ -204,7 +203,7 @@ function SidebarProfile({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-foreground transition-colors hover:bg-muted"
+        className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sidebar-foreground transition-colors hover:bg-sidebar-accent/50"
       >
         {avatarEl}
         <span className="min-w-0 truncate text-[0.9375rem] font-medium">
@@ -233,57 +232,58 @@ function SidebarContent({ onNavClick, forceExpanded }: { onNavClick?: () => void
   const isCollapsed = forceExpanded ? false : collapsed;
 
   return (
-    <div className="flex h-full flex-col p-4">
-      <Link href="/dashboard" prefetch={true} className="flex items-center gap-2 py-1" onClick={onNavClick}>
-        {isCollapsed ? (
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-white"
+    <div className="flex h-full flex-col p-3">
+      <Link href="/dashboard" prefetch={true} className="flex items-center gap-2.5 px-1 py-2" onClick={onNavClick}>
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
+          W
+        </div>
+        {!isCollapsed && (
+          <motion.span
+            className="font-semibold text-sm tracking-wide text-sidebar-foreground font-display"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
           >
-            W
-          </div>
-        ) : (
-          <Image
-            src={SITE.logoPath}
-            alt={SITE.name}
-            width={120}
-            height={36}
-            className="h-8 w-auto object-contain brightness-0 invert"
-          />
+            WESTBRIDGE
+          </motion.span>
         )}
       </Link>
-      <div className="my-4 border-t border-border" />
-      <nav className="flex-1 space-y-6 overflow-y-auto overflow-x-hidden">
+      <div className="my-3 border-t border-sidebar-border" />
+      <nav className="flex-1 space-y-4 overflow-y-auto overflow-x-hidden">
         {sections.map((sec, secIdx) => (
           <div key={sec.title}>
             {!isCollapsed && (
-              <p className="mb-2 mt-6 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+              <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50">
                 {sec.title}
               </p>
             )}
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {sec.items.map((item, idxInSec) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
-                const staggerDelay = 0.05 * (secIdx * 6 + idxInSec);
+                const staggerDelay = 0.04 * (secIdx * 6 + idxInSec);
                 const linkEl = (
                   <Link
                     href={item.href}
                     prefetch={true}
                     onClick={onNavClick}
-                    className={`relative flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-[0.9375rem] transition-[background-color,color] duration-150 ease-out hover:bg-muted ${isActive ? "bg-muted text-primary" : "text-muted-foreground"}`}
+                    className={`relative flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm transition-[background-color,color] duration-150 ease-out ${
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        : "text-sidebar-foreground/65 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                    }`}
                     style={{ justifyContent: isCollapsed ? "center" : "flex-start" }}
                   >
                     {isActive && (
                       <motion.span
                         layoutId="sidebar-active"
-                        className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-primary"
+                        className="absolute left-0 top-1/2 h-5 w-[2.5px] -translate-y-1/2 rounded-r-full bg-primary"
                         transition={{ type: "tween", duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
                       />
                     )}
-                    <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} style={{ opacity: isActive ? 1 : 0.7 }} />
+                    <Icon className="h-4 w-4 shrink-0" strokeWidth={isActive ? 2 : 1.75} />
                     {!isCollapsed && (
                       <motion.span
-                        className="font-medium"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.15, delay: staggerDelay }}
@@ -308,7 +308,7 @@ function SidebarContent({ onNavClick, forceExpanded }: { onNavClick?: () => void
           </div>
         ))}
       </nav>
-      <div className="border-t border-border pt-3">
+      <div className="border-t border-sidebar-border pt-3">
         <SidebarProfile
           user={PLACEHOLDER_USER}
           isCollapsed={isCollapsed}
@@ -317,10 +317,10 @@ function SidebarContent({ onNavClick, forceExpanded }: { onNavClick?: () => void
         <button
           type="button"
           onClick={toggle}
-          className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg py-2 text-xs font-medium text-muted-foreground/60 transition-colors hover:bg-muted"
+          className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg py-1.5 text-xs text-muted-foreground/50 transition-colors hover:bg-sidebar-accent/50 hover:text-muted-foreground"
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {isCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+          {isCollapsed ? <ChevronsRight className="h-3.5 w-3.5" /> : <ChevronsLeft className="h-3.5 w-3.5" />}
           {!isCollapsed && <span>Collapse</span>}
         </button>
       </div>
@@ -333,7 +333,7 @@ export function DashboardSidebar() {
 
   const desktopSidebar = (
     <aside
-      className="fixed left-0 top-0 z-10 hidden h-screen border-r border-border bg-background transition-[width] duration-200 ease-in-out md:block"
+      className="fixed left-0 top-0 z-10 hidden h-screen border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ease-in-out md:block"
       style={{ width: collapsed ? 64 : SIDEBAR_WIDTH }}
     >
       <SidebarContent />
@@ -357,7 +357,7 @@ export function DashboardSidebar() {
             onKeyDown={(e) => e.key === "Escape" && setMobileOpen(false)}
           />
           <motion.aside
-            className="fixed left-0 top-0 z-30 h-screen w-[240px] border-r border-border bg-background md:hidden"
+            className="fixed left-0 top-0 z-30 h-screen w-[240px] border-r border-sidebar-border bg-sidebar md:hidden"
             initial={{ x: -SIDEBAR_WIDTH }}
             animate={{ x: 0 }}
             exit={{ x: -SIDEBAR_WIDTH }}

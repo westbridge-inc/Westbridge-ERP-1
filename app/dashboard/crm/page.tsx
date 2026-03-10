@@ -156,7 +156,7 @@ export default function CRMPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">CRM Pipeline</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">CRM Pipeline</h1>
             <p className="text-sm text-muted-foreground">Track deals through your sales pipeline</p>
           </div>
           <Button variant="primary" asChild><a href="/dashboard/crm/new">+ Create New</a></Button>
@@ -205,17 +205,17 @@ export default function CRMPage() {
           {columns.map((col) => (
             <div
               key={col.id}
-              className="min-w-[280px] flex-1 rounded-xl border border-border bg-muted p-3"
+              className="min-w-[280px] flex-1 rounded-xl border border-border/70 bg-muted/50 p-3"
             >
               {/* Column header */}
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-semibold text-foreground">
+                  <h2 className="text-sm font-semibold text-foreground font-display">
                     {col.title}
                   </h2>
                   <Badge status={col.title}>{col.count}</Badge>
                 </div>
-                <span className="text-xs text-muted-foreground/60">
+                <span className="text-xs font-medium text-muted-foreground/70">
                   {col.total > 0 ? formatCurrency(col.total, "USD") : "\u2014"}
                 </span>
               </div>
@@ -225,7 +225,7 @@ export default function CRMPage() {
                 {col.deals.map((deal) => (
                   <div
                     key={deal.name}
-                    className="cursor-pointer rounded-lg border border-border bg-card p-4 transition-colors duration-100 hover:border-border"
+                    className="cursor-pointer rounded-lg border border-border/70 bg-card p-4 transition-all duration-150 hover:border-primary/20 hover:shadow-sm"
                   >
                     <p className="text-sm font-medium text-foreground">
                       {deal.company}

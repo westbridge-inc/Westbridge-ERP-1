@@ -23,6 +23,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Button } from "@/components/ui/Button";
 import { WelcomeModal } from "@/components/dashboard/WelcomeModal";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
@@ -184,7 +185,7 @@ export default function DashboardPage() {
       />
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{getGreeting()}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{getGreeting()}</h1>
           <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening at your account</p>
         </div>
         {erpStatus === "connected" && (
@@ -216,50 +217,39 @@ export default function DashboardPage() {
       )}
 
       <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between p-4">
-            <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <p className="text-2xl font-bold text-foreground">{formatCurrency(data.revenueMTD, "USD")}</p>
-            <p className={cn("mt-1 text-xs", data.revenueChange >= 0 ? "text-success" : "text-destructive")}>{trendArrow(data.revenueChange)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between p-4">
-            <p className="text-sm font-medium text-muted-foreground">Active Users</p>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <p className="text-2xl font-bold text-foreground">{data.employeeCount}</p>
-            <p className={cn("mt-1 text-xs", data.employeeDelta >= 0 ? "text-success" : "text-destructive")}>{data.employeeDelta !== 0 ? trendArrow(data.employeeDelta) : "No change"}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between p-4">
-            <p className="text-sm font-medium text-muted-foreground">Invoices</p>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <p className="text-2xl font-bold text-foreground">{data.outstandingCount} open</p>
-            <p className={cn("mt-1 text-xs", data.outstandingCount > 0 ? "text-destructive" : "text-success")}>{data.outstandingCount > 0 ? "Requires follow-up" : "All clear"}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between p-4">
-            <p className="text-sm font-medium text-muted-foreground">Pending Orders</p>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <p className="text-2xl font-bold text-foreground">{data.openDealsCount}</p>
-            <p className="mt-1 text-xs text-muted-foreground">In pipeline</p>
-          </CardContent>
-        </Card>
+        <MetricCard
+          label="Total Revenue"
+          value={formatCurrency(data.revenueMTD, "USD")}
+          icon={DollarSign}
+          trend={data.revenueChange}
+          subtext={trendArrow(data.revenueChange)}
+          subtextVariant={data.revenueChange >= 0 ? "success" : "error"}
+        />
+        <MetricCard
+          label="Active Users"
+          value={data.employeeCount}
+          icon={Users}
+          trend={data.employeeDelta}
+          subtext={data.employeeDelta !== 0 ? trendArrow(data.employeeDelta) : "No change"}
+          subtextVariant={data.employeeDelta >= 0 ? "success" : "error"}
+        />
+        <MetricCard
+          label="Invoices"
+          value={`${data.outstandingCount} open`}
+          icon={Receipt}
+          subtext={data.outstandingCount > 0 ? "Requires follow-up" : "All clear"}
+          subtextVariant={data.outstandingCount > 0 ? "error" : "success"}
+        />
+        <MetricCard
+          label="Pending Orders"
+          value={data.openDealsCount}
+          icon={ShoppingCart}
+          subtext="In pipeline"
+        />
       </div>
 
       <div className="mt-8 rounded-xl border border-border bg-card p-6">
-        <p className="font-serif text-lg font-semibold">Revenue</p>
+        <p className="font-display text-lg font-semibold text-foreground">Revenue</p>
         <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Last 6 months</p>
         <div className="mt-4 h-64 w-full">
           <ResponsiveContainer width="100%" height={256}>

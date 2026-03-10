@@ -118,9 +118,9 @@ function MetricCard({
   value: string | number;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card px-6 py-4">
-      <p className="text-sm text-muted-foreground/60">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-foreground">{value}</p>
+    <div className="flex-1 rounded-xl border border-border/70 bg-card px-6 py-5 transition-shadow hover:shadow-md">
+      <p className="text-sm font-medium text-muted-foreground tracking-wide">{label}</p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight font-display text-foreground">{value}</p>
     </div>
   );
 }
@@ -154,7 +154,7 @@ export default function ExpensesPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Expenses</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Expenses</h1>
             <p className="text-sm text-muted-foreground">Expense claims and approvals</p>
           </div>
           <Button variant="primary">+ Add Expense</Button>
