@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ROUTES } from "@/lib/config/site";
@@ -16,7 +17,7 @@ export default function ForgotPasswordPage() {
   const [csrfToken, setCsrfToken] = useState("");
 
   useEffect(() => {
-    fetch("/api/csrf")
+    fetch(`${API_BASE}/api/csrf`)
       .then((r) => r.json())
       .then((d) => setCsrfToken(d?.data?.token ?? ""))
       .catch(() => {});
@@ -27,7 +28,7 @@ export default function ForgotPasswordPage() {
     setError(null);
     setLoading(true);
     try {
-      await fetch("/api/auth/forgot-password", {
+      await fetch(`${API_BASE}/api/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
         body: JSON.stringify({ email }),

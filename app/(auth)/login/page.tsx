@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -21,7 +22,7 @@ export default function LoginPage() {
   const [, setFailedAttempts] = useState(0);
 
   useEffect(() => {
-    fetch("/api/csrf")
+    fetch(`${API_BASE}/api/csrf`)
       .then((r) => r.json())
       .then((d: { data?: { token?: string }; token?: string }) => setCsrfToken(d.data?.token ?? d.token ?? null))
       .catch(() => setCsrfToken(null));
@@ -36,7 +37,7 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

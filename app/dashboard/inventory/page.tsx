@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo } from "react";
@@ -137,7 +138,7 @@ export default function InventoryPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/erp/list?doctype=Item&limit_page_length=100", { signal });
+      const res = await fetch(`${API_BASE}/api/erp/list?doctype=Item&limit_page_length=100`, { signal });
       if (!res.ok) { setItems([]); return; }
       const json = await res.json();
       const raw: Record<string, unknown>[] = Array.isArray(json?.data) ? json.data : [];

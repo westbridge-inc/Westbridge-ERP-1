@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
@@ -44,7 +45,7 @@ export default function ProcurementPage() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(() => {
-    fetch("/api/erp/list?doctype=Purchase%20Order")
+    fetch(`${API_BASE}/api/erp/list?doctype=Purchase%20Order`)
       .then((res) => {
         if (!res.ok) throw new Error(res.status === 401 ? "Session expired. Please sign in again." : "Failed to load purchase orders.");
         return res.json();

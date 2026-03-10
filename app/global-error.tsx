@@ -12,9 +12,6 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     Sentry.captureException(error, { extra: { boundary: "global" } });
-    import("@/lib/reporter").then(({ reportError }) =>
-      reportError(error, { boundary: "global" })
-    );
   }, [error]);
 
   return (

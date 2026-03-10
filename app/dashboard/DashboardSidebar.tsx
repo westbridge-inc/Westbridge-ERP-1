@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
@@ -98,11 +99,11 @@ function SidebarProfile({
   async function handleSignOut() {
     setOpen(false);
     try {
-      const csrfRes = await fetch("/api/csrf");
+      const csrfRes = await fetch(`${API_BASE}/api/csrf`);
       const csrfData = await csrfRes.json().catch(() => ({}));
       const token = csrfData?.data?.token ?? csrfData?.token;
       if (token) {
-        await fetch("/api/auth/logout", {
+        await fetch(`${API_BASE}/api/auth/logout`, {
           method: "POST",
           headers: { "X-CSRF-Token": token },
         });

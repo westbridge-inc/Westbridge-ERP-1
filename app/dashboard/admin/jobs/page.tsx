@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
@@ -51,7 +52,7 @@ export default function AdminJobsPage() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/jobs");
+      const res = await fetch(`${API_BASE}/api/admin/jobs`);
       if (!res.ok) {
         if (res.status === 403) {
           toast.error("Admin access required to view job queues.");

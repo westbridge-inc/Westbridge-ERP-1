@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -98,7 +99,7 @@ export default function CRMPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/erp/list?doctype=Opportunity")
+    fetch(`${API_BASE}/api/erp/list?doctype=Opportunity`)
       .then((res) => {
         if (res.status === 401) {
           throw new Error("Session expired. Please sign in again.");

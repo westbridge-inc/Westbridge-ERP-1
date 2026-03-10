@@ -12,9 +12,7 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    import("@/lib/reporter").then(({ reportError }) =>
-      reportError(error, { boundary: "dashboard" })
-    );
+    console.error(error);
   }, [error]);
 
   return (

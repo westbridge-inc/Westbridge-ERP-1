@@ -12,7 +12,6 @@
  * </PermissionGate>
  */
 
-import { logger } from "@/lib/logger";
 
 // --- Permission definitions ---
 
@@ -128,10 +127,6 @@ for (const role of Object.keys(ROLE_DEFINITIONS) as Role[]) {
  */
 export function hasPermission(role: Role | string, permission: Permission): boolean {
   if (!ROLE_DEFINITIONS[role as Role]) {
-    logger.warn("hasPermission: unknown role encountered — denying access", {
-      role,
-      permission,
-    });
     return false;
   }
   const perms = resolvePermissions(role as Role);

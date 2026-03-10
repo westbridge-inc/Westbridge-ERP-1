@@ -6,11 +6,13 @@
  * const { data } = useQuery({ queryKey: ['invoices', filters], queryFn: () => api.erp.list('Sales Invoice', filters) });
  */
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
 async function request<T>(
   path: string,
   options?: RequestInit
 ): Promise<T> {
-  const res = await fetch(path, {
+  const res = await fetch(`${API_BASE}${path}`, {
     credentials: "include",
     ...options,
     headers: {
@@ -69,7 +71,7 @@ async function erpList(doctype: string, params?: ErpListParams): Promise<ErpList
   if (params?.page != null) qs.set("page", String(params.page));
   if (params?.orderBy) qs.set("order_by", params.orderBy);
   if (params?.filters) qs.set("filters", JSON.stringify(params.filters));
-  const res = await fetch(`/api/erp/list?${qs.toString()}`, {
+  const res = await fetch(`${API_BASE}/api/erp/list?${qs.toString()}`, {
     credentials: "include",
     headers: { "Content-Type": "application/json" },
   });

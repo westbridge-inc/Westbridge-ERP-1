@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useEffect, useCallback } from "react";
@@ -55,7 +56,7 @@ function SignupContent() {
   const returnFromPayment = searchParams.get("success") === "true";
 
   useEffect(() => {
-    fetch("/api/csrf")
+    fetch(`${API_BASE}/api/csrf`)
       .then((r) => r.json())
       .then((d: { data?: { token?: string }; token?: string }) => setCsrfToken(d.data?.token ?? d.token ?? null))
       .catch(() => setCsrfToken(null));
@@ -281,7 +282,7 @@ function SignupContent() {
                     }
                     setSubmitting(true);
                     try {
-                      const res = await fetch("/api/signup", {
+                      const res = await fetch(`${API_BASE}/api/signup`, {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",

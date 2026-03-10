@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 /**
@@ -137,7 +138,7 @@ export default function AccountingPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/erp/list?doctype=Account&limit_page_length=1")
+    fetch(`${API_BASE}/api/erp/list?doctype=Account&limit_page_length=1`)
       .then((res) => {
         if (cancelled) return;
         if (!res.ok) {
@@ -162,7 +163,7 @@ export default function AccountingPage() {
     setErrorMessage(null);
     setState("loading");
     // Re-run the same fetch used in the initial useEffect
-    fetch("/api/erp/list?doctype=Account&limit_page_length=1")
+    fetch(`${API_BASE}/api/erp/list?doctype=Account&limit_page_length=1`)
       .then((res) => {
         if (!res.ok) { setState("empty"); return; }
         return res.json();

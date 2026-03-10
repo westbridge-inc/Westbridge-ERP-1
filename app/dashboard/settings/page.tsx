@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback, useRef, useMemo, Suspense } from "react";
@@ -102,7 +103,7 @@ function SettingsContent() {
   const initialNameRef = useRef("");
 
   useEffect(() => {
-    fetch("/api/auth/validate", { credentials: "include" })
+    fetch(`${API_BASE}/api/auth/validate`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { data?: SessionUser }) => {
         const u = d?.data;
@@ -126,10 +127,10 @@ function SettingsContent() {
       if (!dirty) return;
       setSaving(true);
       try {
-        const csrfRes = await fetch("/api/csrf");
+        const csrfRes = await fetch(`${API_BASE}/api/csrf`);
         const csrfData = await csrfRes.json().catch(() => ({})) as { data?: { token?: string }; token?: string };
         const csrfToken = csrfData?.data?.token ?? csrfData?.token ?? "";
-        const res = await fetch("/api/account/profile", {
+        const res = await fetch(`${API_BASE}/api/account/profile`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
           credentials: "include",
@@ -163,7 +164,7 @@ function SettingsContent() {
   useEffect(() => {
     if (tab !== "billing") return;
     setBillingLoading(true);
-    fetch("/api/billing/history", { credentials: "include" })
+    fetch(`${API_BASE}/api/billing/history`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { data?: BillingData }) => setBilling(d?.data ?? null))
       .catch(() => setBilling({ items: [], plan: null, accountCreatedAt: null }))
@@ -184,7 +185,7 @@ function SettingsContent() {
   useEffect(() => {
     if (tab !== "team") return;
     setTeamLoading(true);
-    fetch("/api/team", { credentials: "include" })
+    fetch(`${API_BASE}/api/team`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { data?: { members: TeamMember[] } }) => setTeamMembers(d?.data?.members ?? []))
       .catch(() => setTeamMembers([]))
@@ -195,10 +196,10 @@ function SettingsContent() {
     if (!inviteEmail.trim()) return;
     setInviteSending(true);
     try {
-      const csrfRes = await fetch("/api/csrf");
+      const csrfRes = await fetch(`${API_BASE}/api/csrf`);
       const csrfData = await csrfRes.json().catch(() => ({}));
       const csrfToken = csrfData?.data?.token ?? "";
-      const res = await fetch("/api/invite", {
+      const res = await fetch(`${API_BASE}/api/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
         body: JSON.stringify({ email: inviteEmail, role: inviteRole.toLowerCase() }),
@@ -245,10 +246,10 @@ function SettingsContent() {
     if (!pwValidation.valid) { setPwError(pwValidation.errors[0]); return; }
     setPwSaving(true);
     try {
-      const csrfRes = await fetch("/api/csrf");
+      const csrfRes = await fetch(`${API_BASE}/api/csrf`);
       const csrfData = await csrfRes.json().catch(() => ({}));
       const csrfToken = csrfData?.data?.token ?? "";
-      const res = await fetch("/api/auth/change-password", {
+      const res = await fetch(`${API_BASE}/api/auth/change-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
         body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),

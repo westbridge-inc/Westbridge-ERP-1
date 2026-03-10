@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -36,7 +37,7 @@ function InviteContent() {
   const [csrfToken, setCsrfToken] = useState("");
 
   useEffect(() => {
-    fetch("/api/csrf")
+    fetch(`${API_BASE}/api/csrf`)
       .then((r) => r.json())
       .then((d) => setCsrfToken(d?.data?.token ?? ""))
       .catch(() => {});
@@ -63,7 +64,7 @@ function InviteContent() {
     setFormError(null);
     setSubmitting(true);
     try {
-      const res = await fetch("/api/invite/accept", {
+      const res = await fetch(`${API_BASE}/api/invite/accept`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
         body: JSON.stringify({ token, name, password }),

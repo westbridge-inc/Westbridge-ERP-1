@@ -12,9 +12,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    import("@/lib/reporter").then(({ reportError }) =>
-      reportError(error, { boundary: "app" })
-    );
+    console.error(error);
   }, [error]);
 
   return (

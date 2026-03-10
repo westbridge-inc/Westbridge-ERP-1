@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
@@ -36,7 +37,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/erp/dashboard")
+    fetch(`${API_BASE}/api/erp/dashboard`)
       .then((res) => {
         if (cancelled) return;
         if (!res.ok) {
