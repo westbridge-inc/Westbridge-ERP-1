@@ -4,6 +4,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Package } from "lucide-react";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { MetricCard } from "@/components/dashboard/MetricCard";
@@ -130,6 +131,7 @@ const columns: Column<InventoryItem>[] = [
 /* ------------------------------------------------------------------ */
 
 export default function InventoryPage() {
+  const router = useRouter();
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -231,6 +233,7 @@ export default function InventoryPage() {
         columns={columns}
         data={items}
         keyExtractor={(r) => r.id}
+        onRowClick={(record) => router.push(`/dashboard/inventory/${encodeURIComponent(record.id)}`)}
         loading={false}
         emptyState={
           <EmptyState

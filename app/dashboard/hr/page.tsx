@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { UserCog } from "lucide-react";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { MetricCard } from "@/components/dashboard/MetricCard";
@@ -93,6 +94,7 @@ const columns: Column<Employee>[] = [
 /* ------------------------------------------------------------------ */
 
 export default function HRPage() {
+  const router = useRouter();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -191,6 +193,7 @@ export default function HRPage() {
         columns={columns}
         data={employees}
         keyExtractor={(r) => r.id}
+        onRowClick={(record) => router.push(`/dashboard/hr/${encodeURIComponent(record.id)}`)}
         loading={false}
         emptyState={
           <EmptyState

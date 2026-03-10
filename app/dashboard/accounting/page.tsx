@@ -3,23 +3,8 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
-/**
- * Accounting / GL overview page.
- *
- * NOTE: this is one of the original pages from the v0.4 sprint and hasn't been
- * refactored to the current component patterns yet. Specifically:
- *   - still uses raw fetch() instead of useErpList()
- *   - summary cards are inline JSX rather than using the shared MetricCard component
- *   - no error boundary — a failed ERP fetch shows a generic message with no retry UI
- *
- * It works and we're not breaking anything, but if you're adding a feature here
- * please migrate it to the new patterns at the same time. See CONTRIBUTING.md §4.
- *
- * TODO: also needs a "Reconciliation" section once we wire up the GL entry endpoints.
- *       Currently blocked on ERPNext permission scoping for Journal Entry doctype.
- */
-
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import Link from "next/link";
 import {
   BarChart,
   Bar,
@@ -35,59 +20,68 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { MetricCard } from "@/components/dashboard/MetricCard";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { formatCurrency } from "@/lib/locale/currency";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 
 /* ------------------------------------------------------------------ */
-/*  Sample data — displayed when ERP accounts are present but the      */
-/*  GL endpoints are not yet wired up. Clearly labelled in the UI.     */
+/*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-const barData = [
-  { month: "Sep", revenue: 2.8, expenses: 1.8 },
-  { month: "Oct", revenue: 3.1, expenses: 2.0 },
-  { month: "Nov", revenue: 2.9, expenses: 1.9 },
-  { month: "Dec", revenue: 3.4, expenses: 2.2 },
-  { month: "Jan", revenue: 3.0, expenses: 2.0 },
-  { month: "Feb", revenue: 3.2, expenses: 2.1 },
-];
+interface RawInvoice {
+  name?: string;
+  grand_total?: number;
+  outstanding_amount?: number;
+  posting_date?: string;
+  due_date?: string;
+  status?: string;
+  customer?: string;
+  customer_name?: string;
+  docstatus?: number;
+}
 
-const aging = [
-  { label: "Current", amount: 1.2, total: 2.8 },
-  { label: "1-30 days", amount: 0.8, total: 2.8 },
-  { label: "31-60 days", amount: 0.45, total: 2.8 },
-  { label: "61-90 days", amount: 0.2, total: 2.8 },
-  { label: "90+ days", amount: 0.15, total: 2.8 },
-];
+interface RawPayment {
+  name?: string;
+  paid_amount?: number;
+  posting_date?: string;
+  party?: string;
+  party_name?: string;
+  payment_type?: string;
+  mode_of_payment?: string;
+}
 
-const metrics = [
-  { label: "Revenue YTD", value: 18_400_000, variant: "default" as const },
-  { label: "Expenses YTD", value: 12_100_000, variant: "default" as const },
-  { label: "Net Profit", value: 6_300_000, variant: "success" as const },
-];
+type PageState = "loading" | "error" | "empty" | "success";
 
 /* ------------------------------------------------------------------ */
-/*  Metric card                                                        */
+/*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
 
-function MetricCard({
-  label,
-  value,
-  variant = "default",
-}: {
-  label: string;
-  value: number;
-  variant?: "default" | "success";
-}) {
-  return (
-    <div className="rounded-xl border border-border/70 bg-card p-6 transition-shadow hover:shadow-md">
-      <p className="text-sm font-medium text-muted-foreground tracking-wide">{label}</p>
-      <p className={`mt-2 text-3xl font-semibold tracking-tight font-display ${variant === "success" ? "text-success" : "text-foreground"}`}>
-        {formatCurrency(value, "USD")}
-      </p>
-    </div>
-  );
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function getMonthKey(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getMonthLabel(key: string): string {
+  const [, m] = key.split("-");
+  return MONTH_NAMES[parseInt(m, 10) - 1] ?? key;
+}
+
+function getLast6Months(): string[] {
+  const now = new Date();
+  const keys: string[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  }
+  return keys;
+}
+
+function daysBetween(from: string, to: Date): number {
+  const a = new Date(from);
+  return Math.floor((to.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
 }
 
 /* ------------------------------------------------------------------ */
@@ -114,7 +108,7 @@ function ChartTooltip({
             style={{ background: entry.color }}
           />
           <span className="text-muted-foreground">
-            {entry.name}: {formatCurrency(entry.value * 1_000_000, "USD")}
+            {entry.name}: {formatCurrency(entry.value, "USD")}
           </span>
         </div>
       ))}
@@ -123,10 +117,18 @@ function ChartTooltip({
 }
 
 /* ------------------------------------------------------------------ */
-/*  States                                                             */
+/*  Fetch helper                                                       */
 /* ------------------------------------------------------------------ */
 
-type PageState = "loading" | "error" | "empty" | "success";
+async function fetchDoctype(doctype: string, limit: number): Promise<unknown[]> {
+  const qs = new URLSearchParams({ doctype, limit: String(limit) });
+  const res = await fetch(`${API_BASE}/api/erp/list?${qs.toString()}`, {
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const body = await res.json();
+  return (body?.data as unknown[]) ?? [];
+}
 
 /* ------------------------------------------------------------------ */
 /*  Page                                                               */
@@ -135,49 +137,167 @@ type PageState = "loading" | "error" | "empty" | "success";
 export default function AccountingPage() {
   const [state, setState] = useState<PageState>("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [salesInvoices, setSalesInvoices] = useState<RawInvoice[]>([]);
+  const [purchaseInvoices, setPurchaseInvoices] = useState<RawInvoice[]>([]);
+  const [payments, setPayments] = useState<RawPayment[]>([]);
+
+  /* ---------- Fetch data ---------- */
+
+  const loadData = useCallback(async () => {
+    setState("loading");
+    setErrorMessage(null);
+    try {
+      const [si, pi, pe] = await Promise.all([
+        fetchDoctype("Sales Invoice", 200),
+        fetchDoctype("Purchase Invoice", 200),
+        fetchDoctype("Payment Entry", 50),
+      ]);
+      const siList = si as RawInvoice[];
+      const piList = pi as RawInvoice[];
+      const peList = pe as RawPayment[];
+
+      if (siList.length === 0 && piList.length === 0 && peList.length === 0) {
+        setState("empty");
+        return;
+      }
+
+      setSalesInvoices(siList);
+      setPurchaseInvoices(piList);
+      setPayments(peList);
+      setState("success");
+    } catch {
+      setState("error");
+      setErrorMessage("Failed to load accounting data. Please try again.");
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    fetch(`${API_BASE}/api/erp/list?doctype=Account&limit_page_length=1`)
-      .then((res) => {
-        if (cancelled) return;
-        if (!res.ok) {
-          setState("empty");
-          return;
+    loadData();
+  }, [loadData]);
+
+  /* ---------- Computed metrics ---------- */
+
+  const now = new Date();
+  const yearStart = `${now.getFullYear()}-01-01`;
+
+  const paidSalesYTD = useMemo(
+    () =>
+      salesInvoices.filter(
+        (inv) =>
+          inv.status === "Paid" &&
+          (inv.posting_date ?? "") >= yearStart
+      ),
+    [salesInvoices, yearStart]
+  );
+
+  const paidPurchasesYTD = useMemo(
+    () =>
+      purchaseInvoices.filter(
+        (inv) =>
+          inv.status === "Paid" &&
+          (inv.posting_date ?? "") >= yearStart
+      ),
+    [purchaseInvoices, yearStart]
+  );
+
+  const revenueYTD = useMemo(
+    () => paidSalesYTD.reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
+    [paidSalesYTD]
+  );
+
+  const expensesYTD = useMemo(
+    () => paidPurchasesYTD.reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
+    [paidPurchasesYTD]
+  );
+
+  const netProfit = revenueYTD - expensesYTD;
+
+  /* ---------- Revenue vs Expenses chart data (last 6 months) ---------- */
+
+  const barData = useMemo(() => {
+    const months = getLast6Months();
+    const revByMonth: Record<string, number> = {};
+    const expByMonth: Record<string, number> = {};
+    months.forEach((m) => {
+      revByMonth[m] = 0;
+      expByMonth[m] = 0;
+    });
+
+    salesInvoices.forEach((inv) => {
+      if (inv.posting_date && (inv.status === "Paid" || inv.docstatus === 1)) {
+        const key = getMonthKey(inv.posting_date);
+        if (revByMonth[key] !== undefined) {
+          revByMonth[key] += inv.grand_total ?? 0;
         }
-        return res.json();
-      })
-      .then((json) => {
-        if (cancelled || json === undefined) return;
-        const data = json?.data;
-        const hasAccounts = Array.isArray(data) && data.length > 0;
-        setState(hasAccounts ? "success" : "empty");
-      })
-      .catch(() => {
-        if (!cancelled) setState("empty");
-      });
-    return () => { cancelled = true; };
+      }
+    });
+
+    purchaseInvoices.forEach((inv) => {
+      if (inv.posting_date && (inv.status === "Paid" || inv.docstatus === 1)) {
+        const key = getMonthKey(inv.posting_date);
+        if (expByMonth[key] !== undefined) {
+          expByMonth[key] += inv.grand_total ?? 0;
+        }
+      }
+    });
+
+    return months.map((m) => ({
+      month: getMonthLabel(m),
+      revenue: revByMonth[m],
+      expenses: expByMonth[m],
+    }));
+  }, [salesInvoices, purchaseInvoices]);
+
+  const maxBarValue = useMemo(() => {
+    let max = 0;
+    barData.forEach((d) => {
+      if (d.revenue > max) max = d.revenue;
+      if (d.expenses > max) max = d.expenses;
+    });
+    return max > 0 ? max * 1.15 : 100;
+  }, [barData]);
+
+  /* ---------- Accounts Receivable Aging ---------- */
+
+  const agingData = useMemo(() => {
+    const unpaid = salesInvoices.filter(
+      (inv) => inv.status === "Unpaid" || inv.status === "Overdue"
+    );
+
+    const buckets = [
+      { label: "Current (0-30)", amount: 0 },
+      { label: "31-60 days", amount: 0 },
+      { label: "61-90 days", amount: 0 },
+      { label: "91-120 days", amount: 0 },
+      { label: "120+ days", amount: 0 },
+    ];
+
+    const today = new Date();
+    unpaid.forEach((inv) => {
+      const outstanding = inv.outstanding_amount ?? inv.grand_total ?? 0;
+      const dueDate = inv.due_date ?? inv.posting_date;
+      if (!dueDate) return;
+      const overdue = daysBetween(dueDate, today);
+      if (overdue <= 30) buckets[0].amount += outstanding;
+      else if (overdue <= 60) buckets[1].amount += outstanding;
+      else if (overdue <= 90) buckets[2].amount += outstanding;
+      else if (overdue <= 120) buckets[3].amount += outstanding;
+      else buckets[4].amount += outstanding;
+    });
+
+    const total = buckets.reduce((s, b) => s + b.amount, 0);
+    return { buckets, total };
+  }, [salesInvoices]);
+
+  /* ---------- Chart date subtitle ---------- */
+
+  const chartSubtitle = useMemo(() => {
+    const months = getLast6Months();
+    if (months.length < 2) return "";
+    return `Monthly (${getMonthLabel(months[0])} \u2013 ${getMonthLabel(months[months.length - 1])})`;
   }, []);
 
-  const retry = useCallback(() => {
-    setErrorMessage(null);
-    setState("loading");
-    // Re-run the same fetch used in the initial useEffect
-    fetch(`${API_BASE}/api/erp/list?doctype=Account&limit_page_length=1`)
-      .then((res) => {
-        if (!res.ok) { setState("empty"); return; }
-        return res.json();
-      })
-      .then((json) => {
-        if (json === undefined) return;
-        const hasAccounts = Array.isArray(json?.data) && json.data.length > 0;
-        setState(hasAccounts ? "success" : "empty");
-      })
-      .catch(() => {
-        setState("error");
-        setErrorMessage("Failed to load accounting data.");
-      });
-  }, []);
+  /* ---------- Header ---------- */
 
   const header = (
     <div className="flex items-center justify-between">
@@ -185,11 +305,13 @@ export default function AccountingPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Accounting</h1>
         <p className="text-sm text-muted-foreground">General ledger and financial overview</p>
       </div>
-      <Button variant="primary">+ Create New</Button>
+      <Link href="/dashboard/accounting?type=journal">
+        <Button variant="primary">+ New Journal Entry</Button>
+      </Link>
     </div>
   );
 
-  /* ---------- Empty state (no chart of accounts) ---------- */
+  /* ---------- Empty state ---------- */
   if (state === "empty") {
     return (
       <div className="space-y-6">
@@ -246,7 +368,7 @@ export default function AccountingPage() {
             </div>
             <p className="text-sm font-medium text-foreground">Something went wrong</p>
             <p className="mt-1 text-sm text-muted-foreground">{errorMessage ?? "Failed to load accounting data."}</p>
-            <Button variant="primary" size="sm" className="mt-4" onClick={retry}>Retry</Button>
+            <Button variant="primary" size="sm" className="mt-4" onClick={loadData}>Retry</Button>
           </CardContent>
         </Card>
       </div>
@@ -257,102 +379,165 @@ export default function AccountingPage() {
   return (
     <div className="space-y-6">
       {header}
-      <div className="flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-warning">
-        <span className="shrink-0">⚠</span>
-        <span>
-          <strong>Sample data</strong> — financial figures shown here are illustrative. Full GL reconciliation will be available once ERP Journal Entry endpoints are connected.
-        </span>
-      </div>
+
+      {/* Metric cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {metrics.map((m) => (
-          <MetricCard
-            key={m.label}
-            label={m.label}
-            value={m.value}
-            variant={m.variant}
-          />
-        ))}
+        <MetricCard
+          label="Revenue YTD"
+          value={formatCurrency(revenueYTD, "USD")}
+          subtext={`${paidSalesYTD.length} paid invoices`}
+          subtextVariant="muted"
+        />
+        <MetricCard
+          label="Expenses YTD"
+          value={formatCurrency(expensesYTD, "USD")}
+          subtext={`${paidPurchasesYTD.length} paid bills`}
+          subtextVariant="muted"
+        />
+        <MetricCard
+          label="Net Profit"
+          value={formatCurrency(netProfit, "USD")}
+          subtext={
+            revenueYTD > 0
+              ? `${((netProfit / revenueYTD) * 100).toFixed(1)}% margin`
+              : undefined
+          }
+          subtextVariant={netProfit >= 0 ? "success" : "error"}
+        />
       </div>
+
+      {/* Revenue vs Expenses chart */}
       <Card>
         <CardContent className="p-6">
-        <p className="text-base font-semibold text-foreground font-display">
-          Revenue vs Expenses
-        </p>
-        <p className="text-sm text-muted-foreground/60">
-          Monthly (Sep &ndash; Feb)
-        </p>
-        <div className="mt-4 h-64 min-h-[256px] w-full">
-          <ResponsiveContainer width="100%" height={256}>
-            <BarChart
-              data={barData}
-              margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="var(--border)"
-                vertical={false}
-              />
-              <XAxis
-                dataKey="month"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: "var(--muted-foreground) / 0.6)" }}
-              />
-              <YAxis
-                hide
-                domain={[0, 4]}
-              />
-              <Tooltip
-                content={<ChartTooltip />}
-                cursor={{ fill: "var(--muted)" }}
-              />
-              <Legend
-                wrapperStyle={{ color: "var(--muted-foreground)", fontSize: 12 }}
-              />
-              <Bar
-                dataKey="revenue"
-                name="Revenue"
-                fill="var(--primary)"
-                radius={[2, 2, 0, 0]}
-              />
-              <Bar
-                dataKey="expenses"
-                name="Expenses"
-                fill="var(--border)"
-                radius={[2, 2, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="p-6">
-        <p className="text-base font-semibold text-foreground font-display">
-          Accounts Receivable Aging
-        </p>
-        <div className="mt-4 space-y-3">
-          {aging.map((row) => (
-            <div key={row.label} className="flex items-center gap-4">
-              <span className="w-24 text-sm text-muted-foreground">
-                {row.label}
-              </span>
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{
-                    width: `${(row.amount / row.total) * 100}%`,
-                  }}
+          <p className="text-base font-semibold text-foreground font-display">
+            Revenue vs Expenses
+          </p>
+          <p className="text-sm text-muted-foreground/60">
+            {chartSubtitle}
+          </p>
+          <div className="mt-4 h-64 min-h-[256px] w-full">
+            <ResponsiveContainer width="100%" height={256}>
+              <BarChart
+                data={barData}
+                margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--border)"
+                  vertical={false}
                 />
-              </div>
-              <span className="w-24 text-right text-sm font-medium text-foreground">
-                {formatCurrency(row.amount * 1_000_000, "USD")}
-              </span>
-            </div>
-          ))}
-        </div>
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                />
+                <YAxis
+                  hide
+                  domain={[0, maxBarValue]}
+                />
+                <Tooltip
+                  content={<ChartTooltip />}
+                  cursor={{ fill: "var(--muted)" }}
+                />
+                <Legend
+                  wrapperStyle={{ color: "var(--muted-foreground)", fontSize: 12 }}
+                />
+                <Bar
+                  dataKey="revenue"
+                  name="Revenue"
+                  fill="var(--primary)"
+                  radius={[2, 2, 0, 0]}
+                />
+                <Bar
+                  dataKey="expenses"
+                  name="Expenses"
+                  fill="var(--border)"
+                  radius={[2, 2, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </CardContent>
       </Card>
+
+      {/* Accounts Receivable Aging */}
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-base font-semibold text-foreground font-display">
+            Accounts Receivable Aging
+          </p>
+          {agingData.total === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">
+              No outstanding receivables.
+            </p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {agingData.buckets.map((row) => (
+                <div key={row.label} className="flex items-center gap-4">
+                  <span className="w-28 text-sm text-muted-foreground">
+                    {row.label}
+                  </span>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{
+                        width: `${agingData.total > 0 ? (row.amount / agingData.total) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="w-28 text-right text-sm font-medium text-foreground">
+                    {formatCurrency(row.amount, "USD")}
+                  </span>
+                  <span className="w-12 text-right text-xs text-muted-foreground">
+                    {agingData.total > 0 ? `${((row.amount / agingData.total) * 100).toFixed(0)}%` : "0%"}
+                  </span>
+                </div>
+              ))}
+              <div className="flex items-center gap-4 border-t border-border pt-2">
+                <span className="w-28 text-sm font-medium text-foreground">Total</span>
+                <div className="h-2 flex-1" />
+                <span className="w-28 text-right text-sm font-semibold text-foreground">
+                  {formatCurrency(agingData.total, "USD")}
+                </span>
+                <span className="w-12 text-right text-xs text-muted-foreground">100%</span>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Recent Payments */}
+      {payments.length > 0 && (
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-base font-semibold text-foreground font-display">
+              Recent Payments
+            </p>
+            <div className="mt-4 space-y-2">
+              {payments.slice(0, 10).map((pe) => (
+                <div
+                  key={pe.name}
+                  className="flex items-center justify-between rounded-lg border border-border/50 px-4 py-2.5"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-foreground">
+                      {pe.party_name ?? pe.party ?? "Unknown"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {pe.posting_date ?? ""} {pe.payment_type ? `\u00b7 ${pe.payment_type}` : ""} {pe.mode_of_payment ? `\u00b7 ${pe.mode_of_payment}` : ""}
+                    </span>
+                  </div>
+                  <span className="text-sm font-semibold text-foreground">
+                    {formatCurrency(pe.paid_amount ?? 0, "USD")}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <AIChatPanel module="finance" />
     </div>
   );

@@ -4,6 +4,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Users, Briefcase } from "lucide-react";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { Badge } from "@/components/ui/Badge";
@@ -86,6 +87,7 @@ function KanbanSkeleton() {
 /* ------------------------------------------------------------------ */
 
 export default function CRMPage() {
+  const router = useRouter();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -226,6 +228,7 @@ export default function CRMPage() {
                 {col.deals.map((deal) => (
                   <div
                     key={deal.name}
+                    onClick={() => router.push(`/dashboard/crm/${encodeURIComponent(deal.name)}`)}
                     className="cursor-pointer rounded-lg border border-border/70 bg-card p-4 transition-all duration-150 hover:border-primary/20 hover:shadow-sm"
                   >
                     <p className="text-sm font-medium text-foreground">

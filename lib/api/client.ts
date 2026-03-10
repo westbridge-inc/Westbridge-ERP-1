@@ -92,6 +92,19 @@ async function erpCreate(doctype: string, data: Record<string, unknown>): Promis
   return request<unknown>("/api/erp/doc", { method: "POST", body: JSON.stringify({ doctype, data }) });
 }
 
+async function erpUpdate(doctype: string, name: string, data: Record<string, unknown>): Promise<unknown> {
+  return request<unknown>("/api/erp/doc", {
+    method: "PUT",
+    body: JSON.stringify({ doctype, name, data }),
+  });
+}
+
+async function erpDelete(doctype: string, name: string): Promise<void> {
+  await request<void>(`/api/erp/doc?doctype=${encodeURIComponent(doctype)}&name=${encodeURIComponent(name)}`, {
+    method: "DELETE",
+  });
+}
+
 // ─── Invite ───────────────────────────────────────────────────────────────────
 
 async function sendInvite(email: string, role: string): Promise<void> {
@@ -110,6 +123,6 @@ async function acceptInvite(token: string, name: string, password: string): Prom
 
 export const api = {
   auth: { login, logout, forgotPassword, resetPassword },
-  erp: { list: erpList, get: erpGet, create: erpCreate },
+  erp: { list: erpList, get: erpGet, create: erpCreate, update: erpUpdate, delete: erpDelete },
   invite: { send: sendInvite, validate: validateInvite, accept: acceptInvite },
 } as const;

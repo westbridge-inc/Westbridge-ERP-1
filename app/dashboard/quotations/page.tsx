@@ -4,6 +4,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -38,6 +39,7 @@ const columns: Column<QuotationRow>[] = [
 ];
 
 export default function QuotationsPage() {
+  const router = useRouter();
   const [data, setData] = useState<QuotationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,6 +96,7 @@ export default function QuotationsPage() {
               columns={columns}
               data={data}
               keyExtractor={(r) => r.id}
+              onRowClick={(record) => router.push(`/dashboard/quotations/${encodeURIComponent(record.id)}`)}
               emptyState={
                 <EmptyState
                   icon={<FileBarChart className="h-6 w-6" />}

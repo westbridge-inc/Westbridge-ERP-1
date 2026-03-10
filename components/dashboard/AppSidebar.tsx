@@ -36,6 +36,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
 interface SessionUser {
   name: string;
   email: string;
@@ -122,7 +124,7 @@ function useSessionUser(): { user: SessionUser | null; loading: boolean } {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/auth/validate", { credentials: "include" })
+    fetch(`${API_BASE}/api/auth/validate`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { data?: { name?: string; email?: string; role?: string } }) => {
         const raw = d?.data;
@@ -169,13 +171,14 @@ export function AppSidebar() {
 
   async function handleSignOut() {
     try {
-      const csrfRes = await fetch("/api/csrf");
+      const csrfRes = await fetch(`${API_BASE}/api/csrf`, { credentials: "include" });
       const csrfData = await csrfRes.json().catch(() => ({}));
       const token = csrfData?.data?.token ?? csrfData?.token;
       if (token) {
-        await fetch("/api/auth/logout", {
+        await fetch(`${API_BASE}/api/auth/logout`, {
           method: "POST",
           headers: { "X-CSRF-Token": token },
+          credentials: "include",
         });
       }
     } finally {

@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Receipt } from "lucide-react";
 import { useErpList } from "@/lib/queries/useErpList";
 import { Badge } from "@/components/ui/Badge";
@@ -130,6 +131,7 @@ function MetricCard({
 /* ------------------------------------------------------------------ */
 
 export default function ExpensesPage() {
+  const router = useRouter();
   const [page, setPage] = useState(0);
   const { data: rawList = [], hasMore, page: currentPage, isLoading: loading, isError: isErrorState, error: queryError, refetch } = useErpList("Expense Claim", { page });
   const rows = useMemo(() => (rawList as Record<string, unknown>[]).map(mapErpExpense), [rawList]);
@@ -202,6 +204,7 @@ export default function ExpensesPage() {
             columns={expenseColumns}
             data={rows}
             keyExtractor={(row) => row.name}
+            onRowClick={(record) => router.push(`/dashboard/expenses/${encodeURIComponent(record.name)}`)}
             loading={loading}
             emptyTitle={MODULE_EMPTY_STATES.expenses.title}
             emptyDescription={MODULE_EMPTY_STATES.expenses.description}

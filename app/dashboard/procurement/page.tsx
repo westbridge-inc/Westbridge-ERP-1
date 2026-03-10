@@ -4,6 +4,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -40,6 +41,7 @@ const columns: Column<PurchaseOrder>[] = [
 ];
 
 export default function ProcurementPage() {
+  const router = useRouter();
   const [data, setData] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,6 +110,7 @@ export default function ProcurementPage() {
               columns={columns}
               data={data}
               keyExtractor={(r) => r.id}
+              onRowClick={(record) => router.push(`/dashboard/procurement/${encodeURIComponent(record.id)}`)}
               emptyState={
                 <EmptyState
                   icon={<Truck className="h-6 w-6" />}

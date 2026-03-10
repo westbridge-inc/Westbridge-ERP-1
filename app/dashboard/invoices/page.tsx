@@ -245,6 +245,7 @@ export default function InvoicesPage() {
             columns={columns}
             data={filtered}
             keyExtractor={(row) => row.id}
+            onRowClick={(record) => router.push(`/dashboard/invoices/${encodeURIComponent(record.id)}`)}
             emptyTitle="No matching invoices"
             emptyDescription="Try adjusting your search or filter criteria."
             pageSize={20}
