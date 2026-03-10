@@ -19,13 +19,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const [csrfLoaded, setCsrfLoaded] = useState(false);
   const [, setFailedAttempts] = useState(0);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/csrf`)
+    fetch(`${API_BASE}/api/csrf`, { credentials: "include" })
       .then((r) => r.json())
       .then((d: { data?: { token?: string }; token?: string }) => setCsrfToken(d.data?.token ?? d.token ?? null))
-      .catch(() => setCsrfToken(null));
+      .catch(() => setCsrfToken(null))
+      .finally(() => setCsrfLoaded(true));
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -123,7 +125,7 @@ export default function LoginPage() {
             Sign in to your Westbridge account
           </p>
 
-          {csrfToken === null ? (
+          {!csrfLoaded ? (
             <div className="mt-8 space-y-5" aria-busy="true">
               <div className="space-y-2">
                 <div className="h-4 w-24 rounded bg-muted" />
