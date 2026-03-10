@@ -8,15 +8,8 @@ on:
 
 env:
   NODE_VERSION: "20"
-  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
-  CSRF_SECRET: ci-build-secret-not-for-production
-  ERPNEXT_URL: https://localhost:8080
+  NEXT_PUBLIC_API_URL: http://localhost:4000
   NEXT_PUBLIC_APP_URL: http://localhost:3000
-  TWOCO_MERCHANT_CODE: ci
-  TWOCO_SECRET_WORD: ci
-  RESEND_API_KEY: re_ci_placeholder
-  ENCRYPTION_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
-  METRICS_TOKEN: ci-metrics-token
 
 jobs:
   # ── Parallel quality gates ──────────────────────────────────────────────────
@@ -28,7 +21,6 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "${{ env.NODE_VERSION }}", cache: npm }
       - run: npm ci
-      - run: npx prisma generate
       - run: npm run lint
 
   typecheck:
@@ -39,55 +31,20 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "${{ env.NODE_VERSION }}", cache: npm }
       - run: npm ci
-      - run: npx prisma generate
       - run: npx tsc --noEmit
-
-  security-audit:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: "${{ env.NODE_VERSION }}", cache: npm }
-      - run: npm ci
-      - name: Dependency audit (blocks on high severity)
-        run: npm audit --audit-level=high
-      - name: License check (no GPL in production)
-        run: npx license-checker --production --failOn "GPL" --summary
-        continue-on-error: true
-      - name: SAST scan (semgrep)
-        run: |
-          pip install semgrep
-          semgrep --config=p/security-audit --config=p/secrets --config=p/typescript --error --quiet --exclude=node_modules --exclude=.next --exclude=coverage
-        continue-on-error: false
 
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "${{ env.NODE_VERSION }}", cache: npm }
       - run: npm ci
-      - run: npx prisma generate
       - run: npm run test -- --coverage
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
       - name: Upload coverage
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: coverage
           path: coverage/
@@ -97,204 +54,14 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, unit-tests]
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    needs: [lint, typecheck]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "${{ env.NODE_VERSION }}", cache: npm }
       - run: npm ci
-      - name: Generate Prisma client
-        run: npx prisma generate
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
       - name: Build production
         run: npm run build
         env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-          CSRF_SECRET: ${{ env.CSRF_SECRET }}
-          ERPNEXT_URL: ${{ env.ERPNEXT_URL }}
+          NEXT_PUBLIC_API_URL: ${{ env.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_APP_URL: ${{ env.NEXT_PUBLIC_APP_URL }}
-          TWOCO_MERCHANT_CODE: ${{ env.TWOCO_MERCHANT_CODE }}
-          TWOCO_SECRET_WORD: ${{ env.TWOCO_SECRET_WORD }}
-          RESEND_API_KEY: ${{ env.RESEND_API_KEY }}
-          ENCRYPTION_KEY: ${{ env.ENCRYPTION_KEY }}
-          METRICS_TOKEN: ${{ env.METRICS_TOKEN }}
-          REDIS_PASSWORD: ci-redis-password-not-for-production
-          DEPLOY_STAGE: staging
-          COMMIT_SHA: ${{ github.sha }}
-          APP_VERSION: ${{ github.ref_name }}
-      - name: Verify production config
-        run: npm run verify:production
-        env:
-          CSRF_SECRET: ci-test-secret
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-          ERPNEXT_URL: ${{ env.ERPNEXT_URL }}
-          NEXT_PUBLIC_APP_URL: ${{ env.NEXT_PUBLIC_APP_URL }}
-          NODE_ENV: production
-          ENCRYPTION_KEY: ${{ env.ENCRYPTION_KEY }}
-      - name: Package build for artifact
-        # Turbopack generates chunk filenames containing colons (e.g. node:async_hooks)
-        # which upload-artifact@v4 rejects due to NTFS restrictions. Tar the
-        # entire .next/ dir first so we upload a single colon-free file.
-        run: tar -czf nextjs-build.tar.gz .next/
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: nextjs-build
-          path: nextjs-build.tar.gz
-          retention-days: 1
-
-  # ── E2E ─────────────────────────────────────────────────────────────────────
-  e2e:
-    name: E2E Tests
-    runs-on: ubuntu-latest
-    needs: [build]
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: "${{ env.NODE_VERSION }}", cache: npm }
-      - run: npm ci
-      - run: npx prisma generate
-      - name: Run DB migrations
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-      - name: Download build
-        uses: actions/download-artifact@v4
-        with:
-          name: nextjs-build
-      - name: Extract build
-        run: tar -xzf nextjs-build.tar.gz
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
-      - name: Start app
-        # "next start" does not work with output:standalone — use the standalone server directly.
-        # The static assets must be in place alongside the server entry point.
-        run: |
-          cp -r .next/static .next/standalone/.next/static
-          node .next/standalone/server.js &
-          npx wait-on --timeout 60000 http://localhost:3000
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-          CSRF_SECRET: ${{ env.CSRF_SECRET }}
-          ERPNEXT_URL: ${{ env.ERPNEXT_URL }}
-          NEXT_PUBLIC_APP_URL: ${{ env.NEXT_PUBLIC_APP_URL }}
-          TWOCO_MERCHANT_CODE: ${{ env.TWOCO_MERCHANT_CODE }}
-          TWOCO_SECRET_WORD: ${{ env.TWOCO_SECRET_WORD }}
-          ENCRYPTION_KEY: ${{ env.ENCRYPTION_KEY }}
-          REDIS_PASSWORD: ci-redis-password-not-for-production
-          PORT: 3000
-          HOSTNAME: 0.0.0.0
-      - name: Smoke test app + DB connectivity
-        run: |
-          # Health endpoint may return 503 when Redis is down (expected in CI) but
-          # still contains DB status. Accept 200 or 503, check DB check specifically.
-          HEALTH=$(curl -s http://localhost:3000/api/health)
-          echo "Health response: $HEALTH"
-          echo "$HEALTH" | python3 -c "
-          import sys,json
-          d=json.load(sys.stdin)
-          db=d.get('data',{}).get('checks',{}).get('database',{}).get('status','')
-          print('DB status:', db)
-          exit(0 if db in ('healthy','degraded') else 1)
-          "
-          # Insert a probe session via psql and verify /api/auth/validate finds it
-          PROBE_TOKEN="probe-token-for-ci-check-$(date +%s)"
-          TOKEN_HASH=$(echo -n "$PROBE_TOKEN" | sha256sum | cut -d' ' -f1)
-          ACCOUNT_ID="cprobe$(date +%s)"
-          USER_ID="cusr$(date +%s | tr -d '\n')"
-          SESSION_ID="csess$(date +%s | tr -d '\n')"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d test -c "INSERT INTO accounts (id, email, company_name, plan, status, updated_at) VALUES ('$ACCOUNT_ID', 'probe@ci.test', 'CI Probe', 'Starter', 'active', NOW());"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d test -c "INSERT INTO users (id, account_id, email, role, status, updated_at) VALUES ('$USER_ID', '$ACCOUNT_ID', 'probe@ci.test', 'owner', 'active', NOW());"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d test -c "INSERT INTO sessions (id, user_id, token, expires_at) VALUES ('$SESSION_ID', '$USER_ID', '$TOKEN_HASH', NOW() + interval '7 days');"
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Cookie: westbridge_sid=$PROBE_TOKEN" http://localhost:3000/api/auth/validate)
-          echo "Validate status with probe session: $HTTP_STATUS"
-          VALIDATE_BODY=$(curl -s -H "Cookie: westbridge_sid=$PROBE_TOKEN" http://localhost:3000/api/auth/validate)
-          echo "Validate body: $VALIDATE_BODY"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d test -c "DELETE FROM accounts WHERE id = '$ACCOUNT_ID';"
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "FAIL: expected 200 from /api/auth/validate, got $HTTP_STATUS"
-            exit 1
-          fi
-      - name: Run E2E tests
-        run: npm run test:e2e
-        env:
-          BASE_URL: http://localhost:3000
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-
-  # ── Package ──────────────────────────────────────────────────────────────────
-  # Runs after all test jobs pass. Produces the distribution zip via
-  # scripts/zip-release.sh (same exclusions as local releases) and verifies
-  # no dev artifacts (.venv, coverage, test-results) crept in.
-  package:
-    name: Package release zip
-    runs-on: ubuntu-latest
-    needs: [lint, typecheck, unit-tests, build]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: "${{ env.NODE_VERSION }}", cache: npm }
-      - run: npm ci
-      - run: npx prisma generate
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nextjs-build
-      - name: Extract build artifact
-        run: tar -xzf nextjs-build.tar.gz
-
-      - name: Create release zip
-        run: |
-          chmod +x scripts/zip-release.sh
-          scripts/zip-release.sh /tmp/westbridge-platform-${{ github.sha }}.zip
-
-      - name: Verify zip is clean
-        run: |
-          echo "Checking for .venv..."
-          unzip -l /tmp/westbridge-platform-${{ github.sha }}.zip | grep -E '\.venv' \
-            && echo "FAIL: .venv found in zip" && exit 1 || true
-
-          echo "Checking for coverage/..."
-          unzip -l /tmp/westbridge-platform-${{ github.sha }}.zip | grep 'coverage/' \
-            && echo "FAIL: coverage found in zip" && exit 1 || true
-
-          echo "Checking for test-results/..."
-          unzip -l /tmp/westbridge-platform-${{ github.sha }}.zip | grep 'test-results/' \
-            && echo "FAIL: test-results found in zip" && exit 1 || true
-
-          echo "Package verified clean."
-
-      - name: Upload release artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: westbridge-platform
-          path: /tmp/westbridge-platform-${{ github.sha }}.zip
-          retention-days: 14

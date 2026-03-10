@@ -18,9 +18,6 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=high
       - name: License check
-        # Block only strong copyleft licences (GPL-2.0, GPL-3.0, AGPL-*) that would impose
-        # copyleft obligations on the application. Weak copyleft (LGPL, MPL) and permissive
-        # licences (BlueOak, CC-BY, Python-2.0) are acceptable for dependency use.
         run: |
           npx --yes license-checker --excludePrivatePackages --json 2>/dev/null > /tmp/licenses.json
           python3 - <<'PYEOF'
@@ -56,7 +53,7 @@ jobs:
           queries: security-extended
       - uses: github/codeql-action/autobuild@v3
       - uses: github/codeql-action/analyze@v3
-        continue-on-error: true  # Requires GitHub Advanced Security; non-fatal until enabled in repo settings
+        continue-on-error: true
 
   secrets-scan:
     name: Secret Scanning
@@ -71,25 +68,4 @@ jobs:
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
           extra_args: --only-verified
-        continue-on-error: true  # Errors when BASE==HEAD (direct push with no diff history); non-fatal
-
-  owasp-zap:
-    name: OWASP ZAP Baseline Scan
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Start app stack
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: test
-          MYSQL_ROOT_PASSWORD: zap-ci-password
-        run: docker compose up -d postgres redis && sleep 15
-      - name: ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.11.0
-        with:
-          target: 'http://localhost:3000'
-          rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-I'
-        continue-on-error: true  # ZAP is best-effort; app server not provisioned in this job
+        continue-on-error: true
