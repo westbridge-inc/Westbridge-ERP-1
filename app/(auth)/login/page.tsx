@@ -90,7 +90,7 @@ export default function LoginPage() {
             </span>
           </div>
           <p className="text-white/70 text-sm leading-relaxed max-w-[280px]">
-            Enterprise intelligence for the Caribbean
+            Enterprise intelligence for growing businesses
           </p>
           <div className="mt-12 w-full max-w-[280px] space-y-3">
             {[

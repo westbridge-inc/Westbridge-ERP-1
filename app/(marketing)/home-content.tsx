@@ -110,7 +110,7 @@ export function HomeContent() {
         <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-2">
           {[
             "38 modules",
-            "Caribbean-first compliance",
+            "Multi-currency & local compliance",
             "No lock-in",
           ].map((point, i) => (
             <span key={point} className="flex items-center gap-2 text-sm text-muted-foreground">

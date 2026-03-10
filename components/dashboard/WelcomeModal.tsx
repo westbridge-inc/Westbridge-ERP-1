@@ -17,7 +17,7 @@ const CARDS = [
   },
   {
     title: "Explore modules",
-    description: "Browse 38+ modules tailored for Caribbean business",
+    description: "Browse 38+ modules for every part of your business",
     icon: LayoutGrid,
     href: "/dashboard",
   },

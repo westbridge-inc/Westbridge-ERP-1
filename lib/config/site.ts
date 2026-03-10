@@ -6,7 +6,7 @@ export const SITE = {
   name: "Westbridge",
   wordmark: "WESTBRIDGE",
   legal: "INC.",
-  tagline: "Enterprise intelligence for the Caribbean",
+  tagline: "Enterprise intelligence for growing businesses",
   domain: "westbridge.gy",
   appDomain: "app.westbridge.gy",
   /** Path to main logo (black/white mark + wordmark). Use in Navbar, Sidebar, Login. */
