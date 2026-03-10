@@ -3,7 +3,7 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   BarChart,
@@ -141,39 +141,48 @@ export default function AccountingPage() {
   const [purchaseInvoices, setPurchaseInvoices] = useState<RawInvoice[]>([]);
   const [payments, setPayments] = useState<RawPayment[]>([]);
 
+  const [fetchKey, setFetchKey] = useState(0);
+
   /* ---------- Fetch data ---------- */
 
-  const loadData = useCallback(async () => {
-    setState("loading");
-    setErrorMessage(null);
-    try {
-      const [si, pi, pe] = await Promise.all([
-        fetchDoctype("Sales Invoice", 200),
-        fetchDoctype("Purchase Invoice", 200),
-        fetchDoctype("Payment Entry", 50),
-      ]);
-      const siList = si as RawInvoice[];
-      const piList = pi as RawInvoice[];
-      const peList = pe as RawPayment[];
-
-      if (siList.length === 0 && piList.length === 0 && peList.length === 0) {
-        setState("empty");
-        return;
-      }
-
-      setSalesInvoices(siList);
-      setPurchaseInvoices(piList);
-      setPayments(peList);
-      setState("success");
-    } catch {
-      setState("error");
-      setErrorMessage("Failed to load accounting data. Please try again.");
-    }
-  }, []);
-
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    let cancelled = false;
+
+    (async () => {
+      setState("loading");
+      setErrorMessage(null);
+      try {
+        const [si, pi, pe] = await Promise.all([
+          fetchDoctype("Sales Invoice", 200),
+          fetchDoctype("Purchase Invoice", 200),
+          fetchDoctype("Payment Entry", 50),
+        ]);
+        if (cancelled) return;
+        const siList = si as RawInvoice[];
+        const piList = pi as RawInvoice[];
+        const peList = pe as RawPayment[];
+
+        if (siList.length === 0 && piList.length === 0 && peList.length === 0) {
+          setState("empty");
+          return;
+        }
+
+        setSalesInvoices(siList);
+        setPurchaseInvoices(piList);
+        setPayments(peList);
+        setState("success");
+      } catch {
+        if (!cancelled) {
+          setState("error");
+          setErrorMessage("Failed to load accounting data. Please try again.");
+        }
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [fetchKey]);
+
+  const loadData = () => setFetchKey((k) => k + 1);
 
   /* ---------- Computed metrics ---------- */
 

@@ -226,12 +226,28 @@ export function ErpFormPage({
         body[lineItemChildKey] = lineItems;
       }
 
-      let result: unknown;
-      if (isEdit && name) {
-        result = await api.erp.update(doctype, name, body);
-      } else {
-        result = await api.erp.create(doctype, body);
+      const payload = isEdit && name
+        ? JSON.stringify({ doctype, name, data: body })
+        : JSON.stringify({ doctype, data: body });
+
+      const res = await fetch(`${API_BASE}/api/erp/doc`, {
+        method: isEdit ? "PUT" : "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+        },
+        body: payload,
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        const message = (errBody as { error?: { message?: string } })?.error?.message ?? `HTTP ${res.status}`;
+        throw new Error(message);
       }
+
+      const resBody = await res.json();
+      const result: unknown = (resBody as { data: unknown }).data;
 
       toast.success(isEdit ? `${doctype} updated successfully` : `${doctype} created successfully`);
 

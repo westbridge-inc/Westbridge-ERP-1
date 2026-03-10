@@ -3,7 +3,7 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   AreaChart,
   Area,
@@ -92,36 +92,45 @@ export default function AnalyticsPage() {
   const [salesInvoices, setSalesInvoices] = useState<RawInvoice[]>([]);
   const [purchaseInvoices, setPurchaseInvoices] = useState<RawInvoice[]>([]);
 
+  const [fetchKey, setFetchKey] = useState(0);
+
   /* ---------- Fetch data ---------- */
 
-  const loadData = useCallback(async () => {
-    setState("loading");
-    setErrorMessage(null);
-    try {
-      const [si, pi] = await Promise.all([
-        fetchDoctype("Sales Invoice", 500),
-        fetchDoctype("Purchase Invoice", 200),
-      ]);
-      const siList = si as RawInvoice[];
-      const piList = pi as RawInvoice[];
-
-      if (siList.length === 0 && piList.length === 0) {
-        setState("empty");
-        return;
-      }
-
-      setSalesInvoices(siList);
-      setPurchaseInvoices(piList);
-      setState("success");
-    } catch {
-      setState("error");
-      setErrorMessage("Failed to load analytics data. Please try again.");
-    }
-  }, []);
-
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    let cancelled = false;
+
+    (async () => {
+      setState("loading");
+      setErrorMessage(null);
+      try {
+        const [si, pi] = await Promise.all([
+          fetchDoctype("Sales Invoice", 500),
+          fetchDoctype("Purchase Invoice", 200),
+        ]);
+        if (cancelled) return;
+        const siList = si as RawInvoice[];
+        const piList = pi as RawInvoice[];
+
+        if (siList.length === 0 && piList.length === 0) {
+          setState("empty");
+          return;
+        }
+
+        setSalesInvoices(siList);
+        setPurchaseInvoices(piList);
+        setState("success");
+      } catch {
+        if (!cancelled) {
+          setState("error");
+          setErrorMessage("Failed to load analytics data. Please try again.");
+        }
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [fetchKey]);
+
+  const loadData = () => setFetchKey((k) => k + 1);
 
   /* ---------- Revenue Trend (12 months) ---------- */
 

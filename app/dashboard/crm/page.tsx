@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Users, Briefcase } from "lucide-react";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { Badge } from "@/components/ui/Badge";
@@ -162,7 +163,7 @@ export default function CRMPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">CRM Pipeline</h1>
             <p className="text-sm text-muted-foreground">Track deals through your sales pipeline</p>
           </div>
-          <Button variant="primary" asChild><a href="/dashboard/crm/new">+ Create New</a></Button>
+          <Button variant="primary" asChild><Link href="/dashboard/crm/new">+ Create New</Link></Button>
         </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -186,7 +187,7 @@ export default function CRMPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">CRM Pipeline</h1>
           <p className="text-sm text-muted-foreground">Track deals through your sales pipeline</p>
         </div>
-        <Button variant="primary" asChild><a href="/dashboard/crm/new">+ Create New</a></Button>
+        <Button variant="primary" asChild><Link href="/dashboard/crm/new">+ Create New</Link></Button>
       </div>
       {loading ? (
         <KanbanSkeleton />
