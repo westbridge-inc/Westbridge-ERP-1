@@ -40,8 +40,8 @@ interface InventoryStats {
 /*  Badge variant mapping for inventory-specific statuses              */
 /* ------------------------------------------------------------------ */
 
-function inventoryBadgeVariant(status: string): "success" | "warning" | "error" {
-  if (status === "Out of Stock") return "error";
+function inventoryBadgeVariant(status: string): "success" | "warning" | "destructive" {
+  if (status === "Out of Stock") return "destructive";
   if (status === "Low Stock") return "warning";
   return "success";
 }

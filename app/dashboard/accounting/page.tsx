@@ -33,7 +33,7 @@ import { Calculator } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { SkeletonCard, SkeletonChart } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { formatCurrency } from "@/lib/locale/currency";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
@@ -219,18 +219,18 @@ export default function AccountingPage() {
       <div className="space-y-6">
         {header}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
+          <Skeleton className="h-24 w-full rounded-lg" />
+          <Skeleton className="h-24 w-full rounded-lg" />
+          <Skeleton className="h-24 w-full rounded-lg" />
         </div>
         <Card>
           <CardContent className="p-6">
-            <SkeletonChart height={256} />
+            <Skeleton className="h-64 w-full rounded-lg" />
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6">
-            <SkeletonChart height={180} />
+            <Skeleton className="h-44 w-full rounded-lg" />
           </CardContent>
         </Card>
       </div>

@@ -26,7 +26,7 @@ import {
 import { SITE, ROUTES } from "@/lib/config/site";
 import { useShortcuts } from "@/components/dashboard/ShortcutsContext";
 import { useSidebar } from "@/components/dashboard/SidebarContext";
-import { Tooltip } from "@/components/ui/Tooltip";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/Tooltip";
 
 /** Placeholder until /api/auth/me or session context provides real user. */
 const PLACEHOLDER_USER = { name: "Admin", email: "admin@acme.gy" };
@@ -182,14 +182,19 @@ function SidebarProfile({
   if (isCollapsed) {
     return (
       <div ref={containerRef} className="relative flex flex-col items-center gap-2">
-        <Tooltip content="Account" side="right">
-          <div className="relative">
-            {avatarButton}
-            <div className="absolute left-full top-0 z-10 ml-1">
-              <AnimatePresence>{dropdown}</AnimatePresence>
-            </div>
-          </div>
-        </Tooltip>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="relative">
+                {avatarButton}
+                <div className="absolute left-full top-0 z-10 ml-1">
+                  <AnimatePresence>{dropdown}</AnimatePresence>
+                </div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">Account</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     );
   }
@@ -289,9 +294,12 @@ function SidebarContent({ onNavClick, forceExpanded }: { onNavClick?: () => void
                   </Link>
                 );
                 return isCollapsed ? (
-                  <Tooltip key={item.href} content={item.label} side="right">
-                    {linkEl}
-                  </Tooltip>
+                  <TooltipProvider key={item.href}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>{linkEl}</TooltipTrigger>
+                      <TooltipContent side="right">{item.label}</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ) : (
                   <div key={item.href}>{linkEl}</div>
                 );

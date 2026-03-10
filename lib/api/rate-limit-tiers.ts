@@ -4,6 +4,7 @@
  */
 import { getRedis } from "@/lib/redis";
 import { logger } from "@/lib/logger";
+import { RATE_LIMIT_TIERS, RATE_LIMIT_COST } from "@/lib/constants";
 
 export type RateLimitTier = "anonymous" | "authenticated" | "api_key" | "admin";
 
@@ -232,8 +233,6 @@ export function getPlanRateLimit(
   plan: string,
   operation: string = "default"
 ): { limit: number; windowMs: number } {
-  // Use the canonical constants — import at call time to avoid circular dep.
-  const { RATE_LIMIT_TIERS, RATE_LIMIT_COST } = require("@/lib/constants");
   const planKey = plan.toLowerCase() as keyof typeof RATE_LIMIT_TIERS;
   const tier = RATE_LIMIT_TIERS[planKey] ?? RATE_LIMIT_TIERS.starter;
   const cost = RATE_LIMIT_COST[operation as keyof typeof RATE_LIMIT_COST] ?? RATE_LIMIT_COST.default;

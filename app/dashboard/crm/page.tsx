@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { SkeletonCard } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/lib/locale/currency";
 import { formatDate } from "@/lib/locale/date";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
@@ -71,7 +71,7 @@ function KanbanSkeleton() {
           </div>
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, j) => (
-              <SkeletonCard key={j} />
+              <Skeleton key={j} className="h-24 w-full rounded-lg" />
             ))}
           </div>
         </div>

@@ -11,7 +11,7 @@ import type { PlanId } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/Select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { validatePassword } from "@/lib/password-policy";
 
@@ -133,33 +133,24 @@ function SignupContent() {
                   <p className="text-sm text-destructive" role="alert">{step1Errors.company}</p>
                 )}
               </div>
-              <Select
-                label="Industry"
-                value={industry}
-                onChange={(e) => {
-                  setIndustry(e.target.value);
-                  if (step1Errors.industry) setStep1Errors((p) => ({ ...p, industry: undefined }));
-                }}
-                options={[
-                  { value: "", label: "Select industry" },
-                  ...INDUSTRIES.map((i) => ({ value: i, label: i })),
-                ]}
-              />
-              <Select
-                label="Country"
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                options={CARIBBEAN_COUNTRIES.map((c) => ({ value: c, label: c }))}
-              />
-              <Select
-                label="Number of employees"
-                value={String(employees)}
-                onChange={(e) => setEmployees(Number(e.target.value))}
-                options={[1, 5, 10, 25, 50, 100].map((n) => ({
-                  value: String(n),
-                  label: n === 100 ? "100+" : String(n),
-                }))}
-              />
+              <Select value={industry} onValueChange={(v) => { setIndustry(v); if (step1Errors.industry) setStep1Errors((p) => ({ ...p, industry: undefined })); }}>
+                <SelectTrigger><SelectValue placeholder="Select industry" /></SelectTrigger>
+                <SelectContent>
+                  {INDUSTRIES.map((i) => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={country} onValueChange={setCountry}>
+                <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+                <SelectContent>
+                  {CARIBBEAN_COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={String(employees)} onValueChange={(v) => setEmployees(Number(v))}>
+                <SelectTrigger><SelectValue placeholder="Number of employees" /></SelectTrigger>
+                <SelectContent>
+                  {[1, 5, 10, 25, 50, 100].map((n) => <SelectItem key={n} value={String(n)}>{n === 100 ? "100+" : String(n)}</SelectItem>)}
+                </SelectContent>
+              </Select>
               <Button
                 variant="default"
                 size="lg"

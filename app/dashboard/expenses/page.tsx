@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { SkeletonCard } from "@/components/ui/Skeleton";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/lib/locale/currency";
 import { formatDate } from "@/lib/locale/date";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
@@ -185,9 +185,9 @@ export default function ExpensesPage() {
       </div>
       {loading ? (
         <div className="flex gap-6">
-          <SkeletonCard className="flex-1" />
-          <SkeletonCard className="flex-1" />
-          <SkeletonCard className="flex-1" />
+          <Skeleton className="h-24 flex-1 rounded-lg" />
+          <Skeleton className="h-24 flex-1 rounded-lg" />
+          <Skeleton className="h-24 flex-1 rounded-lg" />
         </div>
       ) : (
         <div className="flex gap-6">

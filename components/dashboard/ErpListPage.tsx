@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { SkeletonTable } from "@/components/ui/SkeletonTable";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Select } from "@/components/ui/Select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/Select";
 import { cn } from "@/lib/utils";
 
 export interface ErpListPageFilter {
@@ -153,11 +153,18 @@ export function ErpListPage<T>({
         {pageSizeOptions.length > 0 && (
           <div className="ml-auto flex items-center gap-2">
             <Select
-              label="Per page"
               value={String(pageSize)}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              options={pageSizeOptions.map((n) => ({ value: String(n), label: String(n) }))}
-            />
+              onValueChange={(v) => setPageSize(Number(v))}
+            >
+              <SelectTrigger className="w-[80px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {pageSizeOptions.map((n) => (
+                  <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
       </div>

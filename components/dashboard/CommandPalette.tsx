@@ -217,7 +217,6 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           <>
             <CommandGroup heading="Recent">
               {recentItems.map((item) => {
-                const Icon = item.icon;
                 return (
                   <CommandItem
                     key={`recent-${item.href}`}

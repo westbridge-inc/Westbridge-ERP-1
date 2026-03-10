@@ -6,6 +6,7 @@ import { securityHeaders } from "@/lib/security-headers";
 import { getRedis } from "@/lib/redis";
 import { getUptimeSeconds } from "@/lib/uptime";
 import os from "os";
+import { statfsSync } from "fs";
 import packageJson from "../../../package.json";
 
 export const dynamic = "force-dynamic";
@@ -78,7 +79,6 @@ function checkMemory(): CheckResult {
 
 function checkDisk(): CheckResult {
   try {
-    const { statfsSync } = require("fs");
     const stat = statfsSync("/");
     const totalBytes = stat.blocks * stat.bsize;
     const freeBytes = stat.bfree * stat.bsize;

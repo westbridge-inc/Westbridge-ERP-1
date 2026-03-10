@@ -7,14 +7,14 @@ import { useSearchParams } from "next/navigation";
 import { Copy, ExternalLink, Check, ChevronRight, AlertCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { Tabs } from "@/components/ui/Tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Badge } from "@/components/ui/Badge";
-import { Tooltip } from "@/components/ui/Tooltip";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/Tooltip";
 import { useToasts } from "@/components/ui/Toasts";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -318,7 +318,15 @@ function SettingsContent() {
     <div>
       <PageHeader title="Settings" description="Manage your account and preferences" />
       <div className="mt-8">
-        <Tabs items={TAB_ITEMS} activeId={tab} onChange={setTab} />
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="flex h-auto flex-wrap gap-1 bg-transparent p-0">
+            {TAB_ITEMS.map((t) => (
+              <TabsTrigger key={t.id} value={t.id} className="rounded-md px-3 py-1.5 text-sm">
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </div>
       <div className="mt-6 space-y-6">
 
@@ -338,19 +346,23 @@ function SettingsContent() {
                   </>
                 ) : (
                   <>
-                    <Input
-                      label="Name"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="Your name"
-                    />
-                    <Input
-                      label="Email"
-                      type="email"
-                      value={email}
-                      disabled
-                      className="bg-muted"
-                    />
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium leading-none text-foreground">Name</label>
+                      <Input
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="Your name"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium leading-none text-foreground">Email</label>
+                      <Input
+                        type="email"
+                        value={email}
+                        disabled
+                        className="bg-muted"
+                      />
+                    </div>
                     <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 py-3 px-4">
                       <div className="flex items-center gap-3">
                         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-success/10 text-success">
@@ -395,7 +407,7 @@ function SettingsContent() {
                     <p className="text-sm font-medium text-foreground">{item.label}</p>
                     <p className="text-xs text-muted-foreground">{item.desc}</p>
                   </div>
-                  <Switch id={`notif-${item.id}`} checked={item.value} onChange={(v) => handleNotifToggle(item.set, v)} aria-label={item.label} />
+                  <Switch id={`notif-${item.id}`} checked={item.value} onCheckedChange={(v) => handleNotifToggle(item.set, v)} aria-label={item.label} />
                 </div>
               ))}
             </CardContent>
@@ -496,15 +508,20 @@ function SettingsContent() {
                   <p className="text-sm font-medium text-foreground">Two-factor authentication</p>
                   <p className="text-sm text-muted-foreground">Add a second verification step on sign-in.</p>
                 </div>
-                <Tooltip content="Two-factor authentication is coming soon." side="left">
-                  <Button
-                    className="h-9 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm opacity-50 cursor-not-allowed"
-                    disabled
-                    aria-disabled="true"
-                  >
-                    Enable
-                  </Button>
-                </Tooltip>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        className="h-9 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm opacity-50 cursor-not-allowed"
+                        disabled
+                        aria-disabled="true"
+                      >
+                        Enable
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left">Two-factor authentication is coming soon.</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
               <div className="flex justify-between items-start py-4">
                 <div>
@@ -661,7 +678,7 @@ function SettingsContent() {
                           ) : isActive ? (
                             <span className="text-sm text-success">Active</span>
                           ) : (
-                            <Button variant="secondary" size="sm" onClick={() => setModuleActivateConfirm({ name: m.name, id: m.id, price: 0 })}>Activate</Button>
+                            <Button variant="secondary" onClick={() => setModuleActivateConfirm({ name: m.name, id: m.id, price: 0 })}>Activate</Button>
                           )}
                         </div>
                       );
@@ -685,7 +702,7 @@ function SettingsContent() {
             <div>
               <div className="flex items-center justify-between gap-4">
                 <p className="text-base font-semibold text-foreground">API Keys</p>
-                <Button variant="primary" size="md" onClick={() => setApiKeyModal({ open: true, label: "", generatedKey: null })}>Generate new key</Button>
+                <Button variant="primary" onClick={() => setApiKeyModal({ open: true, label: "", generatedKey: null })}>Generate new key</Button>
               </div>
               <div className="mt-4 overflow-hidden rounded-md border border-border">
                 <Table>
@@ -727,7 +744,7 @@ function SettingsContent() {
                 ) : (
                   <code className="flex-1 rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground break-all">{webhookUrl}</code>
                 )}
-                <Button variant="secondary" size="md" onClick={() => copyToClipboard(webhookUrl, "Webhook URL")} disabled={profileLoading} leftIcon={<Copy className="h-4 w-4" />}>Copy</Button>
+                <Button variant="secondary" onClick={() => copyToClipboard(webhookUrl, "Webhook URL")} disabled={profileLoading} leftIcon={<Copy className="h-4 w-4" />}>Copy</Button>
               </div>
             </div>
           </div>
@@ -781,20 +798,24 @@ function SettingsContent() {
       {/* ── Change password modal ── */}
       <Modal open={changePwModal} onClose={() => setChangePwModal(false)} title="Change password">
         <form onSubmit={handleChangePw} className="space-y-4">
-          <Input
-            label="Current password"
-            type="password"
-            value={currentPw}
-            onChange={(e) => setCurrentPw(e.target.value)}
-            autoComplete="current-password"
-          />
-          <Input
-            label="New password"
-            type="password"
-            value={newPw}
-            onChange={(e) => setNewPw(e.target.value)}
-            autoComplete="new-password"
-          />
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium leading-none text-foreground">Current password</label>
+            <Input
+              type="password"
+              value={currentPw}
+              onChange={(e) => setCurrentPw(e.target.value)}
+              autoComplete="current-password"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium leading-none text-foreground">New password</label>
+            <Input
+              type="password"
+              value={newPw}
+              onChange={(e) => setNewPw(e.target.value)}
+              autoComplete="new-password"
+            />
+          </div>
           {newPw && !pwValidation.valid && (
             <ul className="space-y-1">
               {pwValidation.errors.map((err) => (
@@ -802,20 +823,21 @@ function SettingsContent() {
               ))}
             </ul>
           )}
-          <Input
-            label="Confirm new password"
-            type="password"
-            value={confirmPw}
-            onChange={(e) => setConfirmPw(e.target.value)}
-            autoComplete="new-password"
-          />
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium leading-none text-foreground">Confirm new password</label>
+            <Input
+              type="password"
+              value={confirmPw}
+              onChange={(e) => setConfirmPw(e.target.value)}
+              autoComplete="new-password"
+            />
+          </div>
           {pwError && <p className="text-sm text-destructive">{pwError}</p>}
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" size="md" type="button" onClick={() => setChangePwModal(false)}>Cancel</Button>
+            <Button variant="secondary" type="button" onClick={() => setChangePwModal(false)}>Cancel</Button>
             <Button
               variant="primary"
-              size="md"
-              type="submit"
+                           type="submit"
               loading={pwSaving}
               disabled={!currentPw || !newPw || !confirmPw}
             >
@@ -845,10 +867,13 @@ function SettingsContent() {
         <div className="space-y-4">
           {!apiKeyModal.generatedKey ? (
             <>
-              <Input label="Label" value={apiKeyModal.label} onChange={(e) => setApiKeyModal((p) => ({ ...p, label: e.target.value }))} placeholder="e.g. Production" />
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium leading-none text-foreground">Label</label>
+                <Input value={apiKeyModal.label} onChange={(e) => setApiKeyModal((p) => ({ ...p, label: e.target.value }))} placeholder="e.g. Production" />
+              </div>
               <div className="flex justify-end gap-2">
-                <Button variant="secondary" size="md" onClick={() => setApiKeyModal({ open: false, label: "", generatedKey: null })}>Cancel</Button>
-                <Button variant="primary" size="md" onClick={handleGenerateKey}>Generate</Button>
+                <Button variant="secondary" onClick={() => setApiKeyModal({ open: false, label: "", generatedKey: null })}>Cancel</Button>
+                <Button variant="primary" onClick={handleGenerateKey}>Generate</Button>
               </div>
             </>
           ) : (
@@ -856,9 +881,9 @@ function SettingsContent() {
               <p className="text-sm text-muted-foreground">Copy this key now. It won&apos;t be shown again.</p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 rounded-lg border border-border bg-muted px-3 py-2 text-sm font-mono break-all text-foreground">{apiKeyModal.generatedKey}</code>
-                <Button variant="secondary" size="md" onClick={() => copyToClipboard(apiKeyModal.generatedKey!, "API key")} leftIcon={<Copy className="h-4 w-4" />}>Copy</Button>
+                <Button variant="secondary" onClick={() => copyToClipboard(apiKeyModal.generatedKey!, "API key")} leftIcon={<Copy className="h-4 w-4" />}>Copy</Button>
               </div>
-              <Button variant="primary" size="md" className="w-full" onClick={() => setApiKeyModal({ open: false, label: "", generatedKey: null })}>Done</Button>
+              <Button variant="primary" className="w-full" onClick={() => setApiKeyModal({ open: false, label: "", generatedKey: null })}>Done</Button>
             </>
           )}
         </div>

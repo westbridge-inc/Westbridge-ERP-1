@@ -8,7 +8,7 @@ if (dsn) {
     tracesSampleRate: process.env.NODE_ENV === "development" ? 1.0 : 0.1,
     debug: false,
     environment: process.env.NODE_ENV ?? "development",
-    beforeSend(event) {
+    beforeSend(event: Sentry.ErrorEvent) {
       if (event.request?.cookies) (event.request as { cookies?: unknown }).cookies = "[REDACTED]";
       if (event.request?.data) {
         const data = event.request.data as Record<string, unknown> | undefined;
