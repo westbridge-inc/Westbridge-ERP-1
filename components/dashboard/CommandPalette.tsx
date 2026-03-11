@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -123,7 +124,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         await Promise.all(
           RECORD_DOCTYPES.map(async ({ doctype, label, hrefBase }) => {
             const res = await fetch(
-              `/api/erp/list?doctype=${encodeURIComponent(doctype)}&limit=5&filters=${encodeURIComponent(filters)}`,
+              `${API_BASE}/api/erp/list?doctype=${encodeURIComponent(doctype)}&limit=5&filters=${encodeURIComponent(filters)}`,
               { signal: recordAbortRef.current?.signal }
             );
             if (!res.ok) return;

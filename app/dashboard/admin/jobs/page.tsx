@@ -78,7 +78,7 @@ export default function AdminJobsPage() {
   async function retryJob(jobId: string, queueName: string) {
     setRetrying(jobId);
     try {
-      const res = await fetch(`/api/admin/jobs/${jobId}/retry?queue=${queueName}`, { method: "POST" });
+      const res = await fetch(`${API_BASE}/api/admin/jobs/${jobId}/retry?queue=${queueName}`, { method: "POST" });
       if (!res.ok) throw new Error("Retry failed");
       toast.success(`Job ${jobId} queued for retry`);
       await fetchStats();

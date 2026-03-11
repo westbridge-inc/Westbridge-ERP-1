@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo } from "react";
@@ -125,7 +126,7 @@ export default function PayrollPage() {
     setError(null);
     try {
       const res = await fetch(
-        '/api/erp/list?doctype=Salary+Slip&limit_page_length=100&fields=["name","employee_name","start_date","gross_pay","total_deduction","net_pay","docstatus"]',
+        `${API_BASE}/api/erp/list?doctype=Salary+Slip&limit_page_length=100&fields=["name","employee_name","start_date","gross_pay","total_deduction","net_pay","docstatus"]`,
         { signal }
       );
       if (!res.ok) { setRecords([]); return; }

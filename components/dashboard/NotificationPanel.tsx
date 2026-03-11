@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import { useState, useCallback } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -163,7 +164,7 @@ export function useNotifications() {
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/erp/dashboard");
+      const res = await fetch(`${API_BASE}/api/erp/dashboard`);
       if (!res.ok) {
         setNotifications([]);
         return;

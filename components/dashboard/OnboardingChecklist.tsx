@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,7 +21,7 @@ const STEPS = [
 
 async function checkErpConnected(): Promise<boolean> {
   try {
-    const res = await fetch("/api/erp/list?doctype=Company&limit_page_length=1");
+    const res = await fetch(`${API_BASE}/api/erp/list?doctype=Company&limit_page_length=1`);
     return res.ok;
   } catch {
     return false;
@@ -29,7 +30,7 @@ async function checkErpConnected(): Promise<boolean> {
 
 async function checkErpListHasRows(doctype: string): Promise<boolean> {
   try {
-    const res = await fetch(`/api/erp/list?doctype=${encodeURIComponent(doctype)}&limit_page_length=1`);
+    const res = await fetch(`${API_BASE}/api/erp/list?doctype=${encodeURIComponent(doctype)}&limit_page_length=1`);
     if (!res.ok) return false;
     const json = await res.json();
     const data = json.data;

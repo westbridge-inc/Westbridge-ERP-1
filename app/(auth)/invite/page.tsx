@@ -45,7 +45,7 @@ function InviteContent() {
 
   useEffect(() => {
     if (!token) { setInviteError("Missing invite token."); setLoading(false); return; }
-    fetch(`/api/invite?token=${encodeURIComponent(token)}`)
+    fetch(`${API_BASE}/api/invite?token=${encodeURIComponent(token)}`)
       .then((r) => r.json())
       .then((d) => {
         if (!d.ok && d.error) { setInviteError(d.error.message ?? d.error ?? "Invalid invite"); return; }

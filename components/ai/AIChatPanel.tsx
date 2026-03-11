@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import { useState, useRef, useEffect } from "react";
 import { Zap, X, Send, Loader2, AlertCircle, Sparkles } from "lucide-react";
 
@@ -45,7 +46,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/ai/chat", {
+      const res = await fetch(`${API_BASE}/api/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg, module, conversationId: convId }),

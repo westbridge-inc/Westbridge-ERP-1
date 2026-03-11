@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 
 type ErpConnectionContextValue = {
@@ -20,7 +21,7 @@ export function ErpConnectionProvider({ children }: { children: ReactNode }) {
 
   const checkConnection = useCallback(async () => {
     try {
-      const res = await fetch("/api/erp/list?doctype=Company&limit_page_length=1");
+      const res = await fetch(`${API_BASE}/api/erp/list?doctype=Company&limit_page_length=1`);
       setConnected(res.ok);
     } catch {
       setConnected(false);
