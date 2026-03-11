@@ -10,11 +10,13 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "npx playwright test",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -74,7 +76,14 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18",
-    "wait-on": "^8.0.1"
+    "wait-on": "^8.0.1",
+    "@storybook/react": "8.4.7",
+    "@storybook/nextjs": "8.4.7",
+    "@storybook/addon-essentials": "8.4.7",
+    "@storybook/addon-interactions": "8.4.7",
+    "@storybook/addon-a11y": "8.4.7",
+    "@storybook/blocks": "8.4.7",
+    "storybook": "8.4.7"
   },
   "overrides": {
     "hono": "^4.12.4",

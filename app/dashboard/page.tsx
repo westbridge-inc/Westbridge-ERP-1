@@ -1,19 +1,6 @@
-"use client";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
 import {
   FileText,
   FileBarChart,
@@ -21,50 +8,22 @@ import {
   Users,
   Receipt,
   ShoppingCart,
-  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Button } from "@/components/ui/Button";
-import { WelcomeModal } from "@/components/dashboard/WelcomeModal";
-import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { formatCurrency } from "@/lib/locale/currency";
 import { cn } from "@/lib/utils";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import { serverFetchDashboard } from "@/lib/api/server";
+import { RevenueChart } from "./_components/RevenueChart";
+import { ErpStatusBadge } from "./_components/ErpStatusBadge";
+import { DashboardWelcome } from "./_components/DashboardWelcome";
+import { DashboardError } from "./_components/DashboardError";
 
-const WELCOMED_KEY = "wb_welcomed";
-
-interface RevenuePoint {
-  month: string;
-  value: number;
-}
-
-interface ActivityItem {
-  text: string;
-  time: string;
-  type: "success" | "error" | "info" | "default";
-}
-
-interface DashboardData {
-  revenueMTD: number;
-  revenueChange: number;
-  outstandingCount: number;
-  openDealsCount: number;
-  employeeCount: number;
-  employeeDelta: number;
-  revenueData: RevenuePoint[];
-  activity: ActivityItem[];
-  isDemo?: boolean;
-}
-
-async function fetchDashboardData(): Promise<DashboardData> {
-  const res = await fetch(`${API_BASE}/api/erp/dashboard`, { credentials: "include" });
-  if (!res.ok) {
-    throw new Error(res.status === 401 ? "Session expired. Please sign in again." : "Failed to load dashboard data.");
-  }
-  const json = await res.json();
-  return json.data as DashboardData;
-}
+/* ------------------------------------------------------------------ */
+/*  Helpers (pure functions — safe for Server Components)              */
+/* ------------------------------------------------------------------ */
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -74,12 +33,14 @@ function getGreeting(): string {
 }
 
 function trendArrow(value: number): string {
-  if (value > 0) return `↑ +${value}%`;
-  if (value < 0) return `↓ ${value}%`;
+  if (value > 0) return `\u2191 +${value}%`;
+  if (value < 0) return `\u2193 ${value}%`;
   return "No change";
 }
 
-function activityDotColor(type: ActivityItem["type"]): string {
+type ActivityType = "success" | "error" | "info" | "default";
+
+function activityDotColor(type: ActivityType): string {
   switch (type) {
     case "success": return "bg-success";
     case "error": return "bg-destructive";
@@ -94,125 +55,49 @@ const QUICK_ACTIONS = [
   { label: "Create Quote", href: "/dashboard/quotations", icon: FileBarChart },
 ];
 
-type ErpStatus = "connected" | "syncing" | "error";
+/* ------------------------------------------------------------------ */
+/*  Page (async Server Component)                                      */
+/* ------------------------------------------------------------------ */
 
-export default function DashboardPage() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
-  const [erpStatus, setErpStatus] = useState<ErpStatus>("syncing");
-  const checklistRef = useRef<HTMLDivElement | null>(null);
+export default async function DashboardPage() {
+  let data;
+  let error: string | null = null;
 
-  useEffect(() => {
-    setShowWelcome(typeof window !== "undefined" ? localStorage.getItem(WELCOMED_KEY) !== "true" : false);
-  }, []);
+  try {
+    data = await serverFetchDashboard();
+  } catch (err) {
+    error = err instanceof Error ? err.message : "Failed to load dashboard data.";
+  }
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await fetchDashboardData();
-      setData(result);
-    } catch (err) {
-      setData(null);
-      setError(err instanceof Error ? err.message : "Failed to load dashboard data.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  useEffect(() => {
-    function checkErp() {
-      fetch(`${API_BASE}/api/health/ready`, { cache: "no-store", credentials: "include" })
-        .then((r) => setErpStatus(r.ok ? "connected" : "error"))
-        .catch(() => setErpStatus("error"));
-    }
-    checkErp();
-    const interval = setInterval(checkErp, 30_000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (error && !data) {
+  /* --- error state --- */
+  if (error || !data) {
     return (
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">{getGreeting()}</h1>
         <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening at your account</p>
-        <Card className="mt-8 border-destructive/50">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <p className="text-sm text-destructive">{error}</p>
-            <Button variant="outline" className="mt-4" onClick={loadData}>Retry</Button>
-          </CardContent>
-        </Card>
+        <DashboardError message={error ?? "Failed to load dashboard data."} />
       </div>
     );
   }
 
-  if (loading || !data) {
-    return (
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{getGreeting()}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening at your account</p>
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i}>
-              <CardHeader className="pb-2">
-                <div className="h-3 w-24 animate-pulse rounded bg-muted" />
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 w-20 animate-pulse rounded bg-muted" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <div className="mt-8 h-64 animate-pulse rounded-xl bg-muted" />
-      </div>
-    );
-  }
-
+  /* --- success state --- */
   return (
     <div>
-      <WelcomeModal
-        open={showWelcome === true}
-        onClose={() => setShowWelcome(false)}
-        onGetStarted={() => {
-          setShowWelcome(false);
-          requestAnimationFrame(() => checklistRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
-        }}
-      />
+      <DashboardWelcome />
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{getGreeting()}</h1>
           <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening at your account</p>
         </div>
-        {erpStatus === "connected" && (
-          <span className="rounded-full border border-success/20 bg-success/10 px-3 py-1 text-xs font-medium text-success">
-            ERP Connected
-          </span>
-        )}
-        {erpStatus === "syncing" && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            Connecting…
-          </span>
-        )}
-        {erpStatus === "error" && (
-          <span className="rounded-full border border-destructive/20 bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
-            ERP Offline
-          </span>
-        )}
+        <ErpStatusBadge />
       </div>
-      <OnboardingChecklist checklistRef={checklistRef} />
 
       {data.isDemo && (
         <div className="mt-4 flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-warning">
-          <span className="shrink-0">⚠</span>
+          <span className="shrink-0">{"\u26A0"}</span>
           <span>
-            <strong>Sample data</strong> — your ERP is offline or not yet connected. These numbers are for illustration only.
+            <strong>Sample data</strong> &mdash; your ERP is offline or not yet connected. These numbers are for illustration only.
           </span>
         </div>
       )}
@@ -249,30 +134,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="mt-8 rounded-xl border border-border bg-card p-6">
-        <p className="font-display text-lg font-semibold text-foreground">Revenue</p>
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Last 6 months</p>
-        <div className="mt-4 h-64 w-full">
-          <ResponsiveContainer width="100%" height={256}>
-            <AreaChart data={data.revenueData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.2} />
-                  <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border" />
-              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} className="text-muted-foreground" />
-              <YAxis hide domain={[0, 4]} />
-              <Tooltip
-                formatter={(value) => [value != null ? `${Number(value)}M` : "—", "Revenue"]}
-                contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 6 }}
-              />
-              <Area type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} fill="url(#fillRevenue)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      <RevenueChart data={data.revenueData} />
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
