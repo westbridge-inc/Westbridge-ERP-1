@@ -80,7 +80,7 @@ export default function ProcurementPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Procurement</h1>
             <p className="text-sm text-muted-foreground">Purchase orders and suppliers</p>
           </div>
-          <Button variant="primary">+ Create New</Button>
+          <Button variant="primary" onClick={() => router.push("/dashboard/procurement/new")}>+ Create New</Button>
         </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -99,7 +99,7 @@ export default function ProcurementPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Procurement</h1>
           <p className="text-sm text-muted-foreground">Purchase orders and suppliers</p>
         </div>
-        <Button variant="primary">+ Create New</Button>
+        <Button variant="primary" onClick={() => router.push("/dashboard/procurement/new")}>+ Create New</Button>
       </div>
       <Card>
         <CardContent className="p-0">

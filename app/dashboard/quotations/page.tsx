@@ -68,7 +68,7 @@ export default function QuotationsPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Quotations</h1>
             <p className="text-sm text-muted-foreground">Sales quotations and proposals</p>
           </div>
-          <Button variant="primary">+ Create New</Button>
+          <Button variant="primary" onClick={() => router.push("/dashboard/quotations/new")}>+ Create New</Button>
         </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -87,7 +87,7 @@ export default function QuotationsPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Quotations</h1>
           <p className="text-sm text-muted-foreground">Sales quotations and proposals</p>
         </div>
-        <Button variant="primary">+ Create New</Button>
+        <Button variant="primary" onClick={() => router.push("/dashboard/quotations/new")}>+ Create New</Button>
       </div>
       <Card>
         <CardContent className="p-0">

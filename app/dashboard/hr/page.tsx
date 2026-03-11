@@ -1,5 +1,6 @@
 "use client";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo } from "react";
@@ -104,7 +105,7 @@ export default function HRPage() {
     setError(null);
     try {
       const res = await fetch(
-        '/api/erp/list?doctype=Employee&limit_page_length=100&fields=["name","employee_name","designation","department","status","date_of_joining"]',
+        `${API_BASE}/api/erp/list?doctype=Employee&limit_page_length=100&fields=["name","employee_name","designation","department","status","date_of_joining"]`,
         { signal }
       );
       if (!res.ok) { setEmployees([]); return; }
@@ -140,7 +141,7 @@ export default function HRPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">HR</h1>
         <p className="text-sm text-muted-foreground">Employee directory and management</p>
       </div>
-      <Button variant="primary">+ Create New</Button>
+      <Button variant="primary" onClick={() => router.push("/dashboard/hr/new")}>+ Create New</Button>
     </div>
   );
 

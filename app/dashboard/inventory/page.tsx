@@ -179,7 +179,7 @@ export default function InventoryPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Inventory</h1>
         <p className="text-sm text-muted-foreground">Stock levels and warehouse management</p>
       </div>
-      <Button variant="primary">+ Create New</Button>
+      <Button variant="primary" onClick={() => router.push("/dashboard/inventory/new")}>+ Create New</Button>
     </div>
   );
 

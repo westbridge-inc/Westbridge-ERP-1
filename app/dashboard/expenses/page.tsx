@@ -159,7 +159,7 @@ export default function ExpensesPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Expenses</h1>
             <p className="text-sm text-muted-foreground">Expense claims and approvals</p>
           </div>
-          <Button variant="primary">+ Add Expense</Button>
+          <Button variant="primary" onClick={() => router.push("/dashboard/expenses/new")}>+ Add Expense</Button>
         </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -183,7 +183,7 @@ export default function ExpensesPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Expenses</h1>
           <p className="text-sm text-muted-foreground">Expense claims and approvals</p>
         </div>
-        <Button variant="primary">+ Add Expense</Button>
+        <Button variant="primary" onClick={() => router.push("/dashboard/expenses/new")}>+ Add Expense</Button>
       </div>
       {loading ? (
         <div className="flex gap-6">
