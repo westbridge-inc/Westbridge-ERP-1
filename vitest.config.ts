@@ -5,9 +5,10 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: true,
+    setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.ts", "**/*.test.tsx"],
     exclude: ["**/node_modules/**", "**/e2e/**", "**/.next/**"],
-    environmentMatchGlobs: [["**/*.test.tsx", "jsdom"]],
+    environmentMatchGlobs: [["**/*.test.tsx", "happy-dom"]],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
