@@ -1,0 +1,29 @@
+# Fly.io deployment config for Westbridge ERP Frontend
+# Deploy: fly deploy
+# Docs: https://fly.io/docs/reference/configuration/
+
+app = "westbridge-frontend"
+primary_region = "iad"
+
+[build]
+  dockerfile = "erpnext/Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 250
+    soft_limit = 200
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
