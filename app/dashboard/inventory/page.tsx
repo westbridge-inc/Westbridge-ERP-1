@@ -144,6 +144,16 @@ function mapStockEntry(d: Record<string, unknown>): GenericRow {
   };
 }
 
+function mapDeliveryNote(d: Record<string, unknown>): GenericRow {
+  return {
+    id: String(d.name ?? ""),
+    customer: String(d.customer_name ?? d.customer ?? "\u2014"),
+    postingDate: String(d.posting_date ?? ""),
+    status: String(d.status ?? "Draft").trim(),
+    grandTotal: Number(d.grand_total ?? 0),
+  };
+}
+
 function mapWarehouse(d: Record<string, unknown>): GenericRow {
   return {
     id: String(d.name ?? ""),
@@ -167,10 +177,19 @@ const warehouseColumns: Column<GenericRow>[] = [
   { id: "company", header: "Company", accessor: (r) => <span className="text-muted-foreground/60">{r.company as string}</span>, sortValue: (r) => r.company as string },
 ];
 
+const deliveryNoteColumns: Column<GenericRow>[] = [
+  { id: "id", header: "Delivery #", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
+  { id: "customer", header: "Customer", accessor: (r) => <span className="text-muted-foreground">{r.customer as string}</span>, sortValue: (r) => r.customer as string },
+  { id: "postingDate", header: "Date", accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>, sortValue: (r) => r.postingDate as string },
+  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>, sortValue: (r) => r.status as string },
+  { id: "grandTotal", header: "Total", align: "right", accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.grandTotal as number, "USD")}</span>, sortValue: (r) => r.grandTotal as number },
+];
+
 const TYPE_CONFIG = {
   default: { doctype: "Item", title: "Inventory", subtitle: "Stock levels and warehouse management" },
   entry: { doctype: "Stock Entry", title: "Stock Entries", subtitle: "Track stock movements" },
   warehouse: { doctype: "Warehouse", title: "Warehouses", subtitle: "Manage your warehouses" },
+  delivery: { doctype: "Delivery Note", title: "Delivery Notes", subtitle: "Track outgoing deliveries to customers" },
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -200,7 +219,9 @@ export default function InventoryPage() {
       ? (rawList as Record<string, unknown>[]).map(mapErpItem)
       : type === "entry"
         ? (rawList as Record<string, unknown>[]).map(mapStockEntry)
-        : (rawList as Record<string, unknown>[]).map(mapWarehouse),
+        : type === "delivery"
+          ? (rawList as Record<string, unknown>[]).map(mapDeliveryNote)
+          : (rawList as Record<string, unknown>[]).map(mapWarehouse),
     [rawList, isItem, type],
   );
   const error = queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
@@ -289,16 +310,16 @@ export default function InventoryPage() {
             />
           ) : (
             <DataTable<GenericRow>
-              columns={type === "entry" ? stockEntryColumns : warehouseColumns}
+              columns={type === "entry" ? stockEntryColumns : type === "delivery" ? deliveryNoteColumns : warehouseColumns}
               data={items as GenericRow[]}
               keyExtractor={(r) => r.id}
               onRowClick={(record) => router.push(`/dashboard/inventory/${encodeURIComponent(record.id)}`)}
               loading={false}
               emptyState={
                 <EmptyState
-                  icon={type === "entry" ? <ArrowRightLeft className="h-6 w-6" /> : <Warehouse className="h-6 w-6" />}
+                  icon={type === "entry" ? <ArrowRightLeft className="h-6 w-6" /> : type === "delivery" ? <Package className="h-6 w-6" /> : <Warehouse className="h-6 w-6" />}
                   title={`No ${config.title.toLowerCase()} yet`}
-                  description={`Create your first ${type === "entry" ? "stock entry" : "warehouse"} to get started.`}
+                  description={`Create your first ${type === "entry" ? "stock entry" : type === "delivery" ? "delivery note" : "warehouse"} to get started.`}
                   actionLabel="Create New"
                   actionHref="/dashboard/inventory/new"
                   supportLine={EMPTY_STATE_SUPPORT_LINE}

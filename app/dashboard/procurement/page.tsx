@@ -30,6 +30,14 @@ interface PurchaseOrder {
   status: string;
 }
 
+interface PurchaseReceipt {
+  id: string;
+  supplier: string;
+  postingDate: string;
+  status: string;
+  grandTotal: number;
+}
+
 interface SupplierRow {
   id: string;
   name: string;
@@ -49,6 +57,16 @@ function mapErpPurchaseOrder(d: Record<string, unknown>): PurchaseOrder {
     orderDate: String(d.transaction_date ?? d.posting_date ?? ""),
     expected: String(d.schedule_date ?? d.due_date ?? ""),
     status: String(d.status ?? "Draft").trim(),
+  };
+}
+
+function mapErpPurchaseReceipt(d: Record<string, unknown>): PurchaseReceipt {
+  return {
+    id: String(d.name ?? ""),
+    supplier: String(d.supplier_name ?? d.supplier ?? "\u2014"),
+    postingDate: String(d.posting_date ?? ""),
+    status: String(d.status ?? "Draft").trim(),
+    grandTotal: Number(d.grand_total ?? 0),
   };
 }
 
@@ -98,6 +116,14 @@ const supplierColumns: Column<SupplierRow>[] = [
   { id: "country", header: "Country", accessor: (r) => <span className="text-muted-foreground">{r.country}</span>, sortValue: (r) => r.country },
 ];
 
+const prColumns: Column<PurchaseReceipt>[] = [
+  { id: "id", header: "Receipt #", accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>, sortValue: (r) => r.id },
+  { id: "supplier", header: "Supplier", accessor: (r) => <span className="text-muted-foreground">{r.supplier}</span>, sortValue: (r) => r.supplier },
+  { id: "postingDate", header: "Date", accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.postingDate)}</span>, sortValue: (r) => r.postingDate },
+  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge> },
+  { id: "grandTotal", header: "Total", align: "right", accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.grandTotal, "USD")}</span>, sortValue: (r) => r.grandTotal },
+];
+
 /* ------------------------------------------------------------------ */
 /*  Config by type                                                     */
 /* ------------------------------------------------------------------ */
@@ -106,6 +132,7 @@ const TYPE_CONFIG = {
   default: { doctype: "Purchase Order", title: "Purchase Orders", subtitle: "Purchase orders and suppliers" },
   invoice: { doctype: "Purchase Invoice", title: "Purchase Invoices", subtitle: "Manage purchase invoices and bills" },
   supplier: { doctype: "Supplier", title: "Suppliers", subtitle: "Manage your suppliers" },
+  receipt: { doctype: "Purchase Receipt", title: "Purchase Receipts", subtitle: "Track goods received from suppliers" },
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -118,6 +145,7 @@ export default function ProcurementPage() {
   const type = searchParams.get("type") ?? "default";
   const config = TYPE_CONFIG[type as keyof typeof TYPE_CONFIG] ?? TYPE_CONFIG.default;
   const isSupplier = type === "supplier";
+  const isReceipt = type === "receipt";
 
   const [page, setPage] = useState(0);
   const { data: rawList = [], hasMore, page: currentPage, isLoading: loading, isError, error: queryError, refetch } = useErpList(config.doctype, { page });
@@ -125,8 +153,9 @@ export default function ProcurementPage() {
   const data = useMemo(() => {
     const list = rawList as Record<string, unknown>[];
     if (isSupplier) return list.map(mapErpSupplier);
+    if (isReceipt) return list.map(mapErpPurchaseReceipt);
     return list.map(mapErpPurchaseOrder);
-  }, [rawList, isSupplier]);
+  }, [rawList, isSupplier, isReceipt]);
   const error = queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
 
   if (error) {
@@ -165,7 +194,25 @@ export default function ProcurementPage() {
       <Card>
         <CardContent className="p-0">
           {loading ? (
-            <SkeletonTable rows={6} columns={6} />
+            <SkeletonTable rows={6} columns={isReceipt ? 5 : 6} />
+          ) : isReceipt ? (
+            <DataTable
+              columns={prColumns}
+              data={data as PurchaseReceipt[]}
+              keyExtractor={(r) => r.id}
+              onRowClick={(record) => router.push(`/dashboard/procurement/${encodeURIComponent(record.id)}`)}
+              emptyState={
+                <EmptyState
+                  icon={<Truck className="h-6 w-6" />}
+                  title="No purchase receipts yet"
+                  description="Record your first purchase receipt to track goods received."
+                  actionLabel="Create Receipt"
+                  actionHref="/dashboard/procurement/new"
+                  supportLine={EMPTY_STATE_SUPPORT_LINE}
+                />
+              }
+              pageSize={20}
+            />
           ) : isSupplier ? (
             <DataTable
               columns={supplierColumns}

@@ -125,10 +125,27 @@ const paymentColumns: Column<GenericRow>[] = [
   { id: "modeOfPayment", header: "Mode", accessor: (r) => <span className="text-muted-foreground/60">{r.modeOfPayment as string}</span>, sortValue: (r) => r.modeOfPayment as string },
 ];
 
+function mapCostCenter(d: Record<string, unknown>): GenericRow {
+  return {
+    id: String(d.name ?? ""),
+    costCenterName: String(d.cost_center_name ?? d.name ?? ""),
+    company: String(d.company ?? "\u2014"),
+    isGroup: d.is_group ? "Yes" : "No",
+  };
+}
+
+const costCenterColumns: Column<GenericRow>[] = [
+  { id: "id", header: "Cost Center ID", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
+  { id: "costCenterName", header: "Cost Center Name", accessor: (r) => <span className="text-foreground">{r.costCenterName as string}</span>, sortValue: (r) => r.costCenterName as string },
+  { id: "company", header: "Company", accessor: (r) => <span className="text-muted-foreground">{r.company as string}</span>, sortValue: (r) => r.company as string },
+  { id: "isGroup", header: "Group", accessor: (r) => <span className="text-muted-foreground/60">{r.isGroup as string}</span>, sortValue: (r) => r.isGroup as string },
+];
+
 const LIST_TYPE_CONFIG: Record<string, { doctype: string; title: string; subtitle: string; columns: Column<GenericRow>[]; mapper: (d: Record<string, unknown>) => GenericRow }> = {
   journal: { doctype: "Journal Entry", title: "Journal Entries", subtitle: "General ledger journal entries", columns: journalColumns, mapper: mapJournalEntry },
   coa: { doctype: "Account", title: "Chart of Accounts", subtitle: "Your account structure", columns: accountColumns, mapper: mapAccount },
   payment: { doctype: "Payment Entry", title: "Payment Entries", subtitle: "Payments received and made", columns: paymentColumns, mapper: mapPaymentEntry },
+  costcenter: { doctype: "Cost Center", title: "Cost Centers", subtitle: "Manage cost centers for tracking expenses", columns: costCenterColumns, mapper: mapCostCenter },
 };
 
 /* ------------------------------------------------------------------ */

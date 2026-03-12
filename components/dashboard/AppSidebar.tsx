@@ -16,6 +16,9 @@ import {
   ChevronDown,
   ChevronsLeft,
   ChevronsRight,
+  Factory,
+  Landmark,
+  UserSearch,
 } from "lucide-react";
 import { ROUTES } from "@/lib/config/site";
 import { LogoLink } from "@/components/brand/Logo";
@@ -51,13 +54,15 @@ const SECTIONS = [
     items: [{ label: "Dashboard", href: "/dashboard" }],
   },
   {
-    title: "Sales",
+    title: "Sales & CRM",
     icon: TrendingUp,
     items: [
       { label: "Quotations", href: "/dashboard/quotations" },
       { label: "Sales Orders", href: "/dashboard/invoices?type=order" },
       { label: "Sales Invoices", href: "/dashboard/invoices?type=invoice" },
       { label: "Customers", href: "/dashboard/crm" },
+      { label: "Leads", href: "/dashboard/crm?type=lead" },
+      { label: "Opportunities", href: "/dashboard/crm?type=opportunity" },
     ],
   },
   {
@@ -66,6 +71,7 @@ const SECTIONS = [
     items: [
       { label: "Purchase Orders", href: "/dashboard/procurement" },
       { label: "Purchase Invoices", href: "/dashboard/procurement?type=invoice" },
+      { label: "Purchase Receipts", href: "/dashboard/procurement?type=receipt" },
       { label: "Suppliers", href: "/dashboard/procurement?type=supplier" },
     ],
   },
@@ -75,6 +81,7 @@ const SECTIONS = [
     items: [
       { label: "Items", href: "/dashboard/inventory" },
       { label: "Stock Entry", href: "/dashboard/inventory?type=entry" },
+      { label: "Delivery Notes", href: "/dashboard/inventory?type=delivery" },
       { label: "Warehouses", href: "/dashboard/inventory?type=warehouse" },
     ],
   },
@@ -85,6 +92,7 @@ const SECTIONS = [
       { label: "Journal Entry", href: "/dashboard/accounting?type=journal" },
       { label: "Chart of Accounts", href: "/dashboard/accounting?type=coa" },
       { label: "Payment Entry", href: "/dashboard/accounting?type=payment" },
+      { label: "Cost Centers", href: "/dashboard/accounting?type=costcenter" },
     ],
   },
   {
@@ -95,12 +103,29 @@ const SECTIONS = [
     ],
   },
   {
+    title: "Manufacturing",
+    icon: Factory,
+    items: [
+      { label: "Work Orders", href: "/dashboard/manufacturing" },
+      { label: "Bill of Materials", href: "/dashboard/manufacturing?type=bom" },
+      { label: "Workstations", href: "/dashboard/manufacturing?type=workstation" },
+    ],
+  },
+  {
     title: "Projects",
     icon: FolderKanban,
     items: [
       { label: "Projects", href: "/dashboard/analytics" },
       { label: "Tasks", href: "/dashboard/analytics?type=task" },
       { label: "Timesheets", href: "/dashboard/analytics?type=timesheet" },
+    ],
+  },
+  {
+    title: "Assets",
+    icon: Landmark,
+    items: [
+      { label: "Assets", href: "/dashboard/assets" },
+      { label: "Asset Categories", href: "/dashboard/assets?type=category" },
     ],
   },
 ];
