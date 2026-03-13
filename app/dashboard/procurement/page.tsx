@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useMemo } from "react";
+import { Suspense, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -112,7 +112,7 @@ const TYPE_CONFIG = {
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
 
-export default function ProcurementPage() {
+function ProcurementPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") ?? "default";
@@ -218,5 +218,13 @@ export default function ProcurementPage() {
       </Card>
       <AIChatPanel module="inventory" />
     </div>
+  );
+}
+
+export default function ProcurementPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}>
+      <ProcurementPageInner />
+    </Suspense>
   );
 }
