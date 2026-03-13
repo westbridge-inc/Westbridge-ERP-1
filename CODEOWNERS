@@ -2,28 +2,28 @@
 # These owners are automatically requested for review on PRs.
 
 # Default — all changes require at least one team review
-* @westbridgeinc/engineering
+* @westbridge-inc/engineering
 
 # CI/CD and infrastructure
-.github/ @westbridgeinc/platform
-Dockerfile @westbridgeinc/platform
-fly.toml @westbridgeinc/platform
+.github/ @westbridge-inc/platform
+Dockerfile @westbridge-inc/platform
+fly.toml @westbridge-inc/platform
 
 # Security-sensitive files
-lib/config/ @westbridgeinc/security
-lib/api/ @westbridgeinc/security
-middleware.ts @westbridgeinc/security
-sentry.*.config.ts @westbridgeinc/security
+lib/config/ @westbridge-inc/security
+lib/api/ @westbridge-inc/security
+middleware.ts @westbridge-inc/security
+sentry.*.config.ts @westbridge-inc/security
 
 # Auth flows
-app/(auth)/ @westbridgeinc/security
+app/(auth)/ @westbridge-inc/security
 
 # Component library
-components/ui/ @westbridgeinc/frontend
+components/ui/ @westbridge-inc/frontend
 
 # Type system and schemas
-types/ @westbridgeinc/engineering
+types/ @westbridge-inc/engineering
 
 # Documentation
-docs/ @westbridgeinc/engineering
-*.md @westbridgeinc/engineering
+docs/ @westbridge-inc/engineering
+*.md @westbridge-inc/engineering
