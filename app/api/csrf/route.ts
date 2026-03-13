@@ -26,11 +26,8 @@ export async function GET(request: NextRequest) {
       status: backendRes.status,
       headers: responseHeaders,
     });
-  } catch (_e) {
+  } catch {
     // Never expose internal error details to the client (CodeQL: js/stack-trace-exposure)
-    if (process.env.NODE_ENV === "development") {
-      console.error("[csrf]", _e);
-    }
     return new Response(JSON.stringify({ error: "Failed to retrieve CSRF token" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

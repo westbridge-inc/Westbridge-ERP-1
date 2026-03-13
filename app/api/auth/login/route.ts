@@ -73,11 +73,8 @@ export async function POST(request: NextRequest) {
       status: backendRes.status,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (_e) {
+  } catch {
     // Never expose internal error details to the client (CodeQL: js/stack-trace-exposure)
-    if (process.env.NODE_ENV === "development") {
-      console.error("[login]", _e);
-    }
     return new Response(JSON.stringify({ error: "An unexpected error occurred" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
