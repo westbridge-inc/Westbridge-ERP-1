@@ -3,7 +3,7 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { Suspense, useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Copy, ExternalLink, Check, ChevronRight, AlertCircle } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -891,5 +891,9 @@ export default function SettingsPage() {
     return () => cancelAnimationFrame(id);
   }, []);
   if (!mounted) return <PageSkeleton />;
-  return <SettingsContent />;
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <SettingsContent />
+    </Suspense>
+  );
 }

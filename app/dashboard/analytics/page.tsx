@@ -3,7 +3,7 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useMemo } from "react";
+import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AreaChart,
@@ -535,7 +535,7 @@ function AnalyticsDashboard() {
 /*  Page component — routes based on ?type=                            */
 /* ------------------------------------------------------------------ */
 
-export default function AnalyticsPage() {
+function AnalyticsPageInner() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
 
@@ -550,6 +550,14 @@ export default function AnalyticsPage() {
   // NOTE: AnalyticsDashboard component is available but not yet wired into the sidebar.
   // To enable, route to /dashboard/analytics?type=analytics and render <AnalyticsDashboard />
   return <ProjectsListView type="project" />;
+}
+
+export default function AnalyticsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}>
+      <AnalyticsPageInner />
+    </Suspense>
+  );
 }
 
 // Re-export for future use — currently rendered via ?type routing
