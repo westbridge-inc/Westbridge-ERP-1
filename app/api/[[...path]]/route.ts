@@ -59,9 +59,13 @@ async function proxyRequest(request: NextRequest) {
       status: backendRes.status,
       headers: responseHeaders,
     });
-  } catch (e) {
+  } catch (_e) {
+    // Never expose internal error details to the client (CodeQL: js/stack-trace-exposure)
+    if (process.env.NODE_ENV === "development") {
+      console.error("[proxy]", _e);
+    }
     return new Response(
-      JSON.stringify({ error: { code: "PROXY_ERROR", message: String(e) } }),
+      JSON.stringify({ error: { code: "PROXY_ERROR", message: "Unable to reach backend service" } }),
       { status: 502, headers: { "Content-Type": "application/json" } },
     );
   }
