@@ -7,8 +7,6 @@ import { Menu, X } from "lucide-react";
 import { ROUTES } from "@/lib/config/site";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -36,7 +34,7 @@ export function Navbar() {
         "fixed left-0 right-0 top-0 z-50 h-16 transition-all duration-200",
         scrolled
           ? "border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
-          : "border-b border-transparent bg-transparent"
+          : "border-b border-transparent bg-transparent",
       )}
     >
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
@@ -55,8 +53,6 @@ export function Navbar() {
           ))}
         </div>
         <div className="hidden items-center gap-2 md:flex">
-          <LanguageSwitcher />
-          <ThemeToggle />
           <Link
             href={ROUTES.login}
             className="text-[13px] font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
@@ -125,9 +121,7 @@ export function Navbar() {
                     </Button>
                   </Link>
                   <Link href={ROUTES.signup} onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full justify-center">
-                      Get Started
-                    </Button>
+                    <Button className="w-full justify-center">Get Started</Button>
                   </Link>
                 </div>
               </div>
