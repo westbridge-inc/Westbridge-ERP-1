@@ -45,7 +45,7 @@ export function PricingCards() {
         {PLANS.map((plan) => {
           const price = annual ? plan.annualPricePerMonth : plan.pricePerMonth;
           const isPopular = plan.id === "business";
-          const bundles = MODULE_BUNDLES.filter((b) => plan.includedBundleIds.includes(b.id));
+
 
           return (
             <div
