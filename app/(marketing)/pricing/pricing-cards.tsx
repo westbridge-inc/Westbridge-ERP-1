@@ -41,10 +41,10 @@ export function PricingCards() {
       </div>
 
       {/* Plan cards */}
-      <div className="mx-auto mt-10 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="mx-auto mt-10 grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {PLANS.map((plan) => {
           const price = annual ? plan.annualPricePerMonth : plan.pricePerMonth;
-          const isPopular = plan.id === "business";
+          const isPopular = plan.id === "starter";
 
 
           return (
