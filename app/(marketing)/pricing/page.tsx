@@ -25,8 +25,8 @@ export default function PricingPage() {
       <h1 className="text-center text-3xl font-semibold tracking-tight text-foreground font-display md:text-4xl">
         Simple, transparent pricing
       </h1>
-      <p className="mt-3 text-center text-base text-muted-foreground">
-        Flat monthly. Unlimited users. Claude AI built into every module.
+      <p className="mt-3 text-center text-base text-muted-foreground/60">
+        Per user, per month. No setup fees. Cancel anytime.
       </p>
 
       <PricingCards />
