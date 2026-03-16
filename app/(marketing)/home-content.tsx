@@ -180,11 +180,12 @@ export function HomeContent() {
             Start free. Upgrade when you&apos;re ready. No hidden fees.
           </p>
 
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-4">
             {[
-              { name: "Starter", price: "$500", desc: "For small teams getting started" },
-              { name: "Business", price: "$1,000", desc: "For growing companies", popular: true },
-              { name: "Enterprise", price: "$5,000", desc: "For large organizations" },
+              { name: "Solo", price: "$49.99", desc: "For freelancers and solopreneurs" },
+              { name: "Starter", price: "$199.99", desc: "For small teams", popular: true },
+              { name: "Business", price: "$999.99", desc: "For growing companies" },
+              { name: "Enterprise", price: "$4,999.99", desc: "For large organizations" },
             ].map((plan) => (
               <div
                 key={plan.name}
