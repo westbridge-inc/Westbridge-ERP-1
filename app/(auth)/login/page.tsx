@@ -90,7 +90,7 @@ export default function LoginPage() {
       {/* Left: brand panel — hidden on mobile */}
       <div
         className="hidden min-h-screen w-[50%] flex-col items-center justify-center md:flex relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, oklch(0.40 0.18 250) 0%, oklch(0.25 0.18 255) 100%)" }}
+        style={{ background: "linear-gradient(135deg, oklch(0.09 0 0) 0%, oklch(0.15 0 0) 100%)" }}
       >
         {/* Decorative dot grid */}
         <div
@@ -101,13 +101,8 @@ export default function LoginPage() {
           }}
         />
         <div className="relative z-10 flex flex-col items-center text-center px-12">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="size-10 rounded-xl bg-white/15 flex items-center justify-center">
-              <span className="text-white font-bold text-lg font-display">W</span>
-            </div>
-            <span className="text-white font-semibold text-xl tracking-wide font-display">WESTBRIDGE</span>
-          </div>
-          <p className="text-white/70 text-sm leading-relaxed max-w-[280px]">
+          <span className="text-white font-semibold text-2xl tracking-[0.25em] font-display mb-4">WESTBRIDGE</span>
+          <p className="text-white/50 text-sm leading-relaxed max-w-[280px]">
             Enterprise intelligence for growing businesses
           </p>
           <div className="mt-12 w-full max-w-[280px] space-y-3">
