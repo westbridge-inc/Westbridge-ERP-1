@@ -92,11 +92,8 @@ function SignupContent() {
     <div className="min-h-screen bg-background">
       <nav className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href={ROUTES.home} className="flex shrink-0 items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
-              W
-            </div>
-            <span className="font-semibold text-sm tracking-wide text-foreground font-display">WESTBRIDGE</span>
+          <Link href={ROUTES.home} className="flex shrink-0 items-center">
+            <span className="font-semibold text-sm tracking-[0.2em] text-foreground font-display">WESTBRIDGE</span>
           </Link>
           <Link href={ROUTES.login} className="text-sm text-muted-foreground">
             Sign in
@@ -142,53 +139,67 @@ function SignupContent() {
                   </p>
                 )}
               </div>
-              <Select
-                value={industry}
-                onValueChange={(v) => {
-                  setIndustry(v);
-                  if (step1Errors.industry) setStep1Errors((p) => ({ ...p, industry: undefined }));
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select industry" />
-                </SelectTrigger>
-                <SelectContent>
-                  {INDUSTRIES.map((i) => (
-                    <SelectItem key={i} value={i}>
-                      {i}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={country} onValueChange={setCountry}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select country" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CARIBBEAN_COUNTRIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={String(employees)} onValueChange={(v) => setEmployees(Number(v))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Number of employees" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 5, 10, 25, 50, 100].map((n) => (
-                    <SelectItem key={n} value={String(n)}>
-                      {n === 100 ? "100+" : String(n)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <Label>Industry</Label>
+                <Select
+                  value={industry}
+                  onValueChange={(v) => {
+                    setIndustry(v);
+                    if (step1Errors.industry) setStep1Errors((p) => ({ ...p, industry: undefined }));
+                  }}
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select your industry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {INDUSTRIES.map((i) => (
+                      <SelectItem key={i} value={i}>
+                        {i}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {step1Errors.industry && (
+                  <p className="text-sm text-destructive" role="alert">
+                    {step1Errors.industry}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label>Country</Label>
+                <Select value={country} onValueChange={setCountry}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select your country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CARIBBEAN_COUNTRIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Number of employees</Label>
+                <Select value={String(employees)} onValueChange={(v) => setEmployees(Number(v))}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select team size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 5, 10, 25, 50, 100].map((n) => (
+                      <SelectItem key={n} value={String(n)}>
+                        {n === 100 ? "100+" : String(n)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Button
                 variant="default"
                 size="lg"
                 type="submit"
-                className="mt-6 h-11 w-full"
+                className="mt-8 h-12 w-full text-sm font-medium tracking-wide"
                 disabled={!company.trim() || !industry}
               >
                 Continue
