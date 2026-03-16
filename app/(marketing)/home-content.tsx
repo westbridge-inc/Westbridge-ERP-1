@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Check, Zap, Shield, Globe, BarChart3, Users, FileText, Package, Calculator, FolderKanban, ShoppingCart } from "lucide-react";
+import { ArrowRight, Zap, Shield, Globe, Users, FileText, Package, Calculator, FolderKanban, ShoppingCart } from "lucide-react";
 import { ROUTES, TRIAL } from "@/lib/config/site";
 import { Button } from "@/components/ui/Button";
 
