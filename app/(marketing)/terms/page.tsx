@@ -64,7 +64,17 @@ export default function TermsPage() {
           </p>
         </section>
         <section>
-          <h2 className="text-base font-semibold text-foreground">7. Contact</h2>
+          <h2 className="text-base font-semibold text-foreground">7. Third-Party AI Services</h2>
+          <p className="mt-2 leading-relaxed">
+            Bridge AI, the built-in assistant within the Service, is powered by Anthropic&apos;s Claude. When you use
+            Bridge AI, your queries and relevant business context are processed by Anthropic in accordance with
+            Anthropic&apos;s usage policies. We do not use your data to train AI models. Anthropic does not use your
+            data to train AI models. AI-generated responses are provided for informational purposes and should be
+            verified before making business decisions.
+          </p>
+        </section>
+        <section>
+          <h2 className="text-base font-semibold text-foreground">8. Contact</h2>
           <p className="mt-2 leading-relaxed">
             Questions about these Terms may be sent to the contact details provided on our website.
           </p>

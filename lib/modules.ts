@@ -58,7 +58,7 @@ export interface ModuleBundle {
   annualStandalonePrice: number;
   moduleIds: string[];
   description: string;
-  aiFeatures: string[]; // what Westbridge AI can do in this bundle
+  aiFeatures: string[]; // what Bridge AI can do in this bundle
 }
 
 // ─── Module ───────────────────────────────────────────────────────────────────

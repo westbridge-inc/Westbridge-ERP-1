@@ -122,7 +122,7 @@ export function HomeContent() {
               {
                 icon: Zap,
                 title: "AI-native",
-                desc: "Westbridge AI is built into every module. Ask questions about your data, generate reports, draft invoices — in natural language.",
+                desc: "Bridge AI is a built-in assistant trained on ERP workflows. Purpose-built prompts for each module, direct integration with your live data, and pre-processed context for accurate answers — not a generic chatbot.",
               },
               {
                 icon: Globe,

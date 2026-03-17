@@ -122,7 +122,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
           <div className="flex items-center justify-between border-b border-border bg-primary/5 px-4 py-3">
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-primary" />
-              <span className="text-sm font-bold text-foreground">Westbridge AI</span>
+              <span className="text-sm font-bold text-foreground">Bridge AI</span>
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
                 {module}
               </span>
@@ -144,11 +144,11 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
                 <Sparkles className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-foreground">AI Assistant Setup Required</p>
+                <p className="font-semibold text-foreground">Bridge AI Setup Required</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  The AI assistant needs an API key to be configured by your administrator. Set{" "}
+                  Bridge AI needs an API key to be configured by your administrator. Set{" "}
                   <code className="rounded bg-muted px-1 py-0.5 text-xs">ANTHROPIC_API_KEY</code> in your environment to
-                  enable Westbridge AI.
+                  enable Bridge AI.
                 </p>
               </div>
             </div>
@@ -215,7 +215,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && void send()}
-                placeholder="Ask about your business…"
+                placeholder={`Ask about your ${module === "general" ? "business" : module} data…`}
                 className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 disabled={loading}
               />

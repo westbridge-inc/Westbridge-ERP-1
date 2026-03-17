@@ -82,8 +82,8 @@ export default function AboutContent() {
         <div className="mt-12 space-y-1">
           {[
             {
-              title: "AI-native platform",
-              desc: "Westbridge AI is embedded in every module. Ask questions about your financials in plain English. Generate reports, draft invoices, flag anomalies — all from one chat interface.",
+              title: "Purpose-built AI for ERP",
+              desc: "Bridge AI is embedded in every module with purpose-built prompts for each workflow. It integrates directly with your live ERP data and uses pre-processed context to deliver accurate, module-specific answers — not generic AI responses.",
             },
             {
               title: "Global-ready compliance",
@@ -109,6 +109,11 @@ export default function AboutContent() {
 
       {/* Divider */}
       <div className="my-24 h-px bg-border/60" />
+
+      {/* Powered by */}
+      <div className="mb-24 text-center">
+        <p className="text-xs text-muted-foreground/40">Bridge AI is powered by Claude, from Anthropic.</p>
+      </div>
 
       {/* CTA */}
       <div className="rounded-2xl bg-foreground px-8 py-20 text-center text-background">
