@@ -4,8 +4,20 @@ export const dynamic = "force-dynamic";
 
 import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid } from "recharts";
+import nextDynamic from "next/dynamic";
 import { BarChart3, FolderKanban, CheckSquare, Clock } from "lucide-react";
+
+const LazyAreaChart = nextDynamic(() => import("recharts").then((m) => m.AreaChart), { ssr: false });
+const LazyArea = nextDynamic(() => import("recharts").then((m) => m.Area), { ssr: false });
+const LazyXAxis = nextDynamic(() => import("recharts").then((m) => m.XAxis), { ssr: false });
+const LazyYAxis = nextDynamic(() => import("recharts").then((m) => m.YAxis), { ssr: false });
+const LazyResponsiveContainer = nextDynamic(() => import("recharts").then((m) => m.ResponsiveContainer), {
+  ssr: false,
+});
+const LazyTooltip = nextDynamic(() => import("recharts").then((m) => m.Tooltip), { ssr: false });
+const LazyBarChart = nextDynamic(() => import("recharts").then((m) => m.BarChart), { ssr: false });
+const LazyBar = nextDynamic(() => import("recharts").then((m) => m.Bar), { ssr: false });
+const LazyCartesianGrid = nextDynamic(() => import("recharts").then((m) => m.CartesianGrid), { ssr: false });
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { MetricCard } from "@/components/dashboard/MetricCard";
@@ -637,23 +649,23 @@ function AnalyticsDashboard() {
           <p className="text-xl font-semibold text-foreground font-display">Revenue Trend</p>
           <p className="mt-0.5 text-sm text-muted-foreground">Last 12 months</p>
           <div className="mt-4 h-64 min-h-[256px] w-full">
-            <ResponsiveContainer width="100%" height={256}>
-              <AreaChart data={revenueTrend} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+            <LazyResponsiveContainer width="100%" height={256}>
+              <LazyAreaChart data={revenueTrend} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="fillRevAnalytics" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.2} />
                     <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis
+                <LazyCartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <LazyXAxis
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                 />
-                <YAxis hide domain={[0, maxRevTrend]} />
-                <Tooltip
+                <LazyYAxis hide domain={[0, maxRevTrend]} />
+                <LazyTooltip
                   formatter={(value) => [formatCurrency(Number(value ?? 0), "USD"), "Revenue"]}
                   contentStyle={{
                     background: "var(--card)",
@@ -663,15 +675,15 @@ function AnalyticsDashboard() {
                   }}
                   labelStyle={{ color: "var(--muted-foreground)" }}
                 />
-                <Area
+                <LazyArea
                   type="monotone"
                   dataKey="value"
                   stroke="var(--primary)"
                   strokeWidth={2}
                   fill="url(#fillRevAnalytics)"
                 />
-              </AreaChart>
-            </ResponsiveContainer>
+              </LazyAreaChart>
+            </LazyResponsiveContainer>
           </div>
         </CardContent>
       </Card>
@@ -702,14 +714,14 @@ function AnalyticsDashboard() {
               <p className="mt-4 text-sm text-muted-foreground">No category data available.</p>
             ) : (
               <div className="mt-4 h-48 min-h-[192px] w-full">
-                <ResponsiveContainer width="100%" height={192}>
-                  <BarChart
+                <LazyResponsiveContainer width="100%" height={192}>
+                  <LazyBarChart
                     data={revenueByCategory}
                     layout="vertical"
                     margin={{ top: 0, right: 0, left: 80, bottom: 0 }}
                   >
-                    <XAxis type="number" hide />
-                    <YAxis
+                    <LazyXAxis type="number" hide />
+                    <LazyYAxis
                       type="category"
                       dataKey="name"
                       width={80}
@@ -717,7 +729,7 @@ function AnalyticsDashboard() {
                       tickLine={false}
                       tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                     />
-                    <Tooltip
+                    <LazyTooltip
                       formatter={(value) => [formatCurrency(Number(value ?? 0), "USD"), "Revenue"]}
                       contentStyle={{
                         background: "var(--card)",
@@ -726,9 +738,9 @@ function AnalyticsDashboard() {
                         color: "var(--foreground)",
                       }}
                     />
-                    <Bar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                    <LazyBar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]} />
+                  </LazyBarChart>
+                </LazyResponsiveContainer>
               </div>
             )}
           </CardContent>
