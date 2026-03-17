@@ -7,29 +7,21 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground",
-        destructive:
-          "border-transparent bg-destructive/12 text-destructive dark:bg-destructive/20",
+        default: "border-transparent bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary",
+        secondary: "border-transparent bg-secondary text-secondary-foreground",
+        destructive: "border-transparent bg-destructive/12 text-destructive dark:bg-destructive/20",
         outline: "border-border text-foreground",
-        success:
-          "border-transparent bg-success/12 text-success dark:bg-success/20",
-        warning:
-          "border-transparent bg-warning/12 text-warning dark:bg-warning/20 dark:text-warning",
+        success: "border-transparent bg-success/12 text-success dark:bg-success/20",
+        warning: "border-transparent bg-warning/12 text-warning dark:bg-warning/20 dark:text-warning",
       },
     },
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
-const STATUS_VARIANT: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline" | "success" | "warning"
-> = {
+const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning"> = {
   Paid: "success",
   Active: "success",
   Submitted: "default",
@@ -39,7 +31,7 @@ const STATUS_VARIANT: Record<
   Error: "destructive",
 };
 
-function Badge({
+const Badge = React.memo(function Badge({
   className,
   variant,
   status,
@@ -49,8 +41,7 @@ function Badge({
   VariantProps<typeof badgeVariants> & {
     status?: string;
   }) {
-  const resolvedVariant =
-    variant ?? (status ? (STATUS_VARIANT[status] ?? "secondary") : undefined);
+  const resolvedVariant = variant ?? (status ? (STATUS_VARIANT[status] ?? "secondary") : undefined);
   return (
     <div
       ref={ref}
@@ -59,6 +50,6 @@ function Badge({
       {...props}
     />
   );
-}
+});
 
 export { Badge, badgeVariants };

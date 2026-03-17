@@ -1,3 +1,4 @@
+import React from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
@@ -11,7 +12,14 @@ interface MetricCardProps {
   trend?: number;
 }
 
-export function MetricCard({ label, value, subtext, subtextVariant = "muted", icon: Icon, trend }: MetricCardProps) {
+export const MetricCard = React.memo(function MetricCard({
+  label,
+  value,
+  subtext,
+  subtextVariant = "muted",
+  icon: Icon,
+  trend,
+}: MetricCardProps) {
   const subtextClass =
     subtextVariant === "success"
       ? "text-success"
@@ -55,4 +63,4 @@ export function MetricCard({ label, value, subtext, subtextVariant = "muted", ic
       </CardContent>
     </Card>
   );
-}
+});
