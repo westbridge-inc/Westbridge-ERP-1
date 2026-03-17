@@ -107,7 +107,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
         aria-label="Open AI Assistant"
       >
         <Zap className="h-4 w-4" />
-        Ask AI
+        {aiUnconfigured ? "AI Setup Needed" : "Ask AI"}
         {!aiUnconfigured && remaining !== undefined && remaining !== null && remaining <= 20 && (
           <span className="ml-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold">
             {remaining} left
@@ -146,9 +146,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
               <div>
                 <p className="font-semibold text-foreground">Bridge AI Setup Required</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Bridge AI needs an API key to be configured by your administrator. Set{" "}
-                  <code className="rounded bg-muted px-1 py-0.5 text-xs">ANTHROPIC_API_KEY</code> in your environment to
-                  enable Bridge AI.
+                  Add your Anthropic API key in settings to enable Bridge AI. Contact support if you need help.
                 </p>
               </div>
             </div>
