@@ -16,8 +16,8 @@ describe("modules", () => {
   it("MODULES and MODULE_IDS length match", () => {
     expect(MODULES.length).toBe(MODULE_IDS.length);
   });
-  it("PLANS has starter business enterprise", () => {
-    expect(PLANS.map((p) => p.id)).toEqual(["starter", "business", "enterprise"]);
+  it("PLANS has solo starter business enterprise", () => {
+    expect(PLANS.map((p) => p.id)).toEqual(["solo", "starter", "business", "enterprise"]);
   });
   it("getPlan returns plan by id", () => {
     expect(getPlan("starter").name).toBe("Starter");
