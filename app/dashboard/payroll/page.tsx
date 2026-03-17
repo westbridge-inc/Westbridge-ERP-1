@@ -44,8 +44,7 @@ interface PayrollStats {
 
 function mapErpSalarySlip(r: Record<string, unknown>, i: number): PayrollRecord {
   const docstatus = Number(r.docstatus ?? 0);
-  const status: PayrollRecord["status"] =
-    docstatus === 1 ? "Processed" : docstatus === 2 ? "Rejected" : "Pending";
+  const status: PayrollRecord["status"] = docstatus === 1 ? "Processed" : docstatus === 2 ? "Rejected" : "Pending";
   return {
     id: String(r.name ?? `PAY-${i}`),
     employee: String(r.employee_name ?? r.name ?? ""),
@@ -135,10 +134,7 @@ export default function PayrollPage() {
     fields: ["name", "employee_name", "start_date", "gross_pay", "total_deduction", "net_pay", "docstatus"],
   });
 
-  const records = useMemo(
-    () => (rawList as Record<string, unknown>[]).map(mapErpSalarySlip),
-    [rawList],
-  );
+  const records = useMemo(() => (rawList as Record<string, unknown>[]).map(mapErpSalarySlip), [rawList]);
   const error = queryError instanceof Error ? queryError.message : isError ? "Failed to load payroll data." : null;
   const stats = useMemo(() => deriveStats(records), [records]);
 
@@ -159,12 +155,18 @@ export default function PayrollPage() {
         {header}
         <Card>
           <CardContent className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               <DollarSign className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium text-foreground">Something went wrong</p>
-            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
-            <Button variant="primary" size="sm" onClick={() => refetch()}>Retry</Button>
+            <p className="text-sm font-medium text-foreground">Could not load payroll data</p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Your ERP backend may be starting up. You can retry or set up employees first in HR.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                Retry
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

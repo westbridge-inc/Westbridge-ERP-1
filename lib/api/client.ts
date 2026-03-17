@@ -10,14 +10,20 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 /** Strip internal infrastructure names from error messages shown to users. */
 function sanitizeError(msg: string): string {
-  let cleaned = msg.replace(/ERPNext\s*/gi, "").replace(/Frappe\s*/gi, "").replace(/Service error\s*/gi, "");
+  let cleaned = msg
+    .replace(/ERPNext\s*/gi, "")
+    .replace(/Frappe\s*/gi, "")
+    .replace(/Service error\s*/gi, "");
   // "403: FORBIDDEN" → "Access denied"
-  cleaned = cleaned.replace(/403:\s*FORBIDDEN/i, "Access denied — you may not have permission for this resource");
-  // "404: NOT FOUND" → "Not found"
-  cleaned = cleaned.replace(/404:\s*NOT FOUND/i, "This resource was not found");
+  cleaned = cleaned.replace(
+    /403:\s*FORBIDDEN/i,
+    "You may not have permission for this resource. Please check your plan or contact support.",
+  );
+  // "404: NOT FOUND" → friendly message
+  cleaned = cleaned.replace(/404:\s*NOT FOUND/i, "This resource could not be found");
   // "502: BAD GATEWAY" → service unavailable
   cleaned = cleaned.replace(/502:\s*BAD GATEWAY/i, "Service temporarily unavailable. Please try again shortly");
-  return cleaned.trim() || "Something went wrong";
+  return cleaned.trim() || "An unexpected error occurred. Please try again.";
 }
 
 /**
@@ -40,10 +46,7 @@ async function getCsrfToken(): Promise<string> {
 
 const MUTATION_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
-async function request<T>(
-  path: string,
-  options?: RequestInit
-): Promise<T> {
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const method = options?.method?.toUpperCase() ?? "GET";
   const extraHeaders: Record<string, string> = {};
 
@@ -72,8 +75,15 @@ async function request<T>(
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-export interface LoginInput { email: string; password: string }
-export interface LoginResult { userId: string; accountId: string; role: string }
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+export interface LoginResult {
+  userId: string;
+  accountId: string;
+  role: string;
+}
 
 async function login(input: LoginInput): Promise<LoginResult> {
   return request<LoginResult>("/api/auth/login", { method: "POST", body: JSON.stringify(input) });
@@ -119,6 +129,14 @@ async function erpList(doctype: string, params?: ErpListParams): Promise<ErpList
     headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {
+    // Treat 404 (no records), 502 (ERPNext unreachable), and 503 as empty data
+    // rather than showing an error — the user just has no records yet.
+    if (res.status === 404 || res.status === 502 || res.status === 503) {
+      return {
+        data: [],
+        meta: { page: params?.page ?? 0, pageSize: 20, hasMore: false },
+      };
+    }
     const body = await res.json().catch(() => ({}));
     const message = (body as { error?: { message?: string } })?.error?.message ?? `HTTP ${res.status}`;
     throw new Error(sanitizeError(message));

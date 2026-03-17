@@ -118,7 +118,7 @@ const columns: Column<InventoryItem>[] = [
     id: "status",
     header: "Status",
     accessor: (row) => <Badge variant={inventoryBadgeVariant(row.status)}>{row.status}</Badge>,
-    sortValue: (row) => row.status === "Out of Stock" ? 0 : row.status === "Low Stock" ? 1 : 2,
+    sortValue: (row) => (row.status === "Out of Stock" ? 0 : row.status === "Low Stock" ? 1 : 2),
   },
 ];
 
@@ -154,17 +154,57 @@ function mapWarehouse(d: Record<string, unknown>): GenericRow {
 }
 
 const stockEntryColumns: Column<GenericRow>[] = [
-  { id: "id", header: "Entry #", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
-  { id: "purpose", header: "Purpose", accessor: (r) => <span className="text-muted-foreground">{r.purpose as string}</span>, sortValue: (r) => r.purpose as string },
-  { id: "postingDate", header: "Date", accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>, sortValue: (r) => r.postingDate as string },
-  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>, sortValue: (r) => r.status as string },
+  {
+    id: "id",
+    header: "Entry #",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "purpose",
+    header: "Purpose",
+    accessor: (r) => <span className="text-muted-foreground">{r.purpose as string}</span>,
+    sortValue: (r) => r.purpose as string,
+  },
+  {
+    id: "postingDate",
+    header: "Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>,
+    sortValue: (r) => r.postingDate as string,
+  },
+  {
+    id: "status",
+    header: "Status",
+    accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>,
+    sortValue: (r) => r.status as string,
+  },
 ];
 
 const warehouseColumns: Column<GenericRow>[] = [
-  { id: "id", header: "Warehouse ID", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
-  { id: "warehouseName", header: "Name", accessor: (r) => <span className="text-muted-foreground">{r.warehouseName as string}</span>, sortValue: (r) => r.warehouseName as string },
-  { id: "warehouseType", header: "Type", accessor: (r) => <span className="text-muted-foreground">{r.warehouseType as string}</span>, sortValue: (r) => r.warehouseType as string },
-  { id: "company", header: "Company", accessor: (r) => <span className="text-muted-foreground/60">{r.company as string}</span>, sortValue: (r) => r.company as string },
+  {
+    id: "id",
+    header: "Warehouse ID",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "warehouseName",
+    header: "Name",
+    accessor: (r) => <span className="text-muted-foreground">{r.warehouseName as string}</span>,
+    sortValue: (r) => r.warehouseName as string,
+  },
+  {
+    id: "warehouseType",
+    header: "Type",
+    accessor: (r) => <span className="text-muted-foreground">{r.warehouseType as string}</span>,
+    sortValue: (r) => r.warehouseType as string,
+  },
+  {
+    id: "company",
+    header: "Company",
+    accessor: (r) => <span className="text-muted-foreground/60">{r.company as string}</span>,
+    sortValue: (r) => r.company as string,
+  },
 ];
 
 const TYPE_CONFIG = {
@@ -196,15 +236,17 @@ function InventoryPageInner() {
   } = useErpList(config.doctype, { page, limit: 100 });
 
   const items = useMemo(
-    () => isItem
-      ? (rawList as Record<string, unknown>[]).map(mapErpItem)
-      : type === "entry"
-        ? (rawList as Record<string, unknown>[]).map(mapStockEntry)
-        : (rawList as Record<string, unknown>[]).map(mapWarehouse),
+    () =>
+      isItem
+        ? (rawList as Record<string, unknown>[]).map(mapErpItem)
+        : type === "entry"
+          ? (rawList as Record<string, unknown>[]).map(mapStockEntry)
+          : (rawList as Record<string, unknown>[]).map(mapWarehouse),
     [rawList, isItem, type],
   );
-  const error = queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
-  const stats = useMemo(() => isItem ? deriveStats(items as InventoryItem[]) : null, [items, isItem]);
+  const error =
+    queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
+  const stats = useMemo(() => (isItem ? deriveStats(items as InventoryItem[]) : null), [items, isItem]);
 
   const header = (
     <div className="flex items-center justify-between">
@@ -212,7 +254,9 @@ function InventoryPageInner() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
         <p className="text-sm text-muted-foreground">{config.subtitle}</p>
       </div>
-      <Button variant="primary" onClick={() => router.push("/dashboard/inventory/new")}>+ Create New</Button>
+      <Button variant="primary" onClick={() => router.push("/dashboard/inventory/new")}>
+        + Create New
+      </Button>
     </div>
   );
 
@@ -223,12 +267,21 @@ function InventoryPageInner() {
         {header}
         <Card>
           <CardContent className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               <Package className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium text-foreground">Something went wrong</p>
-            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
-            <Button variant="primary" size="sm" onClick={() => refetch()}>Retry</Button>
+            <p className="text-sm font-medium text-foreground">Could not load data right now</p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Your ERP backend may be starting up. You can retry or create a new item.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                Retry
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => router.push("/dashboard/inventory/new")}>
+                + Create New
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -261,8 +314,16 @@ function InventoryPageInner() {
       {isItem && stats && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           <MetricCard label="Total Items" value={stats.totalItems} />
-          <MetricCard label="Low Stock" value={stats.lowStock} subtextVariant={stats.lowStock > 0 ? "error" : "muted"} />
-          <MetricCard label="Out of Stock" value={stats.outOfStock} subtextVariant={stats.outOfStock > 0 ? "error" : "muted"} />
+          <MetricCard
+            label="Low Stock"
+            value={stats.lowStock}
+            subtextVariant={stats.lowStock > 0 ? "error" : "muted"}
+          />
+          <MetricCard
+            label="Out of Stock"
+            value={stats.outOfStock}
+            subtextVariant={stats.outOfStock > 0 ? "error" : "muted"}
+          />
           <MetricCard label="Total Value" value={formatCurrency(stats.totalValue)} />
         </div>
       )}
@@ -327,7 +388,9 @@ function InventoryPageInner() {
 
 export default function InventoryPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}>
+    <Suspense
+      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}
+    >
       <InventoryPageInner />
     </Suspense>
   );

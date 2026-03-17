@@ -67,7 +67,11 @@ function mapErpSupplier(d: Record<string, unknown>): SupplierRow {
 
 function fmtDate(d: string): string {
   if (!d) return "\u2014";
-  try { return formatDateLong(d); } catch { return d; }
+  try {
+    return formatDateLong(d);
+  } catch {
+    return d;
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -75,27 +79,94 @@ function fmtDate(d: string): string {
 /* ------------------------------------------------------------------ */
 
 const poColumns: Column<PurchaseOrder>[] = [
-  { id: "id", header: "PO #", accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>, sortValue: (r) => r.id },
-  { id: "supplier", header: "Supplier", accessor: (r) => <span className="text-muted-foreground">{r.supplier}</span>, sortValue: (r) => r.supplier },
-  { id: "amount", header: "Amount", align: "right", accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>, sortValue: (r) => r.amount },
-  { id: "orderDate", header: "Order Date", accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.orderDate)}</span>, sortValue: (r) => r.orderDate },
-  { id: "expected", header: "Expected", accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.expected)}</span>, sortValue: (r) => r.expected },
+  {
+    id: "id",
+    header: "PO #",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "supplier",
+    header: "Supplier",
+    accessor: (r) => <span className="text-muted-foreground">{r.supplier}</span>,
+    sortValue: (r) => r.supplier,
+  },
+  {
+    id: "amount",
+    header: "Amount",
+    align: "right",
+    accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>,
+    sortValue: (r) => r.amount,
+  },
+  {
+    id: "orderDate",
+    header: "Order Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.orderDate)}</span>,
+    sortValue: (r) => r.orderDate,
+  },
+  {
+    id: "expected",
+    header: "Expected",
+    accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.expected)}</span>,
+    sortValue: (r) => r.expected,
+  },
   { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge> },
 ];
 
 const piColumns: Column<PurchaseOrder>[] = [
-  { id: "id", header: "Invoice #", accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>, sortValue: (r) => r.id },
-  { id: "supplier", header: "Supplier", accessor: (r) => <span className="text-muted-foreground">{r.supplier}</span>, sortValue: (r) => r.supplier },
-  { id: "amount", header: "Amount", align: "right", accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>, sortValue: (r) => r.amount },
-  { id: "orderDate", header: "Date", accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.orderDate)}</span>, sortValue: (r) => r.orderDate },
-  { id: "expected", header: "Due Date", accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.expected)}</span>, sortValue: (r) => r.expected },
+  {
+    id: "id",
+    header: "Invoice #",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "supplier",
+    header: "Supplier",
+    accessor: (r) => <span className="text-muted-foreground">{r.supplier}</span>,
+    sortValue: (r) => r.supplier,
+  },
+  {
+    id: "amount",
+    header: "Amount",
+    align: "right",
+    accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>,
+    sortValue: (r) => r.amount,
+  },
+  {
+    id: "orderDate",
+    header: "Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.orderDate)}</span>,
+    sortValue: (r) => r.orderDate,
+  },
+  {
+    id: "expected",
+    header: "Due Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.expected)}</span>,
+    sortValue: (r) => r.expected,
+  },
   { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge> },
 ];
 
 const supplierColumns: Column<SupplierRow>[] = [
-  { id: "name", header: "Supplier Name", accessor: (r) => <span className="font-medium text-foreground">{r.name}</span>, sortValue: (r) => r.name },
-  { id: "supplierType", header: "Type", accessor: (r) => <span className="text-muted-foreground">{r.supplierType}</span>, sortValue: (r) => r.supplierType },
-  { id: "country", header: "Country", accessor: (r) => <span className="text-muted-foreground">{r.country}</span>, sortValue: (r) => r.country },
+  {
+    id: "name",
+    header: "Supplier Name",
+    accessor: (r) => <span className="font-medium text-foreground">{r.name}</span>,
+    sortValue: (r) => r.name,
+  },
+  {
+    id: "supplierType",
+    header: "Type",
+    accessor: (r) => <span className="text-muted-foreground">{r.supplierType}</span>,
+    sortValue: (r) => r.supplierType,
+  },
+  {
+    id: "country",
+    header: "Country",
+    accessor: (r) => <span className="text-muted-foreground">{r.country}</span>,
+    sortValue: (r) => r.country,
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -120,14 +191,23 @@ function ProcurementPageInner() {
   const isSupplier = type === "supplier";
 
   const [page, setPage] = useState(0);
-  const { data: rawList = [], hasMore, page: currentPage, isLoading: loading, isError, error: queryError, refetch } = useErpList(config.doctype, { page });
+  const {
+    data: rawList = [],
+    hasMore,
+    page: currentPage,
+    isLoading: loading,
+    isError,
+    error: queryError,
+    refetch,
+  } = useErpList(config.doctype, { page });
 
   const data = useMemo(() => {
     const list = rawList as Record<string, unknown>[];
     if (isSupplier) return list.map(mapErpSupplier);
     return list.map(mapErpPurchaseOrder);
   }, [rawList, isSupplier]);
-  const error = queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
+  const error =
+    queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
 
   if (error) {
     return (
@@ -137,16 +217,27 @@ function ProcurementPageInner() {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
             <p className="text-sm text-muted-foreground">{config.subtitle}</p>
           </div>
-          <Button variant="primary" onClick={() => router.push("/dashboard/procurement/new")}>+ Create New</Button>
+          <Button variant="primary" onClick={() => router.push("/dashboard/procurement/new")}>
+            + Create New
+          </Button>
         </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               <Truck className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium text-foreground">Something went wrong</p>
-            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
-            <Button variant="primary" size="sm" className="mt-4" onClick={() => refetch()}>Retry</Button>
+            <p className="text-sm font-medium text-foreground">Could not load data right now</p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Your ERP backend may be starting up. You can retry or create a new record.
+            </p>
+            <div className="mt-4 flex gap-3">
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                Retry
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => router.push("/dashboard/procurement/new")}>
+                + Create New
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -160,7 +251,9 @@ function ProcurementPageInner() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">{config.title}</h1>
           <p className="text-sm text-muted-foreground">{config.subtitle}</p>
         </div>
-        <Button variant="primary" onClick={() => router.push("/dashboard/procurement/new")}>+ Create New</Button>
+        <Button variant="primary" onClick={() => router.push("/dashboard/procurement/new")}>
+          + Create New
+        </Button>
       </div>
       <Card>
         <CardContent className="p-0">
@@ -223,7 +316,9 @@ function ProcurementPageInner() {
 
 export default function ProcurementPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}>
+    <Suspense
+      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}
+    >
       <ProcurementPageInner />
     </Suspense>
   );
