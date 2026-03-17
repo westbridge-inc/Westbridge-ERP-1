@@ -7,12 +7,16 @@ import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { DataTable, type Column } from "@/components/ui/DataTable";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useToasts } from "@/components/ui/Toasts";
 import { formatCurrency } from "@/lib/locale/currency";
 import { formatDate } from "@/lib/locale/date";
+import { downloadCsv } from "@/lib/utils/csv";
+import { api } from "@/lib/api/client";
 import type { CurrencyCode } from "@/lib/constants";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
-import { FileText } from "lucide-react";
+import { FileText, Download, Trash2 } from "lucide-react";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 
 /* ---------- types ---------- */
@@ -30,66 +34,6 @@ export interface InvoiceRow {
 /* ---------- filters ---------- */
 
 const FILTERS = ["All", "Draft", "Unpaid", "Paid", "Overdue"] as const;
-
-/* ---------- column definitions ---------- */
-
-function buildColumns(dateLabel: string, dueDateLabel: string, idLabel: string): Column<InvoiceRow>[] {
-  return [
-    {
-      id: "id",
-      header: idLabel,
-      accessor: (row) => (
-        <span className="font-medium text-foreground">{row.id}</span>
-      ),
-      sortValue: (row) => row.id,
-    },
-    {
-      id: "customer",
-      header: "Customer",
-      accessor: (row) => (
-        <span className="text-muted-foreground">{row.customer}</span>
-      ),
-      sortValue: (row) => row.customer,
-    },
-    {
-      id: "amount",
-      header: "Amount",
-      align: "right" as const,
-      accessor: (row) => (
-        <span className="font-medium text-foreground">
-          {formatCurrency(row.amount, row.currency)}
-        </span>
-      ),
-      sortValue: (row) => row.amount,
-    },
-    {
-      id: "status",
-      header: "Status",
-      accessor: (row) => <Badge status={row.status}>{row.status}</Badge>,
-      sortValue: (row) => row.status,
-    },
-    {
-      id: "date",
-      header: dateLabel,
-      accessor: (row) => (
-        <span className="text-muted-foreground/60">
-          {row.date ? formatDate(row.date) : "\u2014"}
-        </span>
-      ),
-      sortValue: (row) => row.date,
-    },
-    {
-      id: "dueDate",
-      header: dueDateLabel,
-      accessor: (row) => (
-        <span className="text-muted-foreground/60">
-          {row.dueDate ? formatDate(row.dueDate) : "\u2014"}
-        </span>
-      ),
-      sortValue: (row) => row.dueDate,
-    },
-  ];
-}
 
 /* ---------- component ---------- */
 
@@ -117,11 +61,81 @@ export function InvoicesListClient({
   type = "invoice",
 }: InvoicesListClientProps) {
   const router = useRouter();
+  const { addToast } = useToasts();
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<InvoiceRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const isOrder = type === "order";
   const idLabel = isOrder ? "Order #" : "Invoice #";
-  const columns = useMemo(() => buildColumns(dateLabel, dueDateLabel, idLabel), [dateLabel, dueDateLabel, idLabel]);
+  const doctype = isOrder ? "Sales Order" : "Sales Invoice";
+
+  const columns = useMemo(
+    (): Column<InvoiceRow>[] => [
+      {
+        id: "id",
+        header: idLabel,
+        accessor: (row) => <span className="font-medium text-foreground">{row.id}</span>,
+        sortValue: (row) => row.id,
+      },
+      {
+        id: "customer",
+        header: "Customer",
+        accessor: (row) => <span className="text-muted-foreground">{row.customer}</span>,
+        sortValue: (row) => row.customer,
+      },
+      {
+        id: "amount",
+        header: "Amount",
+        align: "right" as const,
+        accessor: (row) => (
+          <span className="font-medium text-foreground">{formatCurrency(row.amount, row.currency)}</span>
+        ),
+        sortValue: (row) => row.amount,
+      },
+      {
+        id: "status",
+        header: "Status",
+        accessor: (row) => <Badge status={row.status}>{row.status}</Badge>,
+        sortValue: (row) => row.status,
+      },
+      {
+        id: "date",
+        header: dateLabel,
+        accessor: (row) => (
+          <span className="text-muted-foreground/60">{row.date ? formatDate(row.date) : "\u2014"}</span>
+        ),
+        sortValue: (row) => row.date,
+      },
+      {
+        id: "dueDate",
+        header: dueDateLabel,
+        accessor: (row) => (
+          <span className="text-muted-foreground/60">{row.dueDate ? formatDate(row.dueDate) : "\u2014"}</span>
+        ),
+        sortValue: (row) => row.dueDate,
+      },
+      {
+        id: "actions",
+        header: "",
+        width: "48px",
+        accessor: (row) =>
+          row.status === "Draft" ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteTarget(row);
+              }}
+              className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              aria-label={`Delete ${row.id}`}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          ) : null,
+      },
+    ],
+    [dateLabel, dueDateLabel, idLabel],
+  );
 
   const filtered = useMemo(() => {
     return invoices.filter((inv) => {
@@ -134,11 +148,38 @@ export function InvoicesListClient({
     });
   }, [invoices, filter, search]);
 
-  const handleCreateInvoice = useCallback(() => {
-    router.push("/dashboard/invoices/new");
-  }, [router]);
+  const handleDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await api.erp.delete(doctype, deleteTarget.id);
+      addToast(`${deleteTarget.id} deleted`, "success");
+      setDeleteTarget(null);
+      router.refresh();
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "Failed to delete", "error");
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, doctype, addToast, router]);
 
-  /* --- empty state (no invoices at all) --- */
+  const handleExport = useCallback(() => {
+    downloadCsv(
+      filtered,
+      [
+        { key: "id", label: idLabel },
+        { key: "customer", label: "Customer" },
+        { key: "amount", label: "Amount" },
+        { key: "currency", label: "Currency" },
+        { key: "status", label: "Status" },
+        { key: "date", label: dateLabel },
+        { key: "dueDate", label: dueDateLabel },
+      ],
+      doctype.toLowerCase().replace(/\s+/g, "-"),
+    );
+  }, [filtered, idLabel, dateLabel, dueDateLabel, doctype]);
+
+  /* --- empty state --- */
   if (invoices.length === 0) {
     return (
       <div className="space-y-6">
@@ -147,7 +188,9 @@ export function InvoicesListClient({
             <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{title}</h1>
             <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
-          <Button variant="primary" onClick={handleCreateInvoice}>+ Create New</Button>
+          <Button variant="primary" onClick={() => router.push("/dashboard/invoices/new")}>
+            + Create New
+          </Button>
         </div>
         <Card>
           <CardContent className="p-0">
@@ -173,7 +216,15 @@ export function InvoicesListClient({
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
-        <Button variant="primary" onClick={handleCreateInvoice}>+ Create New</Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-1" />
+            Export CSV
+          </Button>
+          <Button variant="primary" onClick={() => router.push("/dashboard/invoices/new")}>
+            + Create New
+          </Button>
+        </div>
       </div>
       <Card>
         <CardContent className="p-0">
@@ -193,7 +244,9 @@ export function InvoicesListClient({
                     key={f}
                     onClick={() => setFilter(f)}
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                      isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
                     }`}
                   >
                     {f}
@@ -214,16 +267,37 @@ export function InvoicesListClient({
           <div className="flex items-center justify-between border-t border-border px-4 py-2">
             <span className="text-sm text-muted-foreground">Page {currentPage + 1}</span>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={currentPage === 0} onClick={() => router.push(`?type=${type}&page=${currentPage - 1}`)}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === 0}
+                onClick={() => router.push(`?type=${type}&page=${currentPage - 1}`)}
+              >
                 Previous
               </Button>
-              <Button variant="outline" size="sm" disabled={!hasMore} onClick={() => router.push(`?type=${type}&page=${currentPage + 1}`)}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!hasMore}
+                onClick={() => router.push(`?type=${type}&page=${currentPage + 1}`)}
+              >
                 Next
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title={`Delete ${deleteTarget?.id ?? "record"}?`}
+        description="This action cannot be undone. The record will be permanently removed."
+        confirmLabel={deleting ? "Deleting..." : "Delete"}
+        variant="destructive"
+      />
+
       <AIChatPanel module="finance" />
     </div>
   );

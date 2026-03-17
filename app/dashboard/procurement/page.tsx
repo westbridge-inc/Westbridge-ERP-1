@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { Suspense, useState, useMemo } from "react";
+import { Suspense, useState, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -12,10 +12,15 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { SkeletonTable } from "@/components/ui/SkeletonTable";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { formatCurrency } from "@/lib/locale/currency";
-import { Truck } from "lucide-react";
+import { Truck, Download, Trash2 } from "lucide-react";
 import { formatDateLong } from "@/lib/locale/date";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 import { useErpList } from "@/lib/queries/useErpList";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useToasts } from "@/components/ui/Toasts";
+import { downloadCsv } from "@/lib/utils/csv";
+import { api } from "@/lib/api/client";
+import { Input } from "@/components/ui/Input";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -78,96 +83,153 @@ function fmtDate(d: string): string {
 /*  Column definitions                                                 */
 /* ------------------------------------------------------------------ */
 
-const poColumns: Column<PurchaseOrder>[] = [
-  {
-    id: "id",
-    header: "PO #",
-    accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>,
-    sortValue: (r) => r.id,
-  },
-  {
-    id: "supplier",
-    header: "Supplier",
-    accessor: (r) => <span className="text-muted-foreground">{r.supplier}</span>,
-    sortValue: (r) => r.supplier,
-  },
-  {
-    id: "amount",
-    header: "Amount",
-    align: "right",
-    accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>,
-    sortValue: (r) => r.amount,
-  },
-  {
-    id: "orderDate",
-    header: "Order Date",
-    accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.orderDate)}</span>,
-    sortValue: (r) => r.orderDate,
-  },
-  {
-    id: "expected",
-    header: "Expected",
-    accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.expected)}</span>,
-    sortValue: (r) => r.expected,
-  },
-  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge> },
-];
+function getPoColumns(setDeleteTarget: (row: PurchaseOrder) => void): Column<PurchaseOrder>[] {
+  return [
+    {
+      id: "id",
+      header: "PO #",
+      accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>,
+      sortValue: (r) => r.id,
+    },
+    {
+      id: "supplier",
+      header: "Supplier",
+      accessor: (r) => <span className="text-muted-foreground">{r.supplier}</span>,
+      sortValue: (r) => r.supplier,
+    },
+    {
+      id: "amount",
+      header: "Amount",
+      align: "right",
+      accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>,
+      sortValue: (r) => r.amount,
+    },
+    {
+      id: "orderDate",
+      header: "Order Date",
+      accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.orderDate)}</span>,
+      sortValue: (r) => r.orderDate,
+    },
+    {
+      id: "expected",
+      header: "Expected",
+      accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.expected)}</span>,
+      sortValue: (r) => r.expected,
+    },
+    { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge> },
+    {
+      id: "actions",
+      header: "",
+      width: "48px",
+      accessor: (row) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setDeleteTarget(row);
+          }}
+          className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          aria-label={`Delete ${row.id}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ];
+}
 
-const piColumns: Column<PurchaseOrder>[] = [
-  {
-    id: "id",
-    header: "Invoice #",
-    accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>,
-    sortValue: (r) => r.id,
-  },
-  {
-    id: "supplier",
-    header: "Supplier",
-    accessor: (r) => <span className="text-muted-foreground">{r.supplier}</span>,
-    sortValue: (r) => r.supplier,
-  },
-  {
-    id: "amount",
-    header: "Amount",
-    align: "right",
-    accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>,
-    sortValue: (r) => r.amount,
-  },
-  {
-    id: "orderDate",
-    header: "Date",
-    accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.orderDate)}</span>,
-    sortValue: (r) => r.orderDate,
-  },
-  {
-    id: "expected",
-    header: "Due Date",
-    accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.expected)}</span>,
-    sortValue: (r) => r.expected,
-  },
-  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge> },
-];
+function getPiColumns(setDeleteTarget: (row: PurchaseOrder) => void): Column<PurchaseOrder>[] {
+  return [
+    {
+      id: "id",
+      header: "Invoice #",
+      accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>,
+      sortValue: (r) => r.id,
+    },
+    {
+      id: "supplier",
+      header: "Supplier",
+      accessor: (r) => <span className="text-muted-foreground">{r.supplier}</span>,
+      sortValue: (r) => r.supplier,
+    },
+    {
+      id: "amount",
+      header: "Amount",
+      align: "right",
+      accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>,
+      sortValue: (r) => r.amount,
+    },
+    {
+      id: "orderDate",
+      header: "Date",
+      accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.orderDate)}</span>,
+      sortValue: (r) => r.orderDate,
+    },
+    {
+      id: "expected",
+      header: "Due Date",
+      accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.expected)}</span>,
+      sortValue: (r) => r.expected,
+    },
+    { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge> },
+    {
+      id: "actions",
+      header: "",
+      width: "48px",
+      accessor: (row) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setDeleteTarget(row);
+          }}
+          className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          aria-label={`Delete ${row.id}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ];
+}
 
-const supplierColumns: Column<SupplierRow>[] = [
-  {
-    id: "name",
-    header: "Supplier Name",
-    accessor: (r) => <span className="font-medium text-foreground">{r.name}</span>,
-    sortValue: (r) => r.name,
-  },
-  {
-    id: "supplierType",
-    header: "Type",
-    accessor: (r) => <span className="text-muted-foreground">{r.supplierType}</span>,
-    sortValue: (r) => r.supplierType,
-  },
-  {
-    id: "country",
-    header: "Country",
-    accessor: (r) => <span className="text-muted-foreground">{r.country}</span>,
-    sortValue: (r) => r.country,
-  },
-];
+function getSupplierColumns(setDeleteTarget: (row: SupplierRow) => void): Column<SupplierRow>[] {
+  return [
+    {
+      id: "name",
+      header: "Supplier Name",
+      accessor: (r) => <span className="font-medium text-foreground">{r.name}</span>,
+      sortValue: (r) => r.name,
+    },
+    {
+      id: "supplierType",
+      header: "Type",
+      accessor: (r) => <span className="text-muted-foreground">{r.supplierType}</span>,
+      sortValue: (r) => r.supplierType,
+    },
+    {
+      id: "country",
+      header: "Country",
+      accessor: (r) => <span className="text-muted-foreground">{r.country}</span>,
+      sortValue: (r) => r.country,
+    },
+    {
+      id: "actions",
+      header: "",
+      width: "48px",
+      accessor: (row) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setDeleteTarget(row);
+          }}
+          className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          aria-label={`Delete ${row.id}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ];
+}
 
 /* ------------------------------------------------------------------ */
 /*  Config by type                                                     */
@@ -190,7 +252,11 @@ function ProcurementPageInner() {
   const config = TYPE_CONFIG[type as keyof typeof TYPE_CONFIG] ?? TYPE_CONFIG.default;
   const isSupplier = type === "supplier";
 
+  const { addToast } = useToasts();
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<PurchaseOrder | SupplierRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const {
     data: rawList = [],
     hasMore,
@@ -206,6 +272,60 @@ function ProcurementPageInner() {
     if (isSupplier) return list.map(mapErpSupplier);
     return list.map(mapErpPurchaseOrder);
   }, [rawList, isSupplier]);
+
+  const filtered = useMemo(() => {
+    if (!search) return data;
+    const q = search.toLowerCase();
+    return data.filter((row) => Object.values(row).some((v) => String(v).toLowerCase().includes(q)));
+  }, [data, search]);
+
+  const poColumns = useMemo(() => getPoColumns(setDeleteTarget), []);
+  const piColumns = useMemo(() => getPiColumns(setDeleteTarget), []);
+  const supplierColumns = useMemo(() => getSupplierColumns(setDeleteTarget), []);
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await api.erp.delete(config.doctype, deleteTarget.id);
+      addToast(`${deleteTarget.id} deleted`, "success");
+      setDeleteTarget(null);
+      refetch();
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "Failed to delete", "error");
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, addToast, refetch, config.doctype]);
+
+  const handleExport = useCallback(() => {
+    if (isSupplier) {
+      downloadCsv(
+        filtered as unknown as Record<string, unknown>[],
+        [
+          { key: "id", label: "ID" },
+          { key: "name", label: "Supplier Name" },
+          { key: "supplierType", label: "Type" },
+          { key: "country", label: "Country" },
+        ],
+        "suppliers",
+      );
+    } else {
+      downloadCsv(
+        filtered as unknown as Record<string, unknown>[],
+        [
+          { key: "id", label: "ID" },
+          { key: "supplier", label: "Supplier" },
+          { key: "amount", label: "Amount" },
+          { key: "orderDate", label: "Order Date" },
+          { key: "expected", label: "Expected" },
+          { key: "status", label: "Status" },
+        ],
+        type === "invoice" ? "purchase-invoices" : "purchase-orders",
+      );
+    }
+  }, [filtered, isSupplier, type]);
+
   const error =
     queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
 
@@ -251,18 +371,31 @@ function ProcurementPageInner() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">{config.title}</h1>
           <p className="text-sm text-muted-foreground">{config.subtitle}</p>
         </div>
-        <Button variant="primary" onClick={() => router.push("/dashboard/procurement/new")}>
-          + Create New
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="mr-1 h-4 w-4" /> Export CSV
+          </Button>
+          <Button variant="primary" onClick={() => router.push("/dashboard/procurement/new")}>
+            + Create New
+          </Button>
+        </div>
       </div>
       <Card>
         <CardContent className="p-0">
+          <div className="p-4">
+            <Input
+              placeholder={`Search ${config.title.toLowerCase()}...`}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="max-w-sm"
+            />
+          </div>
           {loading ? (
             <SkeletonTable rows={6} columns={6} />
           ) : isSupplier ? (
             <DataTable
               columns={supplierColumns}
-              data={data as SupplierRow[]}
+              data={filtered as SupplierRow[]}
               keyExtractor={(r) => r.id}
               onRowClick={(record) => router.push(`/dashboard/procurement/${encodeURIComponent(record.id)}`)}
               emptyState={
@@ -280,7 +413,7 @@ function ProcurementPageInner() {
           ) : (
             <DataTable
               columns={type === "invoice" ? piColumns : poColumns}
-              data={data as unknown as PurchaseOrder[]}
+              data={filtered as unknown as PurchaseOrder[]}
               keyExtractor={(r) => r.id}
               onRowClick={(record) => router.push(`/dashboard/procurement/${encodeURIComponent(record.id)}`)}
               emptyState={
@@ -309,6 +442,15 @@ function ProcurementPageInner() {
           </div>
         </CardContent>
       </Card>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete record"
+        description={`Are you sure you want to delete ${deleteTarget?.id ?? "this record"}? This action cannot be undone.`}
+        confirmLabel={deleting ? "Deleting..." : "Delete"}
+        variant="destructive"
+      />
       <AIChatPanel module="inventory" />
     </div>
   );
