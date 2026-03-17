@@ -6,16 +6,9 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useToasts } from "@/components/ui/Toasts";
+import { api, type UserProfile } from "@/lib/api/client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
-export interface SessionUser {
-  userId: string;
-  accountId: string;
-  role: string;
-  email: string;
-  name: string;
-}
+export type SessionUser = UserProfile;
 
 interface ProfileTabProps {
   onSessionLoaded?: (user: SessionUser) => void;
@@ -32,18 +25,15 @@ export function ProfileTab({ onSessionLoaded }: ProfileTabProps) {
   const initialNameRef = useRef("");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/auth/validate`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d: { data?: SessionUser }) => {
-        const u = d?.data;
-        if (u) {
-          setSessionUser(u);
-          const name = u.name?.trim() || u.email.split("@")[0].replace(/[._-]/g, " ");
-          setDisplayName(name);
-          setEmail(u.email ?? "");
-          initialNameRef.current = name;
-          onSessionLoaded?.(u);
-        }
+    api.auth
+      .getSession()
+      .then((u) => {
+        setSessionUser(u);
+        const name = u.name?.trim() || u.email.split("@")[0].replace(/[._-]/g, " ");
+        setDisplayName(name);
+        setEmail(u.email ?? "");
+        initialNameRef.current = name;
+        onSessionLoaded?.(u);
       })
       .catch(() => {})
       .finally(() => setProfileLoading(false));
@@ -57,19 +47,7 @@ export function ProfileTab({ onSessionLoaded }: ProfileTabProps) {
       if (!dirty) return;
       setSaving(true);
       try {
-        const csrfRes = await fetch(`${API_BASE}/api/csrf`, { credentials: "include" });
-        const csrfData = (await csrfRes.json().catch(() => ({}))) as { data?: { token?: string }; token?: string };
-        const csrfToken = csrfData?.data?.token ?? csrfData?.token ?? "";
-        const res = await fetch(`${API_BASE}/api/account/profile`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
-          credentials: "include",
-          body: JSON.stringify({ name: displayName }),
-        });
-        if (!res.ok) {
-          const errData = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
-          throw new Error(errData?.error?.message ?? "Failed to save profile");
-        }
+        await api.account.updateProfile({ name: displayName });
         initialNameRef.current = displayName;
         addToast("Profile saved", "success");
       } catch {

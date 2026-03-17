@@ -8,14 +8,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getPlan, type PlanId } from "@/lib/modules";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
-interface BillingData {
-  items: { id: string; date: string; amount: string; status: string }[];
-  plan: string | null;
-  accountCreatedAt: string | null;
-}
+import { api, type BillingData } from "@/lib/api/client";
 
 function nextBillingDate(createdAt: string | null): string {
   if (!createdAt) return "";
@@ -35,10 +28,10 @@ export function BillingTab() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${API_BASE}/api/billing/history`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d: { data?: BillingData }) => {
-        if (!cancelled) setBilling(d?.data ?? null);
+    api.billing
+      .getHistory()
+      .then((data) => {
+        if (!cancelled) setBilling(data);
       })
       .catch(() => {
         if (!cancelled) setBilling({ items: [], plan: null, accountCreatedAt: null });

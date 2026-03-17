@@ -5,18 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToasts } from "@/components/ui/Toasts";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  lastActive: string;
-  isYou: boolean;
-}
+import { api, type TeamMember } from "@/lib/api/client";
 
 export function TeamTab() {
   const { addToast } = useToasts();
@@ -29,9 +18,9 @@ export function TeamTab() {
 
   useEffect(() => {
     setTeamLoading(true);
-    fetch(`${API_BASE}/api/team`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d: { data?: { members: TeamMember[] } }) => setTeamMembers(d?.data?.members ?? []))
+    api.team
+      .get()
+      .then((data) => setTeamMembers(data.members))
       .catch(() => setTeamMembers([]))
       .finally(() => setTeamLoading(false));
   }, []);
@@ -40,25 +29,12 @@ export function TeamTab() {
     if (!inviteEmail.trim()) return;
     setInviteSending(true);
     try {
-      const csrfRes = await fetch(`${API_BASE}/api/csrf`, { credentials: "include" });
-      const csrfData = await csrfRes.json().catch(() => ({}));
-      const csrfToken = csrfData?.data?.token ?? "";
-      const res = await fetch(`${API_BASE}/api/invite`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
-        body: JSON.stringify({ email: inviteEmail, role: inviteRole.toLowerCase() }),
-        credentials: "include",
-      });
-      if (res.ok) {
-        addToast(`Invitation sent to ${inviteEmail}`, "success");
-        setInviteEmail("");
-        setInviteRole("Member");
-      } else {
-        const d = await res.json().catch(() => ({}));
-        addToast(d?.error?.message ?? "Failed to send invite", "error");
-      }
-    } catch {
-      addToast("Failed to send invite", "error");
+      await api.invite.send(inviteEmail, inviteRole.toLowerCase());
+      addToast(`Invitation sent to ${inviteEmail}`, "success");
+      setInviteEmail("");
+      setInviteRole("Member");
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "Failed to send invite", "error");
     } finally {
       setInviteSending(false);
     }

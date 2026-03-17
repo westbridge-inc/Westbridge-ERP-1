@@ -8,8 +8,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/comp
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useToasts } from "@/components/ui/Toasts";
 import { validatePassword } from "@/lib/password-policy";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+import { api } from "@/lib/api/client";
 
 export function SecurityTab() {
   const { addToast } = useToasts();
@@ -37,28 +36,15 @@ export function SecurityTab() {
       }
       setPwSaving(true);
       try {
-        const csrfRes = await fetch(`${API_BASE}/api/csrf`, { credentials: "include" });
-        const csrfData = await csrfRes.json().catch(() => ({}));
-        const csrfToken = csrfData?.data?.token ?? "";
-        const res = await fetch(`${API_BASE}/api/auth/change-password`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
-          body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
-          credentials: "include",
-        });
-        if (res.ok) {
-          setChangePwModal(false);
-          setCurrentPw("");
-          setNewPw("");
-          setConfirmPw("");
-          setPwError("");
-          addToast("Password updated successfully", "success");
-        } else {
-          const d = await res.json().catch(() => ({}));
-          setPwError(d?.error?.message ?? "Failed to update password");
-        }
-      } catch {
-        setPwError("Network error. Please try again.");
+        await api.auth.changePassword(currentPw, newPw);
+        setChangePwModal(false);
+        setCurrentPw("");
+        setNewPw("");
+        setConfirmPw("");
+        setPwError("");
+        addToast("Password updated successfully", "success");
+      } catch (err) {
+        setPwError(err instanceof Error ? err.message : "Failed to update password");
       } finally {
         setPwSaving(false);
       }
