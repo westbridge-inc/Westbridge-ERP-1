@@ -1,13 +1,23 @@
 "use client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const dynamic = "force-dynamic";
 
 import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
+import nextDynamic from "next/dynamic";
 import { Calculator } from "lucide-react";
+
+const LazyBarChart = nextDynamic(() => import("recharts").then((m) => m.BarChart), { ssr: false });
+const LazyBar = nextDynamic(() => import("recharts").then((m) => m.Bar), { ssr: false });
+const LazyXAxis = nextDynamic(() => import("recharts").then((m) => m.XAxis), { ssr: false });
+const LazyYAxis = nextDynamic(() => import("recharts").then((m) => m.YAxis), { ssr: false });
+const LazyResponsiveContainer = nextDynamic(() => import("recharts").then((m) => m.ResponsiveContainer), {
+  ssr: false,
+});
+const LazyTooltip = nextDynamic(() => import("recharts").then((m) => m.Tooltip), { ssr: false });
+const LazyLegend = nextDynamic(() => import("recharts").then((m) => m.Legend), { ssr: false });
+const LazyCartesianGrid = nextDynamic(() => import("recharts").then((m) => m.CartesianGrid), { ssr: false });
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -20,6 +30,7 @@ import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/e
 import { formatCurrency } from "@/lib/locale/currency";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 import { useErpList } from "@/lib/queries/useErpList";
+import { fetchDoctype } from "@/lib/api/fetchDoctype";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -412,27 +423,6 @@ function ChartTooltip({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Fetch helper                                                       */
-/* ------------------------------------------------------------------ */
-
-async function fetchDoctype(doctype: string, limit: number, fields?: string[]): Promise<unknown[]> {
-  const qs = new URLSearchParams({ doctype, limit: String(limit) });
-  if (fields) qs.set("fields", JSON.stringify(fields));
-  const res = await fetch(`${API_BASE}/api/erp/list?${qs.toString()}`, {
-    credentials: "include",
-  });
-  if (!res.ok) {
-    // Treat 404/502/503 as "no data" rather than crashing
-    if (res.status === 404 || res.status === 502 || res.status === 503) {
-      return [];
-    }
-    throw new Error(`HTTP ${res.status}`);
-  }
-  const body = await res.json();
-  return (body?.data as unknown[]) ?? [];
-}
-
-/* ------------------------------------------------------------------ */
 /*  Dashboard sub-view                                                 */
 /* ------------------------------------------------------------------ */
 
@@ -701,22 +691,22 @@ function AccountingDashboard() {
           <p className="text-base font-semibold text-foreground font-display">Revenue vs Expenses</p>
           <p className="text-sm text-muted-foreground/60">{chartSubtitle}</p>
           <div className="mt-4 h-64 min-h-[256px] w-full">
-            <ResponsiveContainer width="100%" height={256}>
-              <BarChart data={barData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis
+            <LazyResponsiveContainer width="100%" height={256}>
+              <LazyBarChart data={barData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                <LazyCartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <LazyXAxis
                   dataKey="month"
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                 />
-                <YAxis hide domain={[0, maxBarValue]} />
-                <Tooltip content={<ChartTooltip />} cursor={{ fill: "var(--muted)" }} />
-                <Legend wrapperStyle={{ color: "var(--muted-foreground)", fontSize: 12 }} />
-                <Bar dataKey="revenue" name="Revenue" fill="var(--primary)" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="expenses" name="Expenses" fill="var(--border)" radius={[2, 2, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+                <LazyYAxis hide domain={[0, maxBarValue]} />
+                <LazyTooltip content={<ChartTooltip />} cursor={{ fill: "var(--muted)" }} />
+                <LazyLegend wrapperStyle={{ color: "var(--muted-foreground)", fontSize: 12 }} />
+                <LazyBar dataKey="revenue" name="Revenue" fill="var(--primary)" radius={[2, 2, 0, 0]} />
+                <LazyBar dataKey="expenses" name="Expenses" fill="var(--border)" radius={[2, 2, 0, 0]} />
+              </LazyBarChart>
+            </LazyResponsiveContainer>
           </div>
         </CardContent>
       </Card>

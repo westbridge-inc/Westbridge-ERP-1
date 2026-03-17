@@ -166,6 +166,72 @@ async function erpDelete(doctype: string, name: string): Promise<void> {
   });
 }
 
+// ─── Account / Profile ────────────────────────────────────────────────────────
+
+export interface UserProfile {
+  userId: string;
+  accountId: string;
+  role: string;
+  email: string;
+  name: string;
+}
+
+async function getSession(): Promise<UserProfile> {
+  return request<UserProfile>("/api/auth/validate");
+}
+
+async function getProfile(): Promise<UserProfile> {
+  return request<UserProfile>("/api/account/profile");
+}
+
+async function updateProfile(data: { name?: string }): Promise<void> {
+  await request<void>("/api/account/profile", { method: "PATCH", body: JSON.stringify(data) });
+}
+
+// ─── Billing ──────────────────────────────────────────────────────────────────
+
+export interface BillingHistoryItem {
+  id: string;
+  date: string;
+  amount: string;
+  status: string;
+}
+
+export interface BillingData {
+  items: BillingHistoryItem[];
+  plan: string | null;
+  accountCreatedAt: string | null;
+}
+
+async function getBillingHistory(): Promise<BillingData> {
+  return request<BillingData>("/api/billing/history");
+}
+
+// ─── Team ─────────────────────────────────────────────────────────────────────
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  lastActive: string;
+  isYou: boolean;
+}
+
+async function getTeam(): Promise<{ members: TeamMember[] }> {
+  return request<{ members: TeamMember[] }>("/api/team");
+}
+
+// ─── Security ─────────────────────────────────────────────────────────────────
+
+async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await request<void>("/api/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
 // ─── Invite ───────────────────────────────────────────────────────────────────
 
 async function sendInvite(email: string, role: string): Promise<void> {
@@ -183,7 +249,10 @@ async function acceptInvite(token: string, name: string, password: string): Prom
 // ─── Client export ────────────────────────────────────────────────────────────
 
 export const api = {
-  auth: { login, logout, forgotPassword, resetPassword },
+  auth: { login, logout, forgotPassword, resetPassword, getSession, changePassword },
+  account: { getProfile, updateProfile },
+  billing: { getHistory: getBillingHistory },
+  team: { get: getTeam },
   erp: { list: erpList, get: erpGet, create: erpCreate, update: erpUpdate, delete: erpDelete },
   invite: { send: sendInvite, validate: validateInvite, accept: acceptInvite },
 } as const;
