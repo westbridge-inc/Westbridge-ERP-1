@@ -7,21 +7,28 @@ import { Zap, X, Send, Loader2, AlertCircle, Sparkles } from "lucide-react";
 const AI_NOT_CONFIGURED_MSG = "AI is not configured on this plan yet.";
 import ReactMarkdown from "react-markdown";
 
-interface Message { role: "user" | "assistant"; content: string }
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
 
 interface AIChatPanelProps {
   module?: "finance" | "crm" | "inventory" | "hr" | "manufacturing" | "projects" | "biztools" | "general";
 }
 
 const SUGGESTIONS: Record<string, string[]> = {
-  finance:       ["Summarise last 30 days revenue", "Show overdue invoices", "What are my top 5 expenses?"],
-  crm:           ["Show open opportunities", "Which deals are closing this month?", "Draft a quote for Acme Corp"],
-  inventory:     ["What items are low on stock?", "Show top 10 selling products", "Forecast reorder needs"],
-  hr:            ["Show employees with pending leave", "Any payroll anomalies this month?", "Draft a job description for a Sales Manager"],
+  finance: ["Summarise last 30 days revenue", "Show overdue invoices", "What are my top 5 expenses?"],
+  crm: ["Show open opportunities", "Which deals are closing this month?", "Draft a quote for Acme Corp"],
+  inventory: ["What items are low on stock?", "Show top 10 selling products", "Forecast reorder needs"],
+  hr: [
+    "Show employees with pending leave",
+    "Any payroll anomalies this month?",
+    "Draft a job description for a Sales Manager",
+  ],
   manufacturing: ["Show open work orders", "Which workstations are at capacity?", "Any material shortages?"],
-  projects:      ["Show projects at risk of delay", "Which tasks are overdue?", "Summarise this week's timesheet hours"],
-  biztools:      ["Show today's POS sales summary", "Which products need restocking?", "Generate a sales trend report"],
-  general:       ["How is the business doing?", "Show my most important tasks today", "What needs my attention?"],
+  projects: ["Show projects at risk of delay", "Which tasks are overdue?", "Summarise this week's timesheet hours"],
+  biztools: ["Show today's POS sales summary", "Which products need restocking?", "Generate a sales trend report"],
+  general: ["How is the business doing?", "Show my most important tasks today", "What needs my attention?"],
 };
 
 export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
@@ -35,7 +42,9 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
   const [aiUnconfigured, setAiUnconfigured] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   async function send(text?: string) {
     const msg = (text ?? input).trim();
@@ -58,7 +67,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
         headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
         body: JSON.stringify({ message: msg, module, conversationId: convId }),
       });
-      const json = await res.json() as {
+      const json = (await res.json()) as {
         data?: { conversationId: string; reply: string; usage?: { remaining: number | null } };
         error?: { code: string; message?: string };
       };
@@ -98,7 +107,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
         aria-label="Open AI Assistant"
       >
         <Zap className="h-4 w-4" />
-        {aiUnconfigured ? "AI coming soon" : "Ask AI"}
+        Ask AI
         {!aiUnconfigured && remaining !== undefined && remaining !== null && remaining <= 20 && (
           <span className="ml-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px] font-semibold">
             {remaining} left
@@ -135,87 +144,90 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
                 <Sparkles className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="font-semibold text-foreground">AI coming soon</p>
+                <p className="font-semibold text-foreground">AI Assistant Setup Required</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Claude AI is being activated for your account. Check back shortly or contact support.
+                  The AI assistant needs an API key to be configured by your administrator. Set{" "}
+                  <code className="rounded bg-muted px-1 py-0.5 text-xs">ANTHROPIC_API_KEY</code> in your environment to
+                  enable Claude AI.
                 </p>
               </div>
             </div>
           )}
 
           {/* Messages */}
-          {!aiUnconfigured && <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.length === 0 && (
-              <div className="mt-4">
-                <p className="text-center text-sm font-medium text-foreground">What do you want to know?</p>
-                <div className="mt-4 space-y-2">
-                  {suggestions.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => send(s)}
-                      className="w-full rounded-xl border border-border px-4 py-2.5 text-left text-sm text-muted-foreground transition hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
-                    >
-                      {s}
-                    </button>
-                  ))}
+          {!aiUnconfigured && (
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.length === 0 && (
+                <div className="mt-4">
+                  <p className="text-center text-sm font-medium text-foreground">What do you want to know?</p>
+                  <div className="mt-4 space-y-2">
+                    {suggestions.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => send(s)}
+                        className="w-full rounded-xl border border-border px-4 py-2.5 text-left text-sm text-muted-foreground transition hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
-                    m.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-foreground prose prose-sm dark:prose-invert max-w-none"
-                  }`}
-                >
-                  {m.role === "assistant"
-                    ? <ReactMarkdown>{m.content}</ReactMarkdown>
-                    : m.content
-                  }
+              {messages.map((m, i) => (
+                <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                      m.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground prose prose-sm dark:prose-invert max-w-none"
+                    }`}
+                  >
+                    {m.role === "assistant" ? <ReactMarkdown>{m.content}</ReactMarkdown> : m.content}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            {loading && (
-              <div className="flex justify-start">
-                <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-2.5 text-sm text-muted-foreground">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Thinking…
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-2.5 text-sm text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Thinking…
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {error && (
-              <div className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
-                <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                {error}
-              </div>
-            )}
+              {error && (
+                <div className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
+                  <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  {error}
+                </div>
+              )}
 
-            <div ref={bottomRef} />
-          </div>}
+              <div ref={bottomRef} />
+            </div>
+          )}
 
           {/* Input — hidden when AI is unconfigured */}
-          {!aiUnconfigured && <div className="border-t border-border p-3 flex gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && void send()}
-              placeholder="Ask about your business…"
-              className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              disabled={loading}
-            />
-            <button
-              onClick={() => void send()}
-              disabled={loading || !input.trim()}
-              className="rounded-xl bg-primary px-3 py-2 text-primary-foreground disabled:opacity-40"
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          </div>}
+          {!aiUnconfigured && (
+            <div className="border-t border-border p-3 flex gap-2">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && void send()}
+                placeholder="Ask about your business…"
+                className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                disabled={loading}
+              />
+              <button
+                onClick={() => void send()}
+                disabled={loading || !input.trim()}
+                className="rounded-xl bg-primary px-3 py-2 text-primary-foreground disabled:opacity-40"
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </>
