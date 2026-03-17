@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { CommandPalette } from "@/components/dashboard/CommandPalette";
 import { NotificationPanel, useNotifications } from "@/components/dashboard/NotificationPanel";
+import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { ShortcutsModal } from "@/components/dashboard/ShortcutsModal";
 import { useShortcuts } from "@/components/dashboard/ShortcutsContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -55,7 +56,11 @@ export function DashboardHeader() {
     if (openNotifications) fetchNotifications();
   }, [openNotifications, fetchNotifications]);
 
-  const segments = pathname?.replace(/^\/dashboard\/?/, "").split("/").filter(Boolean) ?? [];
+  const segments =
+    pathname
+      ?.replace(/^\/dashboard\/?/, "")
+      .split("/")
+      .filter(Boolean) ?? [];
   const breadcrumbItems = segments.length === 0 ? [] : ["dashboard", ...segments];
 
   return (
@@ -113,17 +118,16 @@ export function DashboardHeader() {
           >
             <Search className="size-4" />
           </Button>
+          <NotificationBell />
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setOpenNotifications((v) => !v)}
-            aria-label="Notifications"
+            aria-label="All notifications"
             className="relative"
           >
             <Bell className="size-4" />
-            {unreadCount > 0 && (
-              <span className="absolute right-1 top-1 size-2 rounded-full bg-destructive" />
-            )}
+            {unreadCount > 0 && <span className="absolute right-1 top-1 size-2 rounded-full bg-destructive" />}
           </Button>
         </div>
       </header>
