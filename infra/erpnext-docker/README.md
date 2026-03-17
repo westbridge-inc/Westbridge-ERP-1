@@ -38,8 +38,8 @@ Start the entire stack (MariaDB, Redis, ERPNext with theme app):
 docker compose up -d
 ```
 
-- **ERPNext UI:** http://localhost:8080  
-- **Default site:** `site1.local` (or set `SITE_NAME` in the compose file)  
+- **ERPNext UI:** http://localhost:8080
+- **Default site:** `site1.local` (or set `SITE_NAME` in the compose file)
 - **Login:** Administrator / `admin` (or set `ADMIN_PASSWORD` in the compose file)
 
 ## Auto-configuration
@@ -58,7 +58,7 @@ If the site already exists (e.g. from a previous run with the same volume), it o
 1. **Logo and favicon**  
    Replace the placeholder files in `my_white_label/my_white_label/public/images/`:
    - `logo.png` — e.g. 200×60 px
-   - `favicon.ico` — e.g. 32×32 px  
+   - `favicon.ico` — e.g. 32×32 px
 
    Then rebuild the image: `docker compose build erpnext`.
 
@@ -67,15 +67,15 @@ If the site already exists (e.g. from a previous run with the same volume), it o
 
 ## Environment variables (docker-compose)
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SITE_NAME` | `site1.local` | Frappe site name |
-| `ADMIN_PASSWORD` | `admin` | Administrator password for new site |
-| `DB_HOST` | `mariadb` | MariaDB service name |
-| `DB_PORT` | `3306` | MariaDB port |
-| `DB_ROOT_USER` | `root` | MariaDB root user |
-| `DB_ROOT_PASSWORD` | `admin` | MariaDB root password |
-| `FRAPPE_REDIS_*` | (see compose) | Redis URLs for cache, queue, socketio |
+| Variable           | Default       | Description                           |
+| ------------------ | ------------- | ------------------------------------- |
+| `SITE_NAME`        | `site1.local` | Frappe site name                      |
+| `ADMIN_PASSWORD`   | `admin`       | Administrator password for new site   |
+| `DB_HOST`          | `mariadb`     | MariaDB service name                  |
+| `DB_PORT`          | `3306`        | MariaDB port                          |
+| `DB_ROOT_USER`     | `root`        | MariaDB root user                     |
+| `DB_ROOT_PASSWORD` | `admin`       | MariaDB root password                 |
+| `FRAPPE_REDIS_*`   | (see compose) | Redis URLs for cache, queue, socketio |
 
 ## Volumes
 
@@ -100,9 +100,9 @@ docker compose down
 
 ## Files summary
 
-| File | Purpose |
-|------|---------|
-| `docker-compose.yml` | MariaDB, Redis, custom ERPNext image + worker; one-command `up -d`. |
-| `Dockerfile` | FROM `frappe/erpnext:v16`; copies and installs `my_white_label`; custom entrypoint. |
-| `entrypoint.sh` | Wait for DB/Redis; create site and install apps; then run CMD. |
-| `my_white_label/` | Frappe theme app (logo, favicon, login CSS). |
+| File                 | Purpose                                                                             |
+| -------------------- | ----------------------------------------------------------------------------------- |
+| `docker-compose.yml` | MariaDB, Redis, custom ERPNext image + worker; one-command `up -d`.                 |
+| `Dockerfile`         | FROM `frappe/erpnext:v16`; copies and installs `my_white_label`; custom entrypoint. |
+| `entrypoint.sh`      | Wait for DB/Redis; create site and install apps; then run CMD.                      |
+| `my_white_label/`    | Frappe theme app (logo, favicon, login CSS).                                        |

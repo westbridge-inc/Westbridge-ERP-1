@@ -55,3 +55,6 @@ lib/generated/
 # IDE / tool configs
 .cursor/
 .zap/
+
+# Claude Code internal
+.claude/
