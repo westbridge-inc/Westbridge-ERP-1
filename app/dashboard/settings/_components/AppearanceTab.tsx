@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes";
 
 export function AppearanceTab() {
-  const { theme: resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -13,24 +13,22 @@ export function AppearanceTab() {
         <div className="flex-1 h-px bg-border" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {(["light", "dark", "system"] as const).map((theme) => {
-          const isSelected =
-            (resolvedTheme === "system" && theme === "system") ||
-            (resolvedTheme !== "system" && theme === resolvedTheme);
+        {(["light", "dark", "system"] as const).map((option) => {
+          const isSelected = theme === option;
           return (
             <button
-              key={theme}
+              key={option}
               type="button"
-              onClick={() => setTheme(theme)}
+              onClick={() => setTheme(option)}
               className={`rounded-lg border p-4 text-left transition-shadow ${isSelected ? "border-primary ring-1 ring-primary" : "border-border hover:bg-muted/50"}`}
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm font-medium text-foreground capitalize">{theme}</p>
+                  <p className="text-sm font-medium text-foreground capitalize">{option}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {theme === "light" && "Use light theme"}
-                    {theme === "dark" && "Use dark theme"}
-                    {theme === "system" && "Match system preference"}
+                    {option === "light" && "Use light theme"}
+                    {option === "dark" && "Use dark theme"}
+                    {option === "system" && "Match system preference"}
                   </p>
                 </div>
                 <span

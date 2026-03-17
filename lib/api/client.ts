@@ -223,7 +223,50 @@ async function getTeam(): Promise<{ members: TeamMember[] }> {
   return request<{ members: TeamMember[] }>("/api/team");
 }
 
-// ─── Security ─────────────────────────────────────────────────────────────────
+async function removeMember(userId: string): Promise<void> {
+  await request<void>(`/api/team/${userId}`, { method: "DELETE" });
+}
+
+async function updateMemberRole(userId: string, role: string): Promise<void> {
+  await request<void>(`/api/team/${userId}/role`, { method: "PATCH", body: JSON.stringify({ role }) });
+}
+
+export interface PendingInvite {
+  id: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  expiresAt: string;
+}
+
+async function getPendingInvites(): Promise<{ invites: PendingInvite[] }> {
+  return request<{ invites: PendingInvite[] }>("/api/team/invites");
+}
+
+async function resendInvite(inviteId: string): Promise<void> {
+  await request<void>(`/api/team/invites/${inviteId}/resend`, { method: "POST" });
+}
+
+// ─── Security / 2FA ──────────────────────────────────────────────────────────
+
+export interface TotpSetupResult {
+  secret: string;
+  otpauthUri: string;
+  backupCodes: string[];
+  qrHint: string;
+}
+
+async function setup2FA(): Promise<TotpSetupResult> {
+  return request<TotpSetupResult>("/api/auth/2fa/setup", { method: "POST" });
+}
+
+async function verify2FA(code: string): Promise<{ enabled: boolean }> {
+  return request<{ enabled: boolean }>("/api/auth/2fa/verify", { method: "POST", body: JSON.stringify({ code }) });
+}
+
+async function disable2FA(): Promise<void> {
+  await request<void>("/api/auth/2fa/disable", { method: "POST" });
+}
 
 async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
   await request<void>("/api/auth/change-password", {
@@ -249,10 +292,16 @@ async function acceptInvite(token: string, name: string, password: string): Prom
 // ─── Client export ────────────────────────────────────────────────────────────
 
 export const api = {
-  auth: { login, logout, forgotPassword, resetPassword, getSession, changePassword },
+  auth: { login, logout, forgotPassword, resetPassword, getSession, changePassword, setup2FA, verify2FA, disable2FA },
   account: { getProfile, updateProfile },
   billing: { getHistory: getBillingHistory },
-  team: { get: getTeam },
+  team: {
+    get: getTeam,
+    remove: removeMember,
+    updateRole: updateMemberRole,
+    pendingInvites: getPendingInvites,
+    resendInvite,
+  },
   erp: { list: erpList, get: erpGet, create: erpCreate, update: erpUpdate, delete: erpDelete },
   invite: { send: sendInvite, validate: validateInvite, accept: acceptInvite },
 } as const;

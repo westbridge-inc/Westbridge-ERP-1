@@ -2,18 +2,23 @@
 
 export const dynamic = "force-dynamic";
 
-import { Suspense, useState, useMemo } from "react";
+import { Suspense, useState, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { UserCog, ClipboardCheck } from "lucide-react";
+import { UserCog, ClipboardCheck, Download, Trash2 } from "lucide-react";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Card, CardContent } from "@/components/ui/Card";
 import { DataTable, type Column } from "@/components/ui/DataTable";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { SkeletonTable } from "@/components/ui/SkeletonTable";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useToasts } from "@/components/ui/Toasts";
 import { formatDate } from "@/lib/locale/date";
+import { downloadCsv } from "@/lib/utils/csv";
+import { api } from "@/lib/api/client";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 import { useErpList } from "@/lib/queries/useErpList";
 
@@ -145,10 +150,14 @@ const attendanceColumns: Column<AttendanceRow>[] = [
 function HRPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { addToast } = useToasts();
   const type = searchParams.get("type");
   const isAttendance = type === "attendance";
 
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Employee | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const {
     data: rawList = [],
     hasMore,
@@ -181,6 +190,85 @@ function HRPageInner() {
         : null;
   const stats = useMemo(() => (isAttendance ? null : deriveStats(employees)), [employees, isAttendance]);
 
+  const filteredEmployees = useMemo(() => {
+    if (!search) return employees;
+    const q = search.toLowerCase();
+    return employees.filter((row) => Object.values(row).some((v) => String(v).toLowerCase().includes(q)));
+  }, [employees, search]);
+
+  const filteredAttendance = useMemo(() => {
+    if (!search) return attendanceRows;
+    const q = search.toLowerCase();
+    return attendanceRows.filter((row) => Object.values(row).some((v) => String(v).toLowerCase().includes(q)));
+  }, [attendanceRows, search]);
+
+  const employeeColumnsWithActions = useMemo(
+    (): Column<Employee>[] => [
+      ...employeeColumns,
+      {
+        id: "actions",
+        header: "",
+        width: "48px",
+        accessor: (row) => (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setDeleteTarget(row);
+            }}
+            className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            aria-label={`Delete ${row.id}`}
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await api.erp.delete("Employee", deleteTarget.id);
+      addToast(`${deleteTarget.id} deleted`, "success");
+      setDeleteTarget(null);
+      refetch();
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "Failed to delete", "error");
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, addToast, refetch]);
+
+  const handleExport = useCallback(() => {
+    if (isAttendance) {
+      downloadCsv(
+        filteredAttendance as unknown as Record<string, unknown>[],
+        [
+          { key: "id", label: "ID" },
+          { key: "employeeName", label: "Employee" },
+          { key: "attendanceDate", label: "Date" },
+          { key: "status", label: "Status" },
+        ],
+        "attendance",
+      );
+    } else {
+      downloadCsv(
+        filteredEmployees as unknown as Record<string, unknown>[],
+        [
+          { key: "id", label: "ID" },
+          { key: "name", label: "Name" },
+          { key: "designation", label: "Designation" },
+          { key: "department", label: "Department" },
+          { key: "status", label: "Status" },
+          { key: "dateJoined", label: "Date Joined" },
+        ],
+        "employee",
+      );
+    }
+  }, [isAttendance, filteredEmployees, filteredAttendance]);
+
   const title = isAttendance ? "Attendance" : "HR";
   const subtitle = isAttendance ? "Employee attendance records" : "Employee directory and management";
 
@@ -190,9 +278,15 @@ function HRPageInner() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{title}</h1>
         <p className="text-sm text-muted-foreground">{subtitle}</p>
       </div>
-      <Button variant="primary" onClick={() => router.push("/dashboard/hr/new")}>
-        + Create New
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={handleExport}>
+          <Download className="h-4 w-4 mr-1" />
+          Export CSV
+        </Button>
+        <Button variant="primary" onClick={() => router.push("/dashboard/hr/new")}>
+          + Create New
+        </Button>
+      </div>
     </div>
   );
 
@@ -256,10 +350,19 @@ function HRPageInner() {
       )}
       <Card>
         <CardContent className="p-0">
+          <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
+            <Input
+              type="search"
+              placeholder={isAttendance ? "Search attendance..." : "Search employees..."}
+              className="w-80"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           {isAttendance ? (
             <DataTable<AttendanceRow>
               columns={attendanceColumns}
-              data={attendanceRows}
+              data={filteredAttendance}
               keyExtractor={(r) => r.id}
               onRowClick={(record) => router.push(`/dashboard/hr/${encodeURIComponent(record.id)}`)}
               loading={false}
@@ -277,8 +380,8 @@ function HRPageInner() {
             />
           ) : (
             <DataTable<Employee>
-              columns={employeeColumns}
-              data={employees}
+              columns={employeeColumnsWithActions}
+              data={filteredEmployees}
               keyExtractor={(r) => r.id}
               onRowClick={(record) => router.push(`/dashboard/hr/${encodeURIComponent(record.id)}`)}
               loading={false}
@@ -308,6 +411,17 @@ function HRPageInner() {
           </div>
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title={`Delete ${deleteTarget?.id ?? "record"}?`}
+        description="This action cannot be undone."
+        confirmLabel={deleting ? "Deleting..." : "Delete"}
+        variant="destructive"
+      />
+
       <AIChatPanel module="hr" />
     </div>
   );

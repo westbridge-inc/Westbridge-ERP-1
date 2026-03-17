@@ -3,11 +3,17 @@
 import { Button } from "./Button";
 
 export interface EmptyStateProps {
+  /** Optional icon rendered above the title. */
   icon?: React.ReactNode;
+  /** Primary heading text displayed in the empty state. */
   title: string;
+  /** Secondary text shown below the title. */
   description?: string;
+  /** Label for the call-to-action button; button is hidden when omitted. */
   actionLabel?: string;
+  /** Callback fired when the action button is clicked. */
   onAction?: () => void;
+  /** URL the action button links to; takes precedence over onAction when set. */
   actionHref?: string;
   /** Muted text below the action, e.g. "Need help? Contact support@..." */
   supportLine?: string;

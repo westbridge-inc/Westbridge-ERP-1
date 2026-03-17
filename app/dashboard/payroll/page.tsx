@@ -3,6 +3,8 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { DollarSign } from "lucide-react";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { MetricCard } from "@/components/dashboard/MetricCard";
@@ -119,6 +121,7 @@ const columns: Column<PayrollRecord>[] = [
 /* ------------------------------------------------------------------ */
 
 export default function PayrollPage() {
+  const router = useRouter();
   const [page, setPage] = useState(0);
   const {
     data: rawList = [],
@@ -144,7 +147,9 @@ export default function PayrollPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Payroll</h1>
         <p className="text-sm text-muted-foreground">Payroll runs, salary slips and deductions</p>
       </div>
-      <Button variant="primary">+ Create New</Button>
+      <Button variant="primary" asChild>
+        <Link href="/dashboard/payroll/new">+ Create New</Link>
+      </Button>
     </div>
   );
 
@@ -208,6 +213,7 @@ export default function PayrollPage() {
             columns={columns}
             data={records}
             keyExtractor={(r) => r.id}
+            onRowClick={(r) => router.push(`/dashboard/payroll/${encodeURIComponent(r.id)}`)}
             loading={false}
             emptyState={
               <EmptyState

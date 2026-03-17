@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { validatePassword, TOTAL_PW_REQUIREMENTS } from "@/lib/password-policy";
+import { CheckCircle } from "lucide-react";
 
 function SignupContent() {
   const searchParams = useSearchParams();
@@ -314,19 +315,31 @@ function SignupContent() {
         {step === 4 && (
           <div>
             {returnFromPayment ? (
-              <>
-                <h1 className="text-2xl font-semibold text-foreground font-display">Payment submitted</h1>
-                <p className="mt-2 text-muted-foreground">
-                  Your payment is being processed. We&apos;ll activate your account shortly and email you at{" "}
-                  <strong>{email || "your email"}</strong>.
+              <div className="flex flex-col items-center text-center py-8">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+                  <CheckCircle className="h-10 w-10 text-success" />
+                </div>
+                <h1 className="mt-6 text-2xl font-semibold text-foreground font-display">
+                  Your account is now active!
+                </h1>
+                <p className="mt-3 text-muted-foreground max-w-sm">
+                  You&apos;re all set on the <strong>{plan.name}</strong> plan. Your workspace is ready to go.
                 </p>
+                <Button
+                  variant="default"
+                  size="lg"
+                  className="mt-8 h-12 w-full max-w-xs text-sm font-medium tracking-wide"
+                  asChild
+                >
+                  <Link href={ROUTES.dashboard}>Go to Dashboard</Link>
+                </Button>
                 <Link
                   href={ROUTES.login}
-                  className="mt-6 inline-block rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+                  className="mt-4 text-sm text-muted-foreground hover:text-foreground transition"
                 >
-                  Go to sign in
+                  Go to Login
                 </Link>
-              </>
+              </div>
             ) : (
               <>
                 <h1 className="text-2xl font-semibold text-foreground font-display">Create your account</h1>

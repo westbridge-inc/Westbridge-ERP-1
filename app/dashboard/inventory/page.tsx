@@ -2,9 +2,9 @@
 
 export const dynamic = "force-dynamic";
 
-import { Suspense, useState, useMemo } from "react";
+import { Suspense, useState, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Package, Warehouse, ArrowRightLeft } from "lucide-react";
+import { Package, Warehouse, ArrowRightLeft, Download, Trash2 } from "lucide-react";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -16,6 +16,11 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCurrency } from "@/lib/locale/currency";
 import { AIChatPanel } from "@/components/ai/AIChatPanel";
 import { useErpList } from "@/lib/queries/useErpList";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useToasts } from "@/components/ui/Toasts";
+import { downloadCsv } from "@/lib/utils/csv";
+import { api } from "@/lib/api/client";
+import { Input } from "@/components/ui/Input";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -81,46 +86,65 @@ function deriveStats(items: InventoryItem[]): InventoryStats {
 /*  Columns                                                            */
 /* ------------------------------------------------------------------ */
 
-const columns: Column<InventoryItem>[] = [
-  {
-    id: "item",
-    header: "Item",
-    accessor: (row) => <span className="font-medium text-foreground">{row.item}</span>,
-    sortValue: (row) => row.item,
-  },
-  {
-    id: "warehouse",
-    header: "Warehouse",
-    accessor: (row) => <span className="text-muted-foreground">{row.warehouse}</span>,
-    sortValue: (row) => row.warehouse,
-  },
-  {
-    id: "qty",
-    header: "Qty",
-    align: "right",
-    accessor: (row) => <span className="text-muted-foreground">{row.qty.toLocaleString()}</span>,
-    sortValue: (row) => row.qty,
-  },
-  {
-    id: "value",
-    header: "Value",
-    align: "right",
-    accessor: (row) => <span className="font-medium text-foreground">{formatCurrency(row.value)}</span>,
-    sortValue: (row) => row.value,
-  },
-  {
-    id: "uom",
-    header: "UOM",
-    accessor: (row) => <span className="text-muted-foreground/60">{row.uom}</span>,
-    sortValue: (row) => row.uom,
-  },
-  {
-    id: "status",
-    header: "Status",
-    accessor: (row) => <Badge variant={inventoryBadgeVariant(row.status)}>{row.status}</Badge>,
-    sortValue: (row) => (row.status === "Out of Stock" ? 0 : row.status === "Low Stock" ? 1 : 2),
-  },
-];
+function getItemColumns(setDeleteTarget: (row: InventoryItem) => void): Column<InventoryItem>[] {
+  return [
+    {
+      id: "item",
+      header: "Item",
+      accessor: (row) => <span className="font-medium text-foreground">{row.item}</span>,
+      sortValue: (row) => row.item,
+    },
+    {
+      id: "warehouse",
+      header: "Warehouse",
+      accessor: (row) => <span className="text-muted-foreground">{row.warehouse}</span>,
+      sortValue: (row) => row.warehouse,
+    },
+    {
+      id: "qty",
+      header: "Qty",
+      align: "right",
+      accessor: (row) => <span className="text-muted-foreground">{row.qty.toLocaleString()}</span>,
+      sortValue: (row) => row.qty,
+    },
+    {
+      id: "value",
+      header: "Value",
+      align: "right",
+      accessor: (row) => <span className="font-medium text-foreground">{formatCurrency(row.value)}</span>,
+      sortValue: (row) => row.value,
+    },
+    {
+      id: "uom",
+      header: "UOM",
+      accessor: (row) => <span className="text-muted-foreground/60">{row.uom}</span>,
+      sortValue: (row) => row.uom,
+    },
+    {
+      id: "status",
+      header: "Status",
+      accessor: (row) => <Badge variant={inventoryBadgeVariant(row.status)}>{row.status}</Badge>,
+      sortValue: (row) => (row.status === "Out of Stock" ? 0 : row.status === "Low Stock" ? 1 : 2),
+    },
+    {
+      id: "actions",
+      header: "",
+      width: "48px",
+      accessor: (row) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setDeleteTarget(row);
+          }}
+          className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          aria-label={`Delete ${row.id}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ];
+}
 
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
@@ -153,59 +177,97 @@ function mapWarehouse(d: Record<string, unknown>): GenericRow {
   };
 }
 
-const stockEntryColumns: Column<GenericRow>[] = [
-  {
-    id: "id",
-    header: "Entry #",
-    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
-    sortValue: (r) => r.id,
-  },
-  {
-    id: "purpose",
-    header: "Purpose",
-    accessor: (r) => <span className="text-muted-foreground">{r.purpose as string}</span>,
-    sortValue: (r) => r.purpose as string,
-  },
-  {
-    id: "postingDate",
-    header: "Date",
-    accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>,
-    sortValue: (r) => r.postingDate as string,
-  },
-  {
-    id: "status",
-    header: "Status",
-    accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>,
-    sortValue: (r) => r.status as string,
-  },
-];
+function getStockEntryColumns(setDeleteTarget: (row: GenericRow) => void): Column<GenericRow>[] {
+  return [
+    {
+      id: "id",
+      header: "Entry #",
+      accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+      sortValue: (r) => r.id,
+    },
+    {
+      id: "purpose",
+      header: "Purpose",
+      accessor: (r) => <span className="text-muted-foreground">{r.purpose as string}</span>,
+      sortValue: (r) => r.purpose as string,
+    },
+    {
+      id: "postingDate",
+      header: "Date",
+      accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>,
+      sortValue: (r) => r.postingDate as string,
+    },
+    {
+      id: "status",
+      header: "Status",
+      accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>,
+      sortValue: (r) => r.status as string,
+    },
+    {
+      id: "actions",
+      header: "",
+      width: "48px",
+      accessor: (row) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setDeleteTarget(row);
+          }}
+          className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          aria-label={`Delete ${row.id}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ];
+}
 
-const warehouseColumns: Column<GenericRow>[] = [
-  {
-    id: "id",
-    header: "Warehouse ID",
-    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
-    sortValue: (r) => r.id,
-  },
-  {
-    id: "warehouseName",
-    header: "Name",
-    accessor: (r) => <span className="text-muted-foreground">{r.warehouseName as string}</span>,
-    sortValue: (r) => r.warehouseName as string,
-  },
-  {
-    id: "warehouseType",
-    header: "Type",
-    accessor: (r) => <span className="text-muted-foreground">{r.warehouseType as string}</span>,
-    sortValue: (r) => r.warehouseType as string,
-  },
-  {
-    id: "company",
-    header: "Company",
-    accessor: (r) => <span className="text-muted-foreground/60">{r.company as string}</span>,
-    sortValue: (r) => r.company as string,
-  },
-];
+function getWarehouseColumns(setDeleteTarget: (row: GenericRow) => void): Column<GenericRow>[] {
+  return [
+    {
+      id: "id",
+      header: "Warehouse ID",
+      accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+      sortValue: (r) => r.id,
+    },
+    {
+      id: "warehouseName",
+      header: "Name",
+      accessor: (r) => <span className="text-muted-foreground">{r.warehouseName as string}</span>,
+      sortValue: (r) => r.warehouseName as string,
+    },
+    {
+      id: "warehouseType",
+      header: "Type",
+      accessor: (r) => <span className="text-muted-foreground">{r.warehouseType as string}</span>,
+      sortValue: (r) => r.warehouseType as string,
+    },
+    {
+      id: "company",
+      header: "Company",
+      accessor: (r) => <span className="text-muted-foreground/60">{r.company as string}</span>,
+      sortValue: (r) => r.company as string,
+    },
+    {
+      id: "actions",
+      header: "",
+      width: "48px",
+      accessor: (row) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setDeleteTarget(row);
+          }}
+          className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          aria-label={`Delete ${row.id}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ];
+}
 
 const TYPE_CONFIG = {
   default: { doctype: "Item", title: "Inventory", subtitle: "Stock levels and warehouse management" },
@@ -224,7 +286,11 @@ function InventoryPageInner() {
   const config = TYPE_CONFIG[type as keyof typeof TYPE_CONFIG] ?? TYPE_CONFIG.default;
   const isItem = type === "default" || !type;
 
+  const { addToast } = useToasts();
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<InventoryItem | GenericRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const {
     data: rawList = [],
     hasMore,
@@ -244,9 +310,75 @@ function InventoryPageInner() {
           : (rawList as Record<string, unknown>[]).map(mapWarehouse),
     [rawList, isItem, type],
   );
+
+  const filtered = useMemo(() => {
+    if (!search) return items;
+    const q = search.toLowerCase();
+    return items.filter((row) => Object.values(row).some((v) => String(v).toLowerCase().includes(q)));
+  }, [items, search]);
+
+  const itemColumns = useMemo(() => getItemColumns(setDeleteTarget as (row: InventoryItem) => void), []);
+  const stockEntryColumns = useMemo(() => getStockEntryColumns(setDeleteTarget as (row: GenericRow) => void), []);
+  const warehouseColumns = useMemo(() => getWarehouseColumns(setDeleteTarget as (row: GenericRow) => void), []);
+
+  const handleDelete = useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await api.erp.delete(config.doctype, deleteTarget.id);
+      addToast(`${deleteTarget.id} deleted`, "success");
+      setDeleteTarget(null);
+      refetch();
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "Failed to delete", "error");
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, addToast, refetch, config.doctype]);
+
+  const handleExport = useCallback(() => {
+    if (isItem) {
+      downloadCsv(
+        filtered as unknown as Record<string, unknown>[],
+        [
+          { key: "id", label: "ID" },
+          { key: "item", label: "Item" },
+          { key: "warehouse", label: "Warehouse" },
+          { key: "qty", label: "Qty" },
+          { key: "value", label: "Value" },
+          { key: "uom", label: "UOM" },
+          { key: "status", label: "Status" },
+        ],
+        "inventory",
+      );
+    } else if (type === "entry") {
+      downloadCsv(
+        filtered as unknown as Record<string, unknown>[],
+        [
+          { key: "id", label: "ID" },
+          { key: "purpose", label: "Purpose" },
+          { key: "postingDate", label: "Date" },
+          { key: "status", label: "Status" },
+        ],
+        "stock-entries",
+      );
+    } else {
+      downloadCsv(
+        filtered as unknown as Record<string, unknown>[],
+        [
+          { key: "id", label: "ID" },
+          { key: "warehouseName", label: "Name" },
+          { key: "warehouseType", label: "Type" },
+          { key: "company", label: "Company" },
+        ],
+        "warehouses",
+      );
+    }
+  }, [filtered, isItem, type]);
+
   const error =
     queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
-  const stats = useMemo(() => (isItem ? deriveStats(items as InventoryItem[]) : null), [items, isItem]);
+  const stats = useMemo(() => (isItem ? deriveStats(filtered as InventoryItem[]) : null), [filtered, isItem]);
 
   const header = (
     <div className="flex items-center justify-between">
@@ -254,9 +386,14 @@ function InventoryPageInner() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
         <p className="text-sm text-muted-foreground">{config.subtitle}</p>
       </div>
-      <Button variant="primary" onClick={() => router.push("/dashboard/inventory/new")}>
-        + Create New
-      </Button>
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={handleExport}>
+          <Download className="mr-1 h-4 w-4" /> Export CSV
+        </Button>
+        <Button variant="primary" onClick={() => router.push("/dashboard/inventory/new")}>
+          + Create New
+        </Button>
+      </div>
     </div>
   );
 
@@ -329,10 +466,18 @@ function InventoryPageInner() {
       )}
       <Card>
         <CardContent className="p-0">
+          <div className="p-4">
+            <Input
+              placeholder={`Search ${config.title.toLowerCase()}...`}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="max-w-sm"
+            />
+          </div>
           {isItem ? (
             <DataTable<InventoryItem>
-              columns={columns}
-              data={items as InventoryItem[]}
+              columns={itemColumns}
+              data={filtered as InventoryItem[]}
               keyExtractor={(r) => r.id}
               onRowClick={(record) => router.push(`/dashboard/inventory/${encodeURIComponent(record.id)}`)}
               loading={false}
@@ -351,7 +496,7 @@ function InventoryPageInner() {
           ) : (
             <DataTable<GenericRow>
               columns={type === "entry" ? stockEntryColumns : warehouseColumns}
-              data={items as GenericRow[]}
+              data={filtered as GenericRow[]}
               keyExtractor={(r) => r.id}
               onRowClick={(record) => router.push(`/dashboard/inventory/${encodeURIComponent(record.id)}`)}
               loading={false}
@@ -381,6 +526,15 @@ function InventoryPageInner() {
           </div>
         </CardContent>
       </Card>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete record"
+        description={`Are you sure you want to delete ${deleteTarget?.id ?? "this record"}? This action cannot be undone.`}
+        confirmLabel={deleting ? "Deleting..." : "Delete"}
+        variant="destructive"
+      />
       <AIChatPanel module="inventory" />
     </div>
   );
