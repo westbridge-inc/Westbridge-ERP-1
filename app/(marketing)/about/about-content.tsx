@@ -8,12 +8,9 @@ import { Button } from "@/components/ui/Button";
 export default function AboutContent() {
   return (
     <div className="mx-auto max-w-6xl bg-background px-6 py-24">
-
       {/* Headline */}
       <div className="max-w-3xl">
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">
-          About Westbridge
-        </p>
+        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">About Westbridge</p>
         <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.15] tracking-tight text-foreground md:text-5xl">
           Enterprise operations infrastructure.
           <br />
@@ -26,17 +23,17 @@ export default function AboutContent() {
         <div>
           <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">Our mission</h2>
           <p className="mt-4 text-lg leading-relaxed text-foreground/80">
-            We believe every business — regardless of size or location — deserves the same
-            operational tools that Fortune 500 companies use. Not a watered-down version.
-            Not &ldquo;good enough for small business.&rdquo; The real thing.
+            We believe every business — regardless of size or location — deserves the same operational tools that
+            Fortune 500 companies use. Not a watered-down version. Not &ldquo;good enough for small business.&rdquo; The
+            real thing.
           </p>
         </div>
         <div>
           <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">The problem</h2>
           <p className="mt-4 text-lg leading-relaxed text-foreground/80">
-            Growing businesses run critical operations on spreadsheets, WhatsApp threads,
-            and disconnected tools. Finance in one app, HR in another, inventory in a third.
-            We built Westbridge to replace all of that with one platform.
+            Growing businesses run critical operations on spreadsheets, WhatsApp threads, and disconnected tools.
+            Finance in one app, HR in another, inventory in a third. We built Westbridge to replace all of that with one
+            platform.
           </p>
         </div>
       </div>
@@ -78,13 +75,15 @@ export default function AboutContent() {
       {/* What sets us apart */}
       <div>
         <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">Differentiators</h2>
-        <h3 className="mt-4 font-display text-3xl font-semibold tracking-tight text-foreground">What&apos;s built in</h3>
+        <h3 className="mt-4 font-display text-3xl font-semibold tracking-tight text-foreground">
+          What&apos;s built in
+        </h3>
 
         <div className="mt-12 space-y-1">
           {[
             {
               title: "AI-native platform",
-              desc: "Claude AI is embedded in every module. Ask questions about your financials in plain English. Generate reports, draft invoices, flag anomalies — all from one chat interface.",
+              desc: "Westbridge AI is embedded in every module. Ask questions about your financials in plain English. Generate reports, draft invoices, flag anomalies — all from one chat interface.",
             },
             {
               title: "Global-ready compliance",
@@ -96,7 +95,9 @@ export default function AboutContent() {
             },
           ].map((item, i) => (
             <div key={item.title} className="flex gap-8 rounded-xl p-8 hover:bg-muted/30">
-              <span className="shrink-0 text-3xl font-light text-muted-foreground/15">{String(i + 1).padStart(2, "0")}</span>
+              <span className="shrink-0 text-3xl font-light text-muted-foreground/15">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <div>
                 <h4 className="text-base font-semibold text-foreground">{item.title}</h4>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground/60">{item.desc}</p>
@@ -111,18 +112,16 @@ export default function AboutContent() {
 
       {/* CTA */}
       <div className="rounded-2xl bg-foreground px-8 py-20 text-center text-background">
-        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-          Ready to get started?
-        </h2>
-        <p className="mt-4 text-background/40">
-          No credit card required. Up and running in minutes.
-        </p>
+        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Ready to get started?</h2>
+        <p className="mt-4 text-background/40">No credit card required. Up and running in minutes.</p>
         <Button
           asChild
           size="lg"
           className="mt-8 h-12 rounded-lg bg-background px-8 text-foreground hover:bg-background/90"
         >
-          <Link href={ROUTES.signup}>Start Free Trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          <Link href={ROUTES.signup}>
+            Start Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
         </Button>
       </div>
     </div>

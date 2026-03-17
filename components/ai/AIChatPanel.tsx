@@ -148,7 +148,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
                 <p className="mt-1 text-sm text-muted-foreground">
                   The AI assistant needs an API key to be configured by your administrator. Set{" "}
                   <code className="rounded bg-muted px-1 py-0.5 text-xs">ANTHROPIC_API_KEY</code> in your environment to
-                  enable Claude AI.
+                  enable Westbridge AI.
                 </p>
               </div>
             </div>

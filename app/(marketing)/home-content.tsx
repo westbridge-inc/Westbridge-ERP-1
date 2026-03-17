@@ -122,7 +122,7 @@ export function HomeContent() {
               {
                 icon: Zap,
                 title: "AI-native",
-                desc: "Claude AI is built into every module. Ask questions about your data, generate reports, draft invoices — in natural language.",
+                desc: "Westbridge AI is built into every module. Ask questions about your data, generate reports, draft invoices — in natural language.",
               },
               {
                 icon: Globe,

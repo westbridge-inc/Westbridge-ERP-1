@@ -12,10 +12,10 @@ function cellContent(moduleId: string, planId: PlanId): string {
 
 export const metadata = {
   title: "Pricing | Westbridge",
-  description: "Simple, transparent pricing. Flat monthly. Unlimited users. Claude AI built into every module.",
+  description: "Simple, transparent pricing. Flat monthly. Unlimited users. AI built into every module.",
   openGraph: {
     title: "Pricing | Westbridge",
-    description: "Simple, transparent pricing. Flat monthly. Unlimited users. Claude AI built into every module.",
+    description: "Simple, transparent pricing. Flat monthly. Unlimited users. AI built into every module.",
   },
 };
 

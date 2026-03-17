@@ -8,11 +8,11 @@ import { ROUTES } from "@/lib/config/site";
 import { formatCurrency } from "@/lib/locale/currency";
 
 const USAGE_ROWS = [
-  { label: "Users",                  key: "users" as const,              unit: "users" },
-  { label: "Storage",                key: "storageGB" as const,          unit: "GB" },
-  { label: "ERP records / mo",       key: "erpRecordsPerMonth" as const,  unit: "" },
-  { label: "Claude AI queries / mo", key: "aiQueriesPerMonth" as const,  unit: "" },
-  { label: "API calls / mo",         key: "apiCallsPerMonth" as const,   unit: "" },
+  { label: "Users", key: "users" as const, unit: "users" },
+  { label: "Storage", key: "storageGB" as const, unit: "GB" },
+  { label: "ERP records / mo", key: "erpRecordsPerMonth" as const, unit: "" },
+  { label: "AI queries / mo", key: "aiQueriesPerMonth" as const, unit: "" },
+  { label: "API calls / mo", key: "apiCallsPerMonth" as const, unit: "" },
 ];
 
 export function PricingCards() {
@@ -30,7 +30,9 @@ export function PricingCards() {
           onClick={() => setAnnual((v) => !v)}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${annual ? "bg-primary" : "bg-muted"}`}
         >
-          <span className={`inline-block h-4 w-4 transform rounded-full bg-background shadow transition-transform ${annual ? "translate-x-6" : "translate-x-1"}`} />
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-background shadow transition-transform ${annual ? "translate-x-6" : "translate-x-1"}`}
+          />
         </button>
         <span className={`text-sm font-medium ${annual ? "text-foreground" : "text-muted-foreground"}`}>
           Annual
@@ -45,7 +47,6 @@ export function PricingCards() {
         {PLANS.map((plan) => {
           const price = annual ? plan.annualPricePerMonth : plan.pricePerMonth;
           const isPopular = plan.id === "starter";
-
 
           return (
             <div
@@ -70,10 +71,15 @@ export function PricingCards() {
                 </span>
                 <span className="text-sm text-muted-foreground/60">/mo</span>
               </div>
-              {annual
-                ? <p className="mt-1.5 text-xs text-muted-foreground/50">Billed annually — {formatCurrency(price * 12, "USD")}/yr</p>
-                : <p className="mt-1.5 text-xs text-muted-foreground/50">{formatCurrency(plan.annualPricePerMonth, "USD")}/mo billed annually</p>
-              }
+              {annual ? (
+                <p className="mt-1.5 text-xs text-muted-foreground/50">
+                  Billed annually — {formatCurrency(price * 12, "USD")}/yr
+                </p>
+              ) : (
+                <p className="mt-1.5 text-xs text-muted-foreground/50">
+                  {formatCurrency(plan.annualPricePerMonth, "USD")}/mo billed annually
+                </p>
+              )}
 
               {/* Divider */}
               <div className="my-6 h-px bg-border/60" />
@@ -118,9 +124,16 @@ export function PricingCards() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted">
-                  <th className="py-3 pl-5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">Limit</th>
+                  <th className="py-3 pl-5 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+                    Limit
+                  </th>
                   {PLANS.map((p) => (
-                    <th key={p.id} className="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">{p.name}</th>
+                    <th
+                      key={p.id}
+                      className="py-3 px-4 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground/60"
+                    >
+                      {p.name}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -160,12 +173,16 @@ export function PricingCards() {
       {/* Add-on bundles */}
       <div className="mx-auto mt-8 max-w-5xl rounded-xl border border-border bg-muted/40 p-5">
         <p className="text-sm font-bold text-foreground">Need additional modules?</p>
-        <p className="mt-1 text-sm text-muted-foreground">Add bundles to any plan. All bundles include Claude AI features.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Add bundles to any plan. All bundles include AI features.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {MODULE_BUNDLES.map((b) => (
-            <span key={b.id} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground">
+            <span
+              key={b.id}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground"
+            >
               <Zap className="h-3 w-3 text-primary" />
-              {b.name} — <span className="text-primary font-semibold">{formatCurrency(b.standalonePrice, "USD")}/mo</span>
+              {b.name} —{" "}
+              <span className="text-primary font-semibold">{formatCurrency(b.standalonePrice, "USD")}/mo</span>
             </span>
           ))}
         </div>
