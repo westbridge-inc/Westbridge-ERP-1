@@ -7,29 +7,50 @@ import { SkeletonTable } from "./SkeletonTable";
 import { EmptyState } from "./EmptyState";
 
 export interface Column<T> {
+  /** Unique identifier for the column, used as React key and sort tracking. */
   id: string;
+  /** Display label rendered in the table header. */
   header: string;
+  /** Returns the cell content for a given row. */
   accessor: (row: T) => ReactNode;
+  /** Extracts a sortable primitive from a row; column is not sortable when omitted. */
   sortValue?: (row: T) => string | number;
+  /** Horizontal text alignment for the header and cells. */
   align?: "left" | "right" | "center";
+  /** CSS width value for the column (e.g. "120px", "20%"). */
   width?: string;
 }
 
 export interface DataTableProps<T> {
+  /** Column definitions for the table header and cell rendering. */
   columns: Column<T>[];
+  /** The data rows to display. */
   data: T[];
+  /** Returns a unique string key for each row, used for React keys and selection. */
   keyExtractor: (row: T) => string;
+  /** When true, renders a skeleton placeholder instead of data. */
   loading?: boolean;
+  /** Completely replaces the default empty-state UI when data is empty. */
   emptyState?: ReactNode;
+  /** Title shown in the default empty-state component. */
   emptyTitle?: string;
+  /** Description shown below the title in the default empty-state component. */
   emptyDescription?: string;
+  /** Label for the call-to-action button in the default empty-state component. */
   emptyActionLabel?: string;
+  /** Callback fired when the empty-state action button is clicked. */
   onEmptyAction?: () => void;
+  /** Enables row-level checkboxes and a select-all header checkbox. */
   selectable?: boolean;
+  /** Set of row keys that are currently selected (controlled). */
   selectedKeys?: Set<string>;
+  /** Called with the updated key set whenever selection changes. */
   onSelectionChange?: (keys: Set<string>) => void;
+  /** Called when a row is clicked; makes rows appear clickable. */
   onRowClick?: (row: T) => void;
+  /** Number of rows per page; defaults to 20. */
   pageSize?: number;
+  /** Additional CSS class names for the outermost wrapper element. */
   className?: string;
   /** On viewports < 768px, rows render as cards. If provided, used for each row; otherwise first 3 columns are shown stacked. */
   mobileCardRenderer?: (row: T) => ReactNode;
@@ -72,7 +93,7 @@ export function DataTable<T>({
       }
       setPage(1);
     },
-    [sortCol, sortDir]
+    [sortCol, sortDir],
   );
 
   const sorted = useMemo(() => {
@@ -116,7 +137,7 @@ export function DataTable<T>({
       else next.add(key);
       onSelectionChange(next);
     },
-    [selectedKeys, onSelectionChange]
+    [selectedKeys, onSelectionChange],
   );
 
   const handleKeyDown = useCallback(
@@ -132,7 +153,7 @@ export function DataTable<T>({
         onRowClick(paginated[focusedRow]);
       }
     },
-    [focusedRow, paginated, onRowClick]
+    [focusedRow, paginated, onRowClick],
   );
 
   if (loading) {
@@ -163,9 +184,7 @@ export function DataTable<T>({
             <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
               {col.header}
             </span>
-            <span className="text-[0.9375rem] text-foreground">
-              {col.accessor(row)}
-            </span>
+            <span className="text-[0.9375rem] text-foreground">{col.accessor(row)}</span>
           </div>
         ))}
       </div>
@@ -226,12 +245,7 @@ export function DataTable<T>({
               })}
             </tr>
           </thead>
-          <tbody
-            ref={tbodyRef}
-            tabIndex={0}
-            onKeyDown={handleKeyDown}
-            className="focus:outline-none"
-          >
+          <tbody ref={tbodyRef} tabIndex={0} onKeyDown={handleKeyDown} className="focus:outline-none">
             {paginated.map((row, ri) => {
               const key = keyExtractor(row);
               const isFocused = ri === focusedRow;

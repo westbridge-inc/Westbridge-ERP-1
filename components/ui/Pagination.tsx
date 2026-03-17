@@ -3,10 +3,15 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface PaginationProps {
+  /** Current 1-based page number. */
   page: number;
+  /** Number of items displayed per page. */
   perPage: number;
+  /** Total number of items across all pages. */
   total: number;
+  /** Called with the new page number when the user navigates. */
   onChange: (page: number) => void;
+  /** Additional CSS class names for the wrapper element. */
   className?: string;
 }
 
