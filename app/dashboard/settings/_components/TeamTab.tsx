@@ -96,25 +96,39 @@ export function TeamTab() {
             )}
             {/* Invite section */}
             <div className="rounded-lg border border-border bg-muted/30 p-4">
-              <p className="text-sm font-medium text-foreground mb-3">Invite a team member</p>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="colleague@company.com"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSendInvite()}
-                  className="flex-1 h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-                <select
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value)}
-                  className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  {["Member", "Admin", "Viewer"].map((r) => (
-                    <option key={r}>{r}</option>
-                  ))}
-                </select>
+              <p className="text-sm font-medium text-foreground mb-3" id="invite-heading">
+                Invite a team member
+              </p>
+              <div className="flex gap-2" role="group" aria-labelledby="invite-heading">
+                <div className="flex-1">
+                  <label htmlFor="invite-email" className="sr-only">
+                    Email address
+                  </label>
+                  <input
+                    id="invite-email"
+                    type="email"
+                    placeholder="colleague@company.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSendInvite()}
+                    className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="invite-role" className="sr-only">
+                    Role
+                  </label>
+                  <select
+                    id="invite-role"
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value)}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    {["Member", "Admin", "Viewer"].map((r) => (
+                      <option key={r}>{r}</option>
+                    ))}
+                  </select>
+                </div>
                 <Button
                   className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
                   onClick={handleSendInvite}
