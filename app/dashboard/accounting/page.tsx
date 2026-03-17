@@ -6,16 +6,7 @@ export const dynamic = "force-dynamic";
 import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-  CartesianGrid,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid } from "recharts";
 import { Calculator } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -100,35 +91,156 @@ function mapPaymentEntry(d: Record<string, unknown>): GenericRow {
 }
 
 const journalColumns: Column<GenericRow>[] = [
-  { id: "id", header: "Entry #", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
-  { id: "postingDate", header: "Date", accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>, sortValue: (r) => r.postingDate as string },
-  { id: "voucherType", header: "Voucher Type", accessor: (r) => <span className="text-muted-foreground">{r.voucherType as string}</span>, sortValue: (r) => r.voucherType as string },
-  { id: "totalDebit", header: "Debit", align: "right", accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.totalDebit as number, "USD")}</span>, sortValue: (r) => r.totalDebit as number },
-  { id: "totalCredit", header: "Credit", align: "right", accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.totalCredit as number, "USD")}</span>, sortValue: (r) => r.totalCredit as number },
-  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>, sortValue: (r) => r.status as string },
+  {
+    id: "id",
+    header: "Entry #",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "postingDate",
+    header: "Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>,
+    sortValue: (r) => r.postingDate as string,
+  },
+  {
+    id: "voucherType",
+    header: "Voucher Type",
+    accessor: (r) => <span className="text-muted-foreground">{r.voucherType as string}</span>,
+    sortValue: (r) => r.voucherType as string,
+  },
+  {
+    id: "totalDebit",
+    header: "Debit",
+    align: "right",
+    accessor: (r) => (
+      <span className="font-medium text-foreground">{formatCurrency(r.totalDebit as number, "USD")}</span>
+    ),
+    sortValue: (r) => r.totalDebit as number,
+  },
+  {
+    id: "totalCredit",
+    header: "Credit",
+    align: "right",
+    accessor: (r) => (
+      <span className="font-medium text-foreground">{formatCurrency(r.totalCredit as number, "USD")}</span>
+    ),
+    sortValue: (r) => r.totalCredit as number,
+  },
+  {
+    id: "status",
+    header: "Status",
+    accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>,
+    sortValue: (r) => r.status as string,
+  },
 ];
 
 const accountColumns: Column<GenericRow>[] = [
-  { id: "id", header: "Account ID", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
-  { id: "accountName", header: "Account Name", accessor: (r) => <span className="text-foreground">{r.accountName as string}</span>, sortValue: (r) => r.accountName as string },
-  { id: "accountType", header: "Type", accessor: (r) => <span className="text-muted-foreground">{r.accountType as string}</span>, sortValue: (r) => r.accountType as string },
-  { id: "rootType", header: "Root Type", accessor: (r) => <span className="text-muted-foreground">{r.rootType as string}</span>, sortValue: (r) => r.rootType as string },
-  { id: "isGroup", header: "Group", accessor: (r) => <span className="text-muted-foreground/60">{r.isGroup as string}</span>, sortValue: (r) => r.isGroup as string },
+  {
+    id: "id",
+    header: "Account ID",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "accountName",
+    header: "Account Name",
+    accessor: (r) => <span className="text-foreground">{r.accountName as string}</span>,
+    sortValue: (r) => r.accountName as string,
+  },
+  {
+    id: "accountType",
+    header: "Type",
+    accessor: (r) => <span className="text-muted-foreground">{r.accountType as string}</span>,
+    sortValue: (r) => r.accountType as string,
+  },
+  {
+    id: "rootType",
+    header: "Root Type",
+    accessor: (r) => <span className="text-muted-foreground">{r.rootType as string}</span>,
+    sortValue: (r) => r.rootType as string,
+  },
+  {
+    id: "isGroup",
+    header: "Group",
+    accessor: (r) => <span className="text-muted-foreground/60">{r.isGroup as string}</span>,
+    sortValue: (r) => r.isGroup as string,
+  },
 ];
 
 const paymentColumns: Column<GenericRow>[] = [
-  { id: "id", header: "Payment #", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
-  { id: "postingDate", header: "Date", accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>, sortValue: (r) => r.postingDate as string },
-  { id: "paymentType", header: "Type", accessor: (r) => <span className="text-muted-foreground">{r.paymentType as string}</span>, sortValue: (r) => r.paymentType as string },
-  { id: "partyName", header: "Party", accessor: (r) => <span className="text-muted-foreground">{r.partyName as string}</span>, sortValue: (r) => r.partyName as string },
-  { id: "paidAmount", header: "Amount", align: "right", accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.paidAmount as number, "USD")}</span>, sortValue: (r) => r.paidAmount as number },
-  { id: "modeOfPayment", header: "Mode", accessor: (r) => <span className="text-muted-foreground/60">{r.modeOfPayment as string}</span>, sortValue: (r) => r.modeOfPayment as string },
+  {
+    id: "id",
+    header: "Payment #",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "postingDate",
+    header: "Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>,
+    sortValue: (r) => r.postingDate as string,
+  },
+  {
+    id: "paymentType",
+    header: "Type",
+    accessor: (r) => <span className="text-muted-foreground">{r.paymentType as string}</span>,
+    sortValue: (r) => r.paymentType as string,
+  },
+  {
+    id: "partyName",
+    header: "Party",
+    accessor: (r) => <span className="text-muted-foreground">{r.partyName as string}</span>,
+    sortValue: (r) => r.partyName as string,
+  },
+  {
+    id: "paidAmount",
+    header: "Amount",
+    align: "right",
+    accessor: (r) => (
+      <span className="font-medium text-foreground">{formatCurrency(r.paidAmount as number, "USD")}</span>
+    ),
+    sortValue: (r) => r.paidAmount as number,
+  },
+  {
+    id: "modeOfPayment",
+    header: "Mode",
+    accessor: (r) => <span className="text-muted-foreground/60">{r.modeOfPayment as string}</span>,
+    sortValue: (r) => r.modeOfPayment as string,
+  },
 ];
 
-const LIST_TYPE_CONFIG: Record<string, { doctype: string; title: string; subtitle: string; columns: Column<GenericRow>[]; mapper: (d: Record<string, unknown>) => GenericRow }> = {
-  journal: { doctype: "Journal Entry", title: "Journal Entries", subtitle: "General ledger journal entries", columns: journalColumns, mapper: mapJournalEntry },
-  coa: { doctype: "Account", title: "Chart of Accounts", subtitle: "Your account structure", columns: accountColumns, mapper: mapAccount },
-  payment: { doctype: "Payment Entry", title: "Payment Entries", subtitle: "Payments received and made", columns: paymentColumns, mapper: mapPaymentEntry },
+const LIST_TYPE_CONFIG: Record<
+  string,
+  {
+    doctype: string;
+    title: string;
+    subtitle: string;
+    columns: Column<GenericRow>[];
+    mapper: (d: Record<string, unknown>) => GenericRow;
+  }
+> = {
+  journal: {
+    doctype: "Journal Entry",
+    title: "Journal Entries",
+    subtitle: "General ledger journal entries",
+    columns: journalColumns,
+    mapper: mapJournalEntry,
+  },
+  coa: {
+    doctype: "Account",
+    title: "Chart of Accounts",
+    subtitle: "Your account structure",
+    columns: accountColumns,
+    mapper: mapAccount,
+  },
+  payment: {
+    doctype: "Payment Entry",
+    title: "Payment Entries",
+    subtitle: "Payments received and made",
+    columns: paymentColumns,
+    mapper: mapPaymentEntry,
+  },
 };
 
 /* ------------------------------------------------------------------ */
@@ -139,9 +251,18 @@ function AccountingListView({ type }: { type: string }) {
   const router = useRouter();
   const config = LIST_TYPE_CONFIG[type]!;
   const [page, setPage] = useState(0);
-  const { data: rawList = [], hasMore, page: currentPage, isLoading: loading, isError, error: queryError, refetch } = useErpList(config.doctype, { page });
+  const {
+    data: rawList = [],
+    hasMore,
+    page: currentPage,
+    isLoading: loading,
+    isError,
+    error: queryError,
+    refetch,
+  } = useErpList(config.doctype, { page });
   const data = useMemo(() => (rawList as Record<string, unknown>[]).map(config.mapper), [rawList, config.mapper]);
-  const error = queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
+  const error =
+    queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
 
   if (error) {
     return (
@@ -151,16 +272,27 @@ function AccountingListView({ type }: { type: string }) {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
             <p className="text-sm text-muted-foreground">{config.subtitle}</p>
           </div>
-          <Button variant="primary" onClick={() => router.push("/dashboard/accounting/new")}>+ Create New</Button>
+          <Button variant="primary" onClick={() => router.push("/dashboard/accounting/new")}>
+            + Create New
+          </Button>
         </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               <Calculator className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium text-foreground">Something went wrong</p>
-            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
-            <Button variant="primary" size="sm" className="mt-4" onClick={() => refetch()}>Retry</Button>
+            <p className="text-sm font-medium text-foreground">Could not load data right now</p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Your ERP backend may be starting up. You can retry or create a new entry.
+            </p>
+            <div className="mt-4 flex gap-3">
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                Retry
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => router.push("/dashboard/accounting/new")}>
+                + Create New
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -174,7 +306,9 @@ function AccountingListView({ type }: { type: string }) {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">{config.title}</h1>
           <p className="text-sm text-muted-foreground">{config.subtitle}</p>
         </div>
-        <Button variant="primary" onClick={() => router.push("/dashboard/accounting/new")}>+ Create New</Button>
+        <Button variant="primary" onClick={() => router.push("/dashboard/accounting/new")}>
+          + Create New
+        </Button>
       </div>
       <Card>
         <CardContent className="p-0">
@@ -267,10 +401,7 @@ function ChartTooltip({
       <p className="mb-1 font-medium text-foreground">{label}</p>
       {payload.map((entry) => (
         <div key={entry.name} className="flex items-center gap-2">
-          <span
-            className="inline-block h-2 w-2 rounded-full"
-            style={{ background: entry.color }}
-          />
+          <span className="inline-block h-2 w-2 rounded-full" style={{ background: entry.color }} />
           <span className="text-muted-foreground">
             {entry.name}: {formatCurrency(entry.value, "USD")}
           </span>
@@ -290,7 +421,13 @@ async function fetchDoctype(doctype: string, limit: number, fields?: string[]): 
   const res = await fetch(`${API_BASE}/api/erp/list?${qs.toString()}`, {
     credentials: "include",
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    // Treat 404/502/503 as "no data" rather than crashing
+    if (res.status === 404 || res.status === 502 || res.status === 503) {
+      return [];
+    }
+    throw new Error(`HTTP ${res.status}`);
+  }
   const body = await res.json();
   return (body?.data as unknown[]) ?? [];
 }
@@ -301,7 +438,7 @@ async function fetchDoctype(doctype: string, limit: number, fields?: string[]): 
 
 function AccountingDashboard() {
   const [state, setState] = useState<PageState>("loading");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [, setErrorMessage] = useState<string | null>(null);
   const [salesInvoices, setSalesInvoices] = useState<RawInvoice[]>([]);
   const [purchaseInvoices, setPurchaseInvoices] = useState<RawInvoice[]>([]);
   const [payments, setPayments] = useState<RawPayment[]>([]);
@@ -316,9 +453,28 @@ function AccountingDashboard() {
       setErrorMessage(null);
       try {
         const [si, pi, pe] = await Promise.all([
-          fetchDoctype("Sales Invoice", 200, ["name", "posting_date", "due_date", "grand_total", "outstanding_amount", "status", "customer_name", "docstatus", "modified", "creation"]),
+          fetchDoctype("Sales Invoice", 200, [
+            "name",
+            "posting_date",
+            "due_date",
+            "grand_total",
+            "outstanding_amount",
+            "status",
+            "customer_name",
+            "docstatus",
+            "modified",
+            "creation",
+          ]),
           fetchDoctype("Purchase Invoice", 200, ["name", "posting_date", "grand_total", "status", "docstatus"]),
-          fetchDoctype("Payment Entry", 50, ["name", "posting_date", "paid_amount", "party", "party_name", "payment_type", "mode_of_payment"]),
+          fetchDoctype("Payment Entry", 50, [
+            "name",
+            "posting_date",
+            "paid_amount",
+            "party",
+            "party_name",
+            "payment_type",
+            "mode_of_payment",
+          ]),
         ]);
         if (cancelled) return;
         const siList = si as RawInvoice[];
@@ -342,7 +498,9 @@ function AccountingDashboard() {
       }
     })();
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [fetchKey]);
 
   const loadData = () => setFetchKey((k) => k + 1);
@@ -352,23 +510,32 @@ function AccountingDashboard() {
 
   const paidSalesYTD = useMemo(
     () => salesInvoices.filter((inv) => inv.status === "Paid" && (inv.posting_date ?? "") >= yearStart),
-    [salesInvoices, yearStart]
+    [salesInvoices, yearStart],
   );
 
   const paidPurchasesYTD = useMemo(
-    () => purchaseInvoices.filter((inv) => (inv.status === "Paid" || inv.status === "Unpaid") && (inv.posting_date ?? "") >= yearStart),
-    [purchaseInvoices, yearStart]
+    () =>
+      purchaseInvoices.filter(
+        (inv) => (inv.status === "Paid" || inv.status === "Unpaid") && (inv.posting_date ?? "") >= yearStart,
+      ),
+    [purchaseInvoices, yearStart],
   );
 
   const revenueYTD = useMemo(() => paidSalesYTD.reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0), [paidSalesYTD]);
-  const expensesYTD = useMemo(() => paidPurchasesYTD.reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0), [paidPurchasesYTD]);
+  const expensesYTD = useMemo(
+    () => paidPurchasesYTD.reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
+    [paidPurchasesYTD],
+  );
   const netProfit = revenueYTD - expensesYTD;
 
   const barData = useMemo(() => {
     const months = getLast6Months();
     const revByMonth: Record<string, number> = {};
     const expByMonth: Record<string, number> = {};
-    months.forEach((m) => { revByMonth[m] = 0; expByMonth[m] = 0; });
+    months.forEach((m) => {
+      revByMonth[m] = 0;
+      expByMonth[m] = 0;
+    });
 
     salesInvoices.forEach((inv) => {
       if (inv.posting_date && (inv.status === "Paid" || inv.docstatus === 1)) {
@@ -389,7 +556,10 @@ function AccountingDashboard() {
 
   const maxBarValue = useMemo(() => {
     let max = 0;
-    barData.forEach((d) => { if (d.revenue > max) max = d.revenue; if (d.expenses > max) max = d.expenses; });
+    barData.forEach((d) => {
+      if (d.revenue > max) max = d.revenue;
+      if (d.expenses > max) max = d.expenses;
+    });
     return max > 0 ? max * 1.15 : 100;
   }, [barData]);
 
@@ -465,8 +635,16 @@ function AccountingDashboard() {
           <Skeleton className="h-24 w-full rounded-lg" />
           <Skeleton className="h-24 w-full rounded-lg" />
         </div>
-        <Card><CardContent className="p-6"><Skeleton className="h-64 w-full rounded-lg" /></CardContent></Card>
-        <Card><CardContent className="p-6"><Skeleton className="h-44 w-full rounded-lg" /></CardContent></Card>
+        <Card>
+          <CardContent className="p-6">
+            <Skeleton className="h-64 w-full rounded-lg" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <Skeleton className="h-44 w-full rounded-lg" />
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -477,12 +655,16 @@ function AccountingDashboard() {
         {header}
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               <Calculator className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium text-foreground">Something went wrong</p>
-            <p className="mt-1 text-sm text-muted-foreground">{errorMessage ?? "Failed to load accounting data."}</p>
-            <Button variant="primary" size="sm" className="mt-4" onClick={loadData}>Retry</Button>
+            <p className="text-sm font-medium text-foreground">Could not load accounting data</p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Your ERP backend may be starting up or temporarily unavailable. This is normal during setup.
+            </p>
+            <Button variant="outline" size="sm" className="mt-4" onClick={loadData}>
+              Retry
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -494,9 +676,24 @@ function AccountingDashboard() {
       {header}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <MetricCard label="Revenue YTD" value={formatCurrency(revenueYTD, "USD")} subtext={`${paidSalesYTD.length} paid invoices`} subtextVariant="muted" />
-        <MetricCard label="Expenses YTD" value={formatCurrency(expensesYTD, "USD")} subtext={`${paidPurchasesYTD.length} paid bills`} subtextVariant="muted" />
-        <MetricCard label="Net Profit" value={formatCurrency(netProfit, "USD")} subtext={revenueYTD > 0 ? `${((netProfit / revenueYTD) * 100).toFixed(1)}% margin` : undefined} subtextVariant={netProfit >= 0 ? "success" : "error"} />
+        <MetricCard
+          label="Revenue YTD"
+          value={formatCurrency(revenueYTD, "USD")}
+          subtext={`${paidSalesYTD.length} paid invoices`}
+          subtextVariant="muted"
+        />
+        <MetricCard
+          label="Expenses YTD"
+          value={formatCurrency(expensesYTD, "USD")}
+          subtext={`${paidPurchasesYTD.length} paid bills`}
+          subtextVariant="muted"
+        />
+        <MetricCard
+          label="Net Profit"
+          value={formatCurrency(netProfit, "USD")}
+          subtext={revenueYTD > 0 ? `${((netProfit / revenueYTD) * 100).toFixed(1)}% margin` : undefined}
+          subtextVariant={netProfit >= 0 ? "success" : "error"}
+        />
       </div>
 
       <Card>
@@ -507,7 +704,12 @@ function AccountingDashboard() {
             <ResponsiveContainer width="100%" height={256}>
               <BarChart data={barData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                />
                 <YAxis hide domain={[0, maxBarValue]} />
                 <Tooltip content={<ChartTooltip />} cursor={{ fill: "var(--muted)" }} />
                 <Legend wrapperStyle={{ color: "var(--muted-foreground)", fontSize: 12 }} />
@@ -530,16 +732,25 @@ function AccountingDashboard() {
                 <div key={row.label} className="flex items-center gap-4">
                   <span className="w-28 text-sm text-muted-foreground">{row.label}</span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-primary" style={{ width: `${agingData.total > 0 ? (row.amount / agingData.total) * 100 : 0}%` }} />
+                    <div
+                      className="h-full rounded-full bg-primary"
+                      style={{ width: `${agingData.total > 0 ? (row.amount / agingData.total) * 100 : 0}%` }}
+                    />
                   </div>
-                  <span className="w-28 text-right text-sm font-medium text-foreground">{formatCurrency(row.amount, "USD")}</span>
-                  <span className="w-12 text-right text-xs text-muted-foreground">{agingData.total > 0 ? `${((row.amount / agingData.total) * 100).toFixed(0)}%` : "0%"}</span>
+                  <span className="w-28 text-right text-sm font-medium text-foreground">
+                    {formatCurrency(row.amount, "USD")}
+                  </span>
+                  <span className="w-12 text-right text-xs text-muted-foreground">
+                    {agingData.total > 0 ? `${((row.amount / agingData.total) * 100).toFixed(0)}%` : "0%"}
+                  </span>
                 </div>
               ))}
               <div className="flex items-center gap-4 border-t border-border pt-2">
                 <span className="w-28 text-sm font-medium text-foreground">Total</span>
                 <div className="h-2 flex-1" />
-                <span className="w-28 text-right text-sm font-semibold text-foreground">{formatCurrency(agingData.total, "USD")}</span>
+                <span className="w-28 text-right text-sm font-semibold text-foreground">
+                  {formatCurrency(agingData.total, "USD")}
+                </span>
                 <span className="w-12 text-right text-xs text-muted-foreground">100%</span>
               </div>
             </div>
@@ -553,14 +764,22 @@ function AccountingDashboard() {
             <p className="text-base font-semibold text-foreground font-display">Recent Payments</p>
             <div className="mt-4 space-y-2">
               {payments.slice(0, 10).map((pe) => (
-                <div key={pe.name} className="flex items-center justify-between rounded-lg border border-border/50 px-4 py-2.5">
+                <div
+                  key={pe.name}
+                  className="flex items-center justify-between rounded-lg border border-border/50 px-4 py-2.5"
+                >
                   <div className="flex flex-col">
-                    <span className="text-sm font-medium text-foreground">{pe.party_name ?? pe.party ?? "Unknown"}</span>
+                    <span className="text-sm font-medium text-foreground">
+                      {pe.party_name ?? pe.party ?? "Unknown"}
+                    </span>
                     <span className="text-xs text-muted-foreground">
-                      {pe.posting_date ?? ""} {pe.payment_type ? `\u00b7 ${pe.payment_type}` : ""} {pe.mode_of_payment ? `\u00b7 ${pe.mode_of_payment}` : ""}
+                      {pe.posting_date ?? ""} {pe.payment_type ? `\u00b7 ${pe.payment_type}` : ""}{" "}
+                      {pe.mode_of_payment ? `\u00b7 ${pe.mode_of_payment}` : ""}
                     </span>
                   </div>
-                  <span className="text-sm font-semibold text-foreground">{formatCurrency(pe.paid_amount ?? 0, "USD")}</span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {formatCurrency(pe.paid_amount ?? 0, "USD")}
+                  </span>
                 </div>
               ))}
             </div>
@@ -590,7 +809,18 @@ function AccountingPageInner() {
 
 export default function AccountingPage() {
   return (
-    <Suspense fallback={<div className="space-y-6"><Skeleton className="h-10 w-48" /><div className="grid grid-cols-1 gap-4 md:grid-cols-3"><Skeleton className="h-24 w-full rounded-lg" /><Skeleton className="h-24 w-full rounded-lg" /><Skeleton className="h-24 w-full rounded-lg" /></div></div>}>
+    <Suspense
+      fallback={
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-48" />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
+          </div>
+        </div>
+      }
+    >
       <AccountingPageInner />
     </Suspense>
   );

@@ -79,18 +79,63 @@ function mapErpAttendance(r: Record<string, unknown>): AttendanceRow {
 /* ------------------------------------------------------------------ */
 
 const employeeColumns: Column<Employee>[] = [
-  { id: "name", header: "Name", accessor: (row) => <span className="font-medium text-foreground">{row.name}</span>, sortValue: (row) => row.name },
-  { id: "designation", header: "Designation", accessor: (row) => <span className="text-muted-foreground">{row.designation}</span>, sortValue: (row) => row.designation },
-  { id: "department", header: "Department", accessor: (row) => <span className="text-muted-foreground">{row.department}</span>, sortValue: (row) => row.department },
-  { id: "status", header: "Status", accessor: (row) => <Badge status={row.status}>{row.status}</Badge>, sortValue: (row) => row.status },
-  { id: "dateJoined", header: "Date Joined", accessor: (row) => <span className="text-muted-foreground/60">{formatDate(row.dateJoined)}</span>, sortValue: (row) => row.dateJoined },
+  {
+    id: "name",
+    header: "Name",
+    accessor: (row) => <span className="font-medium text-foreground">{row.name}</span>,
+    sortValue: (row) => row.name,
+  },
+  {
+    id: "designation",
+    header: "Designation",
+    accessor: (row) => <span className="text-muted-foreground">{row.designation}</span>,
+    sortValue: (row) => row.designation,
+  },
+  {
+    id: "department",
+    header: "Department",
+    accessor: (row) => <span className="text-muted-foreground">{row.department}</span>,
+    sortValue: (row) => row.department,
+  },
+  {
+    id: "status",
+    header: "Status",
+    accessor: (row) => <Badge status={row.status}>{row.status}</Badge>,
+    sortValue: (row) => row.status,
+  },
+  {
+    id: "dateJoined",
+    header: "Date Joined",
+    accessor: (row) => <span className="text-muted-foreground/60">{formatDate(row.dateJoined)}</span>,
+    sortValue: (row) => row.dateJoined,
+  },
 ];
 
 const attendanceColumns: Column<AttendanceRow>[] = [
-  { id: "id", header: "ID", accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>, sortValue: (r) => r.id },
-  { id: "employeeName", header: "Employee", accessor: (r) => <span className="text-foreground">{r.employeeName}</span>, sortValue: (r) => r.employeeName },
-  { id: "attendanceDate", header: "Date", accessor: (r) => <span className="text-muted-foreground/60">{r.attendanceDate}</span>, sortValue: (r) => r.attendanceDate },
-  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge>, sortValue: (r) => r.status },
+  {
+    id: "id",
+    header: "ID",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "employeeName",
+    header: "Employee",
+    accessor: (r) => <span className="text-foreground">{r.employeeName}</span>,
+    sortValue: (r) => r.employeeName,
+  },
+  {
+    id: "attendanceDate",
+    header: "Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{r.attendanceDate}</span>,
+    sortValue: (r) => r.attendanceDate,
+  },
+  {
+    id: "status",
+    header: "Status",
+    accessor: (r) => <Badge status={r.status}>{r.status}</Badge>,
+    sortValue: (r) => r.status,
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -115,19 +160,26 @@ function HRPageInner() {
   } = useErpList(isAttendance ? "Attendance" : "Employee", {
     page,
     limit: 100,
-    ...(isAttendance ? {} : { fields: ["name", "employee_name", "designation", "department", "status", "date_of_joining"] }),
+    ...(isAttendance
+      ? {}
+      : { fields: ["name", "employee_name", "designation", "department", "status", "date_of_joining"] }),
   });
 
   const employees = useMemo(
-    () => isAttendance ? [] : (rawList as Record<string, unknown>[]).map(mapErpEmployee),
+    () => (isAttendance ? [] : (rawList as Record<string, unknown>[]).map(mapErpEmployee)),
     [rawList, isAttendance],
   );
   const attendanceRows = useMemo(
-    () => isAttendance ? (rawList as Record<string, unknown>[]).map(mapErpAttendance) : [],
+    () => (isAttendance ? (rawList as Record<string, unknown>[]).map(mapErpAttendance) : []),
     [rawList, isAttendance],
   );
-  const error = queryError instanceof Error ? queryError.message : isError ? `Failed to load ${isAttendance ? "attendance" : "employees"}.` : null;
-  const stats = useMemo(() => isAttendance ? null : deriveStats(employees), [employees, isAttendance]);
+  const error =
+    queryError instanceof Error
+      ? queryError.message
+      : isError
+        ? `Failed to load ${isAttendance ? "attendance" : "employees"}.`
+        : null;
+  const stats = useMemo(() => (isAttendance ? null : deriveStats(employees)), [employees, isAttendance]);
 
   const title = isAttendance ? "Attendance" : "HR";
   const subtitle = isAttendance ? "Employee attendance records" : "Employee directory and management";
@@ -138,7 +190,9 @@ function HRPageInner() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{title}</h1>
         <p className="text-sm text-muted-foreground">{subtitle}</p>
       </div>
-      <Button variant="primary" onClick={() => router.push("/dashboard/hr/new")}>+ Create New</Button>
+      <Button variant="primary" onClick={() => router.push("/dashboard/hr/new")}>
+        + Create New
+      </Button>
     </div>
   );
 
@@ -148,12 +202,22 @@ function HRPageInner() {
         {header}
         <Card>
           <CardContent className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               {isAttendance ? <ClipboardCheck className="h-6 w-6" /> : <UserCog className="h-6 w-6" />}
             </div>
-            <p className="text-sm font-medium text-foreground">Something went wrong</p>
-            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
-            <Button variant="primary" size="sm" onClick={() => refetch()}>Retry</Button>
+            <p className="text-sm font-medium text-foreground">Could not load data right now</p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Your ERP backend may be starting up. You can retry or add your first{" "}
+              {isAttendance ? "attendance record" : "employee"}.
+            </p>
+            <div className="flex gap-3">
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                Retry
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => router.push("/dashboard/hr/new")}>
+                + Create New
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -251,7 +315,9 @@ function HRPageInner() {
 
 export default function HRPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}>
+    <Suspense
+      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}
+    >
       <HRPageInner />
     </Suspense>
   );

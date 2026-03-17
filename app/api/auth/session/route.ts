@@ -30,6 +30,15 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
     });
+    // Non-sensitive flag readable by client JS (navbar auth state).
+    // Contains no secrets — just signals "a session exists".
+    res.cookies.set("westbridge_logged_in", "1", {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7,
+      path: "/",
+    });
 
     return res;
   } catch {

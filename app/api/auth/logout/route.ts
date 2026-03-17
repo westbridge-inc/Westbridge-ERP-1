@@ -33,5 +33,8 @@ export async function POST(request: NextRequest) {
     res.headers.append("Set-Cookie", c);
   }
 
+  // Clear the client-readable auth flag cookie
+  res.cookies.set("westbridge_logged_in", "", { maxAge: 0, path: "/" });
+
   return res;
 }

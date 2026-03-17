@@ -9,6 +9,14 @@ import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
+function useIsLoggedIn() {
+  const [loggedIn] = useState(() => {
+    if (typeof document === "undefined") return false;
+    return document.cookie.split(";").some((c) => c.trim().startsWith("westbridge_logged_in="));
+  });
+  return loggedIn;
+}
+
 const navLinks = [
   { href: ROUTES.modules, label: "Features" },
   { href: ROUTES.pricing, label: "Pricing" },
@@ -20,6 +28,7 @@ const SCROLL_THRESHOLD = 24;
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const isLoggedIn = useIsLoggedIn();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
@@ -53,15 +62,23 @@ export function Navbar() {
           ))}
         </div>
         <div className="hidden items-center gap-2 md:flex">
-          <Link
-            href={ROUTES.login}
-            className="text-[13px] font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Sign in
-          </Link>
-          <Button asChild size="sm">
-            <Link href={ROUTES.signup}>Get Started</Link>
-          </Button>
+          {isLoggedIn ? (
+            <Button asChild size="sm">
+              <Link href={ROUTES.dashboard}>Dashboard</Link>
+            </Button>
+          ) : (
+            <>
+              <Link
+                href={ROUTES.login}
+                className="text-[13px] font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Sign in
+              </Link>
+              <Button asChild size="sm">
+                <Link href={ROUTES.signup}>Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -115,14 +132,22 @@ export function Navbar() {
                   </Link>
                 ))}
                 <div className="flex flex-col gap-3 border-t border-border pt-6">
-                  <Link href={ROUTES.login} onClick={() => setMobileOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-center">
-                      Sign in
-                    </Button>
-                  </Link>
-                  <Link href={ROUTES.signup} onClick={() => setMobileOpen(false)}>
-                    <Button className="w-full justify-center">Get Started</Button>
-                  </Link>
+                  {isLoggedIn ? (
+                    <Link href={ROUTES.dashboard} onClick={() => setMobileOpen(false)}>
+                      <Button className="w-full justify-center">Dashboard</Button>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link href={ROUTES.login} onClick={() => setMobileOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-center">
+                          Sign in
+                        </Button>
+                      </Link>
+                      <Link href={ROUTES.signup} onClick={() => setMobileOpen(false)}>
+                        <Button className="w-full justify-center">Get Started</Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>

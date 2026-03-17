@@ -1,7 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Zap, Shield, Globe, Users, FileText, Package, Calculator, FolderKanban, ShoppingCart } from "lucide-react";
+import {
+  ArrowRight,
+  Zap,
+  Shield,
+  Globe,
+  Users,
+  FileText,
+  Package,
+  Calculator,
+  FolderKanban,
+  ShoppingCart,
+} from "lucide-react";
 import { ROUTES, TRIAL } from "@/lib/config/site";
 import { Button } from "@/components/ui/Button";
 
@@ -39,7 +50,8 @@ export function HomeContent() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground/70">
-            Invoicing, inventory, HR, payroll, accounting, CRM — with AI built into every module. One platform. No spreadsheets.
+            Invoicing, inventory, HR, payroll, accounting, CRM — with AI built into every module. One platform. No
+            spreadsheets.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -53,9 +65,7 @@ export function HomeContent() {
             </Button>
           </div>
 
-          <p className="mt-4 text-xs text-muted-foreground/40">
-            No credit card required. {TRIAL.days}-day free trial.
-          </p>
+          <p className="mt-4 text-xs text-muted-foreground/40">No credit card required. {TRIAL.days}-day free trial.</p>
         </div>
       </section>
 
@@ -74,9 +84,7 @@ export function HomeContent() {
       {/* Modules grid */}
       <section className="px-6 py-24">
         <div className="mx-auto max-w-5xl">
-          <p className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">
-            Modules
-          </p>
+          <p className="text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">Modules</p>
           <h2 className="mt-3 text-center font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             Everything you need to operate
           </h2>
@@ -152,8 +160,16 @@ export function HomeContent() {
           <div className="mt-16 space-y-12">
             {[
               { step: "01", title: "Create your account", desc: "Sign up in 60 seconds. Pick your plan and modules." },
-              { step: "02", title: "Configure your business", desc: "Add your company details, invite your team, set up permissions." },
-              { step: "03", title: "Start operating", desc: "Create your first invoice, add employees, track inventory — everything from one dashboard." },
+              {
+                step: "02",
+                title: "Configure your business",
+                desc: "Add your company details, invite your team, set up permissions.",
+              },
+              {
+                step: "03",
+                title: "Start operating",
+                desc: "Create your first invoice, add employees, track inventory — everything from one dashboard.",
+              },
             ].map((item) => (
               <div key={item.step} className="flex gap-8">
                 <span className="shrink-0 text-3xl font-light text-muted-foreground/20">{item.step}</span>
@@ -170,40 +186,66 @@ export function HomeContent() {
       {/* Pricing preview */}
       <section className="border-t border-border/60 bg-muted/20 px-6 py-24">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">
-            Pricing
-          </p>
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">Pricing</p>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground">
             Simple, transparent pricing
           </h2>
-          <p className="mt-4 text-muted-foreground/60">
-            Start free. Upgrade when you&apos;re ready. No hidden fees.
-          </p>
+          <p className="mt-4 text-muted-foreground/60">Start free. Upgrade when you&apos;re ready. No hidden fees.</p>
 
-          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="mt-16 grid grid-cols-1 gap-8 text-left md:grid-cols-2">
             {[
-              { name: "Solo", price: "$49.99", desc: "For freelancers and solopreneurs" },
-              { name: "Starter", price: "$199.99", desc: "For small teams", popular: true },
-              { name: "Business", price: "$999.99", desc: "For growing companies" },
-              { name: "Enterprise", price: "$4,999.99", desc: "For large organizations" },
+              {
+                name: "Solo",
+                price: "$49.99",
+                features: ["3 users", "Finance & Accounting", "50 AI queries/mo", "Email support"],
+              },
+              {
+                name: "Starter",
+                price: "$199.99",
+                popular: true,
+                features: ["10 users", "Finance + CRM", "200 AI queries/mo", "Priority support"],
+              },
+              {
+                name: "Business",
+                price: "$999.99",
+                features: ["50 users", "4 module bundles", "1,000 AI queries/mo", "SSO & 2FA"],
+              },
+              {
+                name: "Enterprise",
+                price: "$4,999.99",
+                features: ["Unlimited users", "All 38 modules", "Unlimited AI", "Dedicated manager"],
+              },
             ].map((plan) => (
               <div
                 key={plan.name}
-                className={`rounded-2xl p-8 text-center ${
+                className={`rounded-2xl p-8 ${
                   plan.popular
                     ? "border-2 border-foreground/10 bg-card shadow-[0_4px_24px_-4px_rgb(0_0_0/0.06)]"
                     : "border border-border/60 bg-card"
                 }`}
               >
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{plan.name}</p>
-                <p className="mt-3 text-3xl font-semibold tracking-tight text-foreground">{plan.price}<span className="text-sm font-normal text-muted-foreground/50">/mo</span></p>
-                <p className="mt-2 text-xs text-muted-foreground/50">{plan.desc}</p>
+                <div className="flex items-baseline justify-between">
+                  <p className="text-sm font-medium text-foreground">{plan.name}</p>
+                  <p className="text-lg font-semibold text-foreground">
+                    {plan.price}
+                    <span className="text-xs font-normal text-muted-foreground/50">/mo</span>
+                  </p>
+                </div>
+                <ul className="mt-4 space-y-2">
+                  {plan.features.map((f) => (
+                    <li key={f} className="text-[13px] text-muted-foreground/60">
+                      — {f}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
 
           <Button asChild size="lg" className="mt-10 h-12 rounded-lg px-8">
-            <Link href={ROUTES.pricing}>See Full Pricing <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Link href={ROUTES.pricing}>
+              See Full Pricing <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
           </Button>
         </div>
       </section>
@@ -214,9 +256,7 @@ export function HomeContent() {
           <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
             Ready to streamline your business?
           </h2>
-          <p className="mt-4 text-background/50">
-            Join thousands of businesses running on Westbridge.
-          </p>
+          <p className="mt-4 text-background/50">Join thousands of businesses running on Westbridge.</p>
           <Button
             asChild
             size="lg"
@@ -224,9 +264,7 @@ export function HomeContent() {
           >
             <Link href={ROUTES.signup}>Start Free Trial</Link>
           </Button>
-          <p className="mt-3 text-xs text-background/30">
-            No credit card required. {TRIAL.days}-day free trial.
-          </p>
+          <p className="mt-3 text-xs text-background/30">No credit card required. {TRIAL.days}-day free trial.</p>
         </div>
       </section>
     </>

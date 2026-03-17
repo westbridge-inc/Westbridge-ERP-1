@@ -39,10 +39,7 @@ async function getForwardedHeaders(): Promise<Record<string, string>> {
  * Generic server-side fetch with auth cookie forwarding.
  * The `cache: "no-store"` ensures fresh data on every request.
  */
-async function serverRequest<T>(
-  path: string,
-  options?: RequestInit,
-): Promise<T> {
+async function serverRequest<T>(path: string, options?: RequestInit): Promise<T> {
   const cookieHeader = await getCookieHeader();
   const forwarded = await getForwardedHeaders();
   const res = await fetch(`${API_BASE}${path}`, {
@@ -57,9 +54,7 @@ async function serverRequest<T>(
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    const message =
-      (body as { error?: { message?: string } })?.error?.message ??
-      `HTTP ${res.status}`;
+    const message = (body as { error?: { message?: string } })?.error?.message ?? `HTTP ${res.status}`;
     throw new Error(message);
   }
   const body = await res.json();
@@ -70,10 +65,7 @@ async function serverRequest<T>(
  * Fetch a list of ERP documents on the server.
  * Returns the same shape as the client-side `api.erp.list()`.
  */
-export async function serverErpList(
-  doctype: string,
-  params?: ErpListParams,
-): Promise<ErpListResponse> {
+export async function serverErpList(doctype: string, params?: ErpListParams): Promise<ErpListResponse> {
   const cookieHeader = await getCookieHeader();
   const forwarded = await getForwardedHeaders();
   const qs = new URLSearchParams({ doctype });
@@ -92,10 +84,16 @@ export async function serverErpList(
     },
   });
   if (!res.ok) {
+    // Treat 404 (no records), 502 (ERPNext unreachable), and 503 as empty data
+    // rather than crashing the page — the user just has no records yet.
+    if (res.status === 404 || res.status === 502 || res.status === 503) {
+      return {
+        data: [],
+        meta: { page: params?.page ?? 0, pageSize: 20, hasMore: false },
+      };
+    }
     const body = await res.json().catch(() => ({}));
-    const message =
-      (body as { error?: { message?: string } })?.error?.message ??
-      `HTTP ${res.status}`;
+    const message = (body as { error?: { message?: string } })?.error?.message ?? `HTTP ${res.status}`;
     throw new Error(message);
   }
   const body = (await res.json()) as {
@@ -134,11 +132,21 @@ export async function serverFetchDashboard(): Promise<DashboardData> {
     },
   });
   if (!res.ok) {
-    throw new Error(
-      res.status === 401
-        ? "Session expired. Please sign in again."
-        : "Failed to load dashboard data.",
-    );
+    // 502/503 = ERPNext offline — return demo/fallback data instead of crashing
+    if (res.status === 502 || res.status === 503) {
+      return {
+        revenueMTD: 0,
+        revenueChange: 0,
+        outstandingCount: 0,
+        openDealsCount: 0,
+        employeeCount: 0,
+        employeeDelta: 0,
+        revenueData: [],
+        activity: [],
+        isDemo: true,
+      } as DashboardData;
+    }
+    throw new Error(res.status === 401 ? "Session expired. Please sign in again." : "Failed to load dashboard data.");
   }
   const json = await res.json();
   return json.data as DashboardData;

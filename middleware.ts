@@ -70,6 +70,7 @@ export async function middleware(request: NextRequest) {
     if (!SESSION_TOKEN_REGEX.test(sessionToken)) {
       const response = NextResponse.redirect(new URL("/login", request.url));
       response.cookies.delete(COOKIE.SESSION_NAME);
+      response.cookies.set("westbridge_logged_in", "", { maxAge: 0, path: "/" });
       return addSecurityHeaders(response);
     }
 
@@ -94,6 +95,7 @@ export async function middleware(request: NextRequest) {
     } catch {
       const response = NextResponse.redirect(new URL("/login", request.url));
       response.cookies.delete(COOKIE.SESSION_NAME);
+      response.cookies.set("westbridge_logged_in", "", { maxAge: 0, path: "/" });
       return addSecurityHeaders(response);
     }
   }
@@ -104,6 +106,7 @@ export async function middleware(request: NextRequest) {
     if (!SESSION_TOKEN_REGEX.test(sessionToken)) {
       const response = NextResponse.next();
       response.cookies.delete(COOKIE.SESSION_NAME);
+      response.cookies.set("westbridge_logged_in", "", { maxAge: 0, path: "/" });
       return addSecurityHeaders(response);
     }
     try {

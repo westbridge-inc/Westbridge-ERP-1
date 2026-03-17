@@ -5,17 +5,7 @@ export const dynamic = "force-dynamic";
 
 import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-  BarChart,
-  Bar,
-  CartesianGrid,
-} from "recharts";
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid } from "recharts";
 import { BarChart3, FolderKanban, CheckSquare, Clock } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -91,34 +81,147 @@ function mapTimesheet(d: Record<string, unknown>): GenericRow {
 }
 
 const projectColumns: Column<GenericRow>[] = [
-  { id: "id", header: "Project ID", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
-  { id: "projectName", header: "Project Name", accessor: (r) => <span className="text-foreground">{r.projectName as string}</span>, sortValue: (r) => r.projectName as string },
-  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>, sortValue: (r) => r.status as string },
-  { id: "percentComplete", header: "Progress", align: "right", accessor: (r) => <span className="text-muted-foreground">{r.percentComplete as number}%</span>, sortValue: (r) => r.percentComplete as number },
-  { id: "expectedEndDate", header: "End Date", accessor: (r) => <span className="text-muted-foreground/60">{r.expectedEndDate as string || "\u2014"}</span>, sortValue: (r) => r.expectedEndDate as string },
+  {
+    id: "id",
+    header: "Project ID",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "projectName",
+    header: "Project Name",
+    accessor: (r) => <span className="text-foreground">{r.projectName as string}</span>,
+    sortValue: (r) => r.projectName as string,
+  },
+  {
+    id: "status",
+    header: "Status",
+    accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>,
+    sortValue: (r) => r.status as string,
+  },
+  {
+    id: "percentComplete",
+    header: "Progress",
+    align: "right",
+    accessor: (r) => <span className="text-muted-foreground">{r.percentComplete as number}%</span>,
+    sortValue: (r) => r.percentComplete as number,
+  },
+  {
+    id: "expectedEndDate",
+    header: "End Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{(r.expectedEndDate as string) || "\u2014"}</span>,
+    sortValue: (r) => r.expectedEndDate as string,
+  },
 ];
 
 const taskColumns: Column<GenericRow>[] = [
-  { id: "id", header: "Task ID", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
-  { id: "subject", header: "Subject", accessor: (r) => <span className="text-foreground">{r.subject as string}</span>, sortValue: (r) => r.subject as string },
-  { id: "project", header: "Project", accessor: (r) => <span className="text-muted-foreground">{r.project as string}</span>, sortValue: (r) => r.project as string },
-  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>, sortValue: (r) => r.status as string },
-  { id: "priority", header: "Priority", accessor: (r) => <span className="text-muted-foreground">{r.priority as string}</span>, sortValue: (r) => r.priority as string },
+  {
+    id: "id",
+    header: "Task ID",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "subject",
+    header: "Subject",
+    accessor: (r) => <span className="text-foreground">{r.subject as string}</span>,
+    sortValue: (r) => r.subject as string,
+  },
+  {
+    id: "project",
+    header: "Project",
+    accessor: (r) => <span className="text-muted-foreground">{r.project as string}</span>,
+    sortValue: (r) => r.project as string,
+  },
+  {
+    id: "status",
+    header: "Status",
+    accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>,
+    sortValue: (r) => r.status as string,
+  },
+  {
+    id: "priority",
+    header: "Priority",
+    accessor: (r) => <span className="text-muted-foreground">{r.priority as string}</span>,
+    sortValue: (r) => r.priority as string,
+  },
 ];
 
 const timesheetColumns: Column<GenericRow>[] = [
-  { id: "id", header: "Timesheet #", accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>, sortValue: (r) => r.id },
-  { id: "employee", header: "Employee", accessor: (r) => <span className="text-foreground">{r.employee as string}</span>, sortValue: (r) => r.employee as string },
-  { id: "totalHours", header: "Hours", align: "right", accessor: (r) => <span className="text-muted-foreground">{(r.totalHours as number).toFixed(1)}</span>, sortValue: (r) => r.totalHours as number },
-  { id: "startDate", header: "Start", accessor: (r) => <span className="text-muted-foreground/60">{r.startDate as string || "\u2014"}</span>, sortValue: (r) => r.startDate as string },
-  { id: "endDate", header: "End", accessor: (r) => <span className="text-muted-foreground/60">{r.endDate as string || "\u2014"}</span>, sortValue: (r) => r.endDate as string },
-  { id: "status", header: "Status", accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>, sortValue: (r) => r.status as string },
+  {
+    id: "id",
+    header: "Timesheet #",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "employee",
+    header: "Employee",
+    accessor: (r) => <span className="text-foreground">{r.employee as string}</span>,
+    sortValue: (r) => r.employee as string,
+  },
+  {
+    id: "totalHours",
+    header: "Hours",
+    align: "right",
+    accessor: (r) => <span className="text-muted-foreground">{(r.totalHours as number).toFixed(1)}</span>,
+    sortValue: (r) => r.totalHours as number,
+  },
+  {
+    id: "startDate",
+    header: "Start",
+    accessor: (r) => <span className="text-muted-foreground/60">{(r.startDate as string) || "\u2014"}</span>,
+    sortValue: (r) => r.startDate as string,
+  },
+  {
+    id: "endDate",
+    header: "End",
+    accessor: (r) => <span className="text-muted-foreground/60">{(r.endDate as string) || "\u2014"}</span>,
+    sortValue: (r) => r.endDate as string,
+  },
+  {
+    id: "status",
+    header: "Status",
+    accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>,
+    sortValue: (r) => r.status as string,
+  },
 ];
 
-const PROJECT_TYPE_CONFIG: Record<string, { doctype: string; title: string; subtitle: string; icon: React.ReactNode; columns: Column<GenericRow>[]; mapper: (d: Record<string, unknown>) => GenericRow }> = {
-  project: { doctype: "Project", title: "Projects", subtitle: "Manage your projects", icon: <FolderKanban className="h-6 w-6" />, columns: projectColumns, mapper: mapProject },
-  task: { doctype: "Task", title: "Tasks", subtitle: "Track project tasks", icon: <CheckSquare className="h-6 w-6" />, columns: taskColumns, mapper: mapTask },
-  timesheet: { doctype: "Timesheet", title: "Timesheets", subtitle: "Track time spent on projects", icon: <Clock className="h-6 w-6" />, columns: timesheetColumns, mapper: mapTimesheet },
+const PROJECT_TYPE_CONFIG: Record<
+  string,
+  {
+    doctype: string;
+    title: string;
+    subtitle: string;
+    icon: React.ReactNode;
+    columns: Column<GenericRow>[];
+    mapper: (d: Record<string, unknown>) => GenericRow;
+  }
+> = {
+  project: {
+    doctype: "Project",
+    title: "Projects",
+    subtitle: "Manage your projects",
+    icon: <FolderKanban className="h-6 w-6" />,
+    columns: projectColumns,
+    mapper: mapProject,
+  },
+  task: {
+    doctype: "Task",
+    title: "Tasks",
+    subtitle: "Track project tasks",
+    icon: <CheckSquare className="h-6 w-6" />,
+    columns: taskColumns,
+    mapper: mapTask,
+  },
+  timesheet: {
+    doctype: "Timesheet",
+    title: "Timesheets",
+    subtitle: "Track time spent on projects",
+    icon: <Clock className="h-6 w-6" />,
+    columns: timesheetColumns,
+    mapper: mapTimesheet,
+  },
 };
 
 /* ------------------------------------------------------------------ */
@@ -129,9 +232,18 @@ function ProjectsListView({ type }: { type: string }) {
   const router = useRouter();
   const config = PROJECT_TYPE_CONFIG[type]!;
   const [page, setPage] = useState(0);
-  const { data: rawList = [], hasMore, page: currentPage, isLoading: loading, isError, error: queryError, refetch } = useErpList(config.doctype, { page });
+  const {
+    data: rawList = [],
+    hasMore,
+    page: currentPage,
+    isLoading: loading,
+    isError,
+    error: queryError,
+    refetch,
+  } = useErpList(config.doctype, { page });
   const data = useMemo(() => (rawList as Record<string, unknown>[]).map(config.mapper), [rawList, config.mapper]);
-  const error = queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
+  const error =
+    queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
 
   if (error) {
     return (
@@ -141,16 +253,27 @@ function ProjectsListView({ type }: { type: string }) {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
             <p className="text-sm text-muted-foreground">{config.subtitle}</p>
           </div>
-          <Button variant="primary" onClick={() => router.push("/dashboard/analytics/new")}>+ Create New</Button>
+          <Button variant="primary" onClick={() => router.push("/dashboard/analytics/new")}>
+            + Create New
+          </Button>
         </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               {config.icon}
             </div>
-            <p className="text-sm font-medium text-foreground">Something went wrong</p>
-            <p className="mt-1 text-sm text-muted-foreground">{error}</p>
-            <Button variant="primary" size="sm" className="mt-4" onClick={() => refetch()}>Retry</Button>
+            <p className="text-sm font-medium text-foreground">Could not load data right now</p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Your ERP backend may be starting up. You can retry or create a new record.
+            </p>
+            <div className="mt-4 flex gap-3">
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                Retry
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => router.push("/dashboard/analytics/new")}>
+                + Create New
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -164,7 +287,9 @@ function ProjectsListView({ type }: { type: string }) {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">{config.title}</h1>
           <p className="text-sm text-muted-foreground">{config.subtitle}</p>
         </div>
-        <Button variant="primary" onClick={() => router.push("/dashboard/analytics/new")}>+ Create New</Button>
+        <Button variant="primary" onClick={() => router.push("/dashboard/analytics/new")}>
+          + Create New
+        </Button>
       </div>
       <Card>
         <CardContent className="p-0">
@@ -243,7 +368,13 @@ async function fetchDoctype(doctype: string, limit: number, fields?: string[]): 
   const res = await fetch(`${API_BASE}/api/erp/list?${qs.toString()}`, {
     credentials: "include",
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    // Treat 404/502/503 as "no data" rather than crashing
+    if (res.status === 404 || res.status === 502 || res.status === 503) {
+      return [];
+    }
+    throw new Error(`HTTP ${res.status}`);
+  }
   const body = await res.json();
   return (body?.data as unknown[]) ?? [];
 }
@@ -254,7 +385,7 @@ async function fetchDoctype(doctype: string, limit: number, fields?: string[]): 
 
 function AnalyticsDashboard() {
   const [state, setState] = useState<PageState>("loading");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [, setErrorMessage] = useState<string | null>(null);
   const [salesInvoices, setSalesInvoices] = useState<RawInvoice[]>([]);
   const [purchaseInvoices, setPurchaseInvoices] = useState<RawInvoice[]>([]);
 
@@ -268,7 +399,16 @@ function AnalyticsDashboard() {
       setErrorMessage(null);
       try {
         const [si, pi] = await Promise.all([
-          fetchDoctype("Sales Invoice", 500, ["name", "posting_date", "grand_total", "outstanding_amount", "status", "customer", "customer_name", "docstatus"]),
+          fetchDoctype("Sales Invoice", 500, [
+            "name",
+            "posting_date",
+            "grand_total",
+            "outstanding_amount",
+            "status",
+            "customer",
+            "customer_name",
+            "docstatus",
+          ]),
           fetchDoctype("Purchase Invoice", 200, ["name", "posting_date", "grand_total", "status", "docstatus"]),
         ]);
         if (cancelled) return;
@@ -291,7 +431,9 @@ function AnalyticsDashboard() {
       }
     })();
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [fetchKey]);
 
   const loadData = () => setFetchKey((k) => k + 1);
@@ -299,7 +441,9 @@ function AnalyticsDashboard() {
   const revenueTrend = useMemo(() => {
     const months = getLast12Months();
     const byMonth: Record<string, number> = {};
-    months.forEach((m) => { byMonth[m] = 0; });
+    months.forEach((m) => {
+      byMonth[m] = 0;
+    });
 
     salesInvoices.forEach((inv) => {
       if (inv.posting_date && (inv.status === "Paid" || inv.docstatus === 1)) {
@@ -313,7 +457,9 @@ function AnalyticsDashboard() {
 
   const maxRevTrend = useMemo(() => {
     let max = 0;
-    revenueTrend.forEach((d) => { if (d.value > max) max = d.value; });
+    revenueTrend.forEach((d) => {
+      if (d.value > max) max = d.value;
+    });
     return max > 0 ? max * 1.15 : 100;
   }, [revenueTrend]);
 
@@ -326,7 +472,9 @@ function AnalyticsDashboard() {
         byCustomer[custName].total += inv.grand_total ?? 0;
       }
     });
-    return Object.values(byCustomer).sort((a, b) => b.total - a.total).slice(0, 5);
+    return Object.values(byCustomer)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
   }, [salesInvoices]);
 
   const revenueByCategory = useMemo(() => {
@@ -355,29 +503,41 @@ function AnalyticsDashboard() {
       });
     }
 
-    return Object.entries(byGroup).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6);
+    return Object.entries(byGroup)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6);
   }, [salesInvoices]);
 
   const totalRevenue = useMemo(
-    () => salesInvoices.filter((inv) => inv.status === "Paid" || inv.docstatus === 1).reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
-    [salesInvoices]
+    () =>
+      salesInvoices
+        .filter((inv) => inv.status === "Paid" || inv.docstatus === 1)
+        .reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
+    [salesInvoices],
   );
 
   const totalExpenses = useMemo(
-    () => purchaseInvoices.filter((inv) => inv.status === "Paid" || inv.docstatus === 1).reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
-    [purchaseInvoices]
+    () =>
+      purchaseInvoices
+        .filter((inv) => inv.status === "Paid" || inv.docstatus === 1)
+        .reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
+    [purchaseInvoices],
   );
 
   const profitMargin = totalRevenue > 0 ? ((totalRevenue - totalExpenses) / totalRevenue) * 100 : 0;
 
   const overdueCount = useMemo(
     () => salesInvoices.filter((inv) => inv.status === "Overdue" || inv.status === "Unpaid").length,
-    [salesInvoices]
+    [salesInvoices],
   );
 
   const outstandingTotal = useMemo(
-    () => salesInvoices.filter((inv) => inv.status === "Overdue" || inv.status === "Unpaid").reduce((sum, inv) => sum + (inv.outstanding_amount ?? inv.grand_total ?? 0), 0),
-    [salesInvoices]
+    () =>
+      salesInvoices
+        .filter((inv) => inv.status === "Overdue" || inv.status === "Unpaid")
+        .reduce((sum, inv) => sum + (inv.outstanding_amount ?? inv.grand_total ?? 0), 0),
+    [salesInvoices],
   );
 
   const header = (
@@ -419,10 +579,22 @@ function AnalyticsDashboard() {
           <Skeleton className="h-24 w-full rounded-lg" />
           <Skeleton className="h-24 w-full rounded-lg" />
         </div>
-        <Card><CardContent className="p-6"><Skeleton className="h-64 w-full rounded-lg" /></CardContent></Card>
+        <Card>
+          <CardContent className="p-6">
+            <Skeleton className="h-64 w-full rounded-lg" />
+          </CardContent>
+        </Card>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <Card><CardContent className="p-6"><Skeleton className="h-48 w-full rounded-lg" /></CardContent></Card>
-          <Card><CardContent className="p-6"><Skeleton className="h-48 w-full rounded-lg" /></CardContent></Card>
+          <Card>
+            <CardContent className="p-6">
+              <Skeleton className="h-48 w-full rounded-lg" />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-6">
+              <Skeleton className="h-48 w-full rounded-lg" />
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -434,12 +606,16 @@ function AnalyticsDashboard() {
         {header}
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               <BarChart3 className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium text-foreground">Something went wrong</p>
-            <p className="mt-1 text-sm text-muted-foreground">{errorMessage ?? "Failed to load analytics data."}</p>
-            <Button variant="primary" size="sm" className="mt-4" onClick={loadData}>Retry</Button>
+            <p className="text-sm font-medium text-foreground">Could not load analytics data</p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Your ERP backend may be starting up or temporarily unavailable. This is normal during setup.
+            </p>
+            <Button variant="outline" size="sm" className="mt-4" onClick={loadData}>
+              Retry
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -451,10 +627,30 @@ function AnalyticsDashboard() {
       {header}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Revenue" value={formatCurrency(totalRevenue, "USD")} subtext={`${salesInvoices.filter((i) => i.status === "Paid" || i.docstatus === 1).length} paid invoices`} subtextVariant="muted" />
-        <MetricCard label="Expenses" value={formatCurrency(totalExpenses, "USD")} subtext={`${purchaseInvoices.filter((i) => i.status === "Paid" || i.docstatus === 1).length} paid bills`} subtextVariant="muted" />
-        <MetricCard label="Profit Margin" value={`${profitMargin.toFixed(1)}%`} subtext={totalRevenue > 0 ? `${formatCurrency(totalRevenue - totalExpenses, "USD")} net` : undefined} subtextVariant={profitMargin >= 0 ? "success" : "error"} />
-        <MetricCard label="Outstanding" value={formatCurrency(outstandingTotal, "USD")} subtext={overdueCount > 0 ? `${overdueCount} invoices overdue` : "No overdue invoices"} subtextVariant={overdueCount > 0 ? "error" : "success"} />
+        <MetricCard
+          label="Revenue"
+          value={formatCurrency(totalRevenue, "USD")}
+          subtext={`${salesInvoices.filter((i) => i.status === "Paid" || i.docstatus === 1).length} paid invoices`}
+          subtextVariant="muted"
+        />
+        <MetricCard
+          label="Expenses"
+          value={formatCurrency(totalExpenses, "USD")}
+          subtext={`${purchaseInvoices.filter((i) => i.status === "Paid" || i.docstatus === 1).length} paid bills`}
+          subtextVariant="muted"
+        />
+        <MetricCard
+          label="Profit Margin"
+          value={`${profitMargin.toFixed(1)}%`}
+          subtext={totalRevenue > 0 ? `${formatCurrency(totalRevenue - totalExpenses, "USD")} net` : undefined}
+          subtextVariant={profitMargin >= 0 ? "success" : "error"}
+        />
+        <MetricCard
+          label="Outstanding"
+          value={formatCurrency(outstandingTotal, "USD")}
+          subtext={overdueCount > 0 ? `${overdueCount} invoices overdue` : "No overdue invoices"}
+          subtextVariant={overdueCount > 0 ? "error" : "success"}
+        />
       </div>
 
       <Card>
@@ -471,14 +667,30 @@ function AnalyticsDashboard() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                />
                 <YAxis hide domain={[0, maxRevTrend]} />
                 <Tooltip
                   formatter={(value) => [formatCurrency(Number(value ?? 0), "USD"), "Revenue"]}
-                  contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "0.25rem", color: "var(--foreground)" }}
+                  contentStyle={{
+                    background: "var(--card)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "0.25rem",
+                    color: "var(--foreground)",
+                  }}
                   labelStyle={{ color: "var(--muted-foreground)" }}
                 />
-                <Area type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} fill="url(#fillRevAnalytics)" />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="var(--primary)"
+                  strokeWidth={2}
+                  fill="url(#fillRevAnalytics)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -512,12 +724,28 @@ function AnalyticsDashboard() {
             ) : (
               <div className="mt-4 h-48 min-h-[192px] w-full">
                 <ResponsiveContainer width="100%" height={192}>
-                  <BarChart data={revenueByCategory} layout="vertical" margin={{ top: 0, right: 0, left: 80, bottom: 0 }}>
+                  <BarChart
+                    data={revenueByCategory}
+                    layout="vertical"
+                    margin={{ top: 0, right: 0, left: 80, bottom: 0 }}
+                  >
                     <XAxis type="number" hide />
-                    <YAxis type="category" dataKey="name" width={80} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      width={80}
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                    />
                     <Tooltip
                       formatter={(value) => [formatCurrency(Number(value ?? 0), "USD"), "Revenue"]}
-                      contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "0.25rem", color: "var(--foreground)" }}
+                      contentStyle={{
+                        background: "var(--card)",
+                        border: "1px solid var(--border)",
+                        borderRadius: "0.25rem",
+                        color: "var(--foreground)",
+                      }}
                     />
                     <Bar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]} />
                   </BarChart>
@@ -554,7 +782,9 @@ function AnalyticsPageInner() {
 
 export default function AnalyticsPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}>
+    <Suspense
+      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}
+    >
       <AnalyticsPageInner />
     </Suspense>
   );
