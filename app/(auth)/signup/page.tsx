@@ -481,7 +481,9 @@ function SignupContent() {
                         );
                       })()}
                   </div>
-                  {signupError && <p className="text-sm text-destructive">{signupError}</p>}
+                  <div aria-live="polite">
+                    {signupError && <p className="text-sm text-destructive">{signupError}</p>}
+                  </div>
                   <Button
                     variant="default"
                     size="lg"

@@ -17,6 +17,7 @@
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "analyze": "ANALYZE=true next build",
     "prepare": "husky"
   },
   "dependencies": {
