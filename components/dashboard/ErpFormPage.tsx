@@ -8,22 +8,10 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/Select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/Select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
+import { z } from "zod";
 import { api } from "@/lib/api/client";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
@@ -121,6 +109,7 @@ export function ErpFormPage({
   const [lineItems, setLineItems] = useState<Record<string, unknown>[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // -- Edit-mode: fetch document --------------------------------------------
   useEffect(() => {
@@ -162,6 +151,13 @@ export function ErpFormPage({
   // -- Field change handler -------------------------------------------------
   const handleChange = useCallback((key: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+    // Clear field-level error on change
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
   }, []);
 
   // -- Line-item helpers ----------------------------------------------------
@@ -202,13 +198,44 @@ export function ErpFormPage({
 
   // -- Save -----------------------------------------------------------------
   const handleSave = useCallback(async () => {
-    // Basic required-field validation
+    // Build Zod schema dynamically from field definitions for client-side validation
+    const schemaShape: Record<string, z.ZodType> = {};
     for (const f of fields) {
-      if (f.required && (formData[f.key] === "" || formData[f.key] == null)) {
-        toast.error(`${f.label} is required`);
-        return;
+      if (f.type === "number" || f.type === "currency") {
+        if (f.required) {
+          schemaShape[f.key] = z
+            .union([z.number(), z.string()])
+            .refine((v) => v !== "" && v != null, { message: `${f.label} is required` });
+        } else {
+          schemaShape[f.key] = z.union([z.number(), z.string()]).optional();
+        }
+      } else if (f.required) {
+        schemaShape[f.key] = z.string().min(1, `${f.label} is required`);
+      } else {
+        schemaShape[f.key] = z.unknown();
       }
     }
+    const schema = z.object(schemaShape);
+
+    // Client-side validation before the network round-trip
+    const validation = schema.safeParse(formData);
+    if (!validation.success) {
+      const errors: Record<string, string> = {};
+      for (const issue of validation.error.issues) {
+        const key = String(issue.path[0] ?? "");
+        if (key && !errors[key]) {
+          errors[key] = issue.message;
+        }
+      }
+      setFieldErrors(errors);
+      // Show the first error as a toast for visibility
+      const firstError = validation.error.issues[0];
+      if (firstError) {
+        toast.error(firstError.message);
+      }
+      return;
+    }
+    setFieldErrors({});
 
     setSaving(true);
     try {
@@ -216,9 +243,7 @@ export function ErpFormPage({
       const csrfRes = await fetch(API_BASE + "/api/csrf", { credentials: "include" });
       const csrfData = (await csrfRes.json()) as Record<string, unknown>;
       const csrfToken =
-        ((csrfData?.data as Record<string, unknown>)?.token as string) ??
-        (csrfData?.token as string) ??
-        "";
+        ((csrfData?.data as Record<string, unknown>)?.token as string) ?? (csrfData?.token as string) ?? "";
 
       // Build body
       const body: Record<string, unknown> = { ...formData };
@@ -226,9 +251,8 @@ export function ErpFormPage({
         body[lineItemChildKey] = lineItems;
       }
 
-      const payload = isEdit && name
-        ? JSON.stringify({ doctype, name, data: body })
-        : JSON.stringify({ doctype, data: body });
+      const payload =
+        isEdit && name ? JSON.stringify({ doctype, name, data: body }) : JSON.stringify({ doctype, data: body });
 
       const res = await fetch(`${API_BASE}/api/erp/doc`, {
         method: isEdit ? "PUT" : "POST",
@@ -262,7 +286,19 @@ export function ErpFormPage({
     } finally {
       setSaving(false);
     }
-  }, [formData, lineItems, fields, doctype, name, isEdit, backHref, lineItemColumns, lineItemChildKey, onSuccess, router]);
+  }, [
+    formData,
+    lineItems,
+    fields,
+    doctype,
+    name,
+    isEdit,
+    backHref,
+    lineItemColumns,
+    lineItemChildKey,
+    onSuccess,
+    router,
+  ]);
 
   // -- Sections -------------------------------------------------------------
   const sections = groupBySection(fields);
@@ -344,9 +380,7 @@ export function ErpFormPage({
             placeholder={field.placeholder}
             value={value != null && value !== "" ? String(value) : ""}
             readOnly={field.readOnly}
-            onChange={(e) =>
-              handleChange(field.key, e.target.value === "" ? "" : Number(e.target.value))
-            }
+            onChange={(e) => handleChange(field.key, e.target.value === "" ? "" : Number(e.target.value))}
           />
         );
 
@@ -400,11 +434,7 @@ export function ErpFormPage({
   }
 
   // -- Render a line-item cell ----------------------------------------------
-  function renderLineItemCell(
-    col: LineItemColumnDef,
-    row: Record<string, unknown>,
-    rowIndex: number,
-  ) {
+  function renderLineItemCell(col: LineItemColumnDef, row: Record<string, unknown>, rowIndex: number) {
     const cellValue = row[col.key];
     const isComputed = Boolean(col.computed);
 
@@ -431,11 +461,7 @@ export function ErpFormPage({
             value={cellValue != null && cellValue !== "" ? String(cellValue) : ""}
             readOnly={isComputed}
             onChange={(e) =>
-              handleLineItemChange(
-                rowIndex,
-                col.key,
-                e.target.value === "" ? "" : Number(e.target.value),
-              )
+              handleLineItemChange(rowIndex, col.key, e.target.value === "" ? "" : Number(e.target.value))
             }
             className="h-8 text-sm"
           />
@@ -490,17 +516,11 @@ export function ErpFormPage({
             </Link>
           </Button>
           <div className="min-w-0">
-            <h1 className="truncate font-display text-2xl font-semibold tracking-tight text-foreground">
-              {title}
-            </h1>
+            <h1 className="truncate font-display text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
           </div>
         </div>
         <Button variant="default" size="default" disabled={saving} onClick={handleSave}>
-          {saving ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="mr-2 h-4 w-4" />
-          )}
+          {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           {saving ? "Saving..." : "Save"}
         </Button>
       </div>
@@ -509,9 +529,7 @@ export function ErpFormPage({
       {sections.map((sec) => (
         <Card key={sec.label}>
           <CardHeader className="pb-2">
-            <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              {sec.label}
-            </h2>
+            <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">{sec.label}</h2>
           </CardHeader>
           <CardContent className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {sec.fields.map((f) => (
@@ -521,6 +539,7 @@ export function ErpFormPage({
                   {f.required && <span className="ml-1 text-destructive">*</span>}
                 </Label>
                 {renderField(f)}
+                {fieldErrors[f.key] && <p className="text-xs text-destructive">{fieldErrors[f.key]}</p>}
               </div>
             ))}
           </CardContent>
@@ -566,13 +585,9 @@ export function ErpFormPage({
                 ) : (
                   lineItems.map((row, rowIndex) => (
                     <TableRow key={rowIndex}>
-                      <TableCell className="text-center text-sm text-muted-foreground">
-                        {rowIndex + 1}
-                      </TableCell>
+                      <TableCell className="text-center text-sm text-muted-foreground">{rowIndex + 1}</TableCell>
                       {lineItemColumns.map((col) => (
-                        <TableCell key={col.key}>
-                          {renderLineItemCell(col, row, rowIndex)}
-                        </TableCell>
+                        <TableCell key={col.key}>{renderLineItemCell(col, row, rowIndex)}</TableCell>
                       ))}
                       <TableCell>
                         <Button

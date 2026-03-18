@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { Briefcase } from "lucide-react";
 import { serverErpList } from "@/lib/api/server";
+import { HydrateClient } from "@/lib/queries/HydrateClient";
 import { ListPageError } from "../_components/ListPageError";
 import { CrmPipelineClient } from "./_components/CrmPipelineClient";
 import type { Deal } from "./_components/CrmPipelineClient";
@@ -28,9 +29,13 @@ function mapErpOpportunity(d: Record<string, unknown>): Deal {
 export default async function CRMPage() {
   let deals: Deal[] = [];
   let error: string | null = null;
+  let rawData: unknown[] = [];
+  let rawMeta: { page: number; pageSize: number; hasMore: boolean } = { page: 0, pageSize: 20, hasMore: false };
 
   try {
     const result = await serverErpList("Opportunity");
+    rawData = result.data as unknown[];
+    rawMeta = result.meta;
     deals = (result.data as Record<string, unknown>[]).map(mapErpOpportunity);
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to load pipeline.";
@@ -48,5 +53,10 @@ export default async function CRMPage() {
     );
   }
 
-  return <CrmPipelineClient deals={deals} />;
+  return (
+    <>
+      <HydrateClient queryKey={["erp", "Opportunity", { page: 0 }]} data={{ data: rawData, meta: rawMeta }} />
+      <CrmPipelineClient deals={deals} />
+    </>
+  );
 }

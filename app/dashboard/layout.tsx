@@ -8,6 +8,7 @@ import { ErpConnectionProvider } from "@/components/dashboard/ErpConnectionConte
 import { PageTransition } from "@/components/dashboard/PageTransition";
 import { ShortcutsProvider } from "@/components/dashboard/ShortcutsContext";
 import { QueryProvider } from "@/components/dashboard/QueryProvider";
+import { WebVitalsReporter } from "@/lib/web-vitals";
 
 const AppSidebar = dynamic(() => import("@/components/dashboard/AppSidebar").then((m) => m.AppSidebar), {
   ssr: false,
@@ -25,6 +26,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <SidebarInset>
                 <DashboardHeader />
                 <ErpConnectionBanner />
+                <WebVitalsReporter />
                 <main id="main-content" className="flex-1 overflow-y-auto bg-muted/30 p-6">
                   <PageTransition>{children}</PageTransition>
                 </main>
