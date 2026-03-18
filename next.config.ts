@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   productionBrowserSourceMaps: false,
   outputFileTracingRoot: path.join(process.cwd()),
+  images: {
+    formats: ["image/avif", "image/webp"],
+  },
   // CSP and security headers are now set dynamically via middleware.ts
   // (nonce-based CSP replaces the previous static 'unsafe-inline' approach)
 };
