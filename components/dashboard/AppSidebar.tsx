@@ -130,9 +130,7 @@ function useSessionUser(): { user: SessionUser | null; loading: boolean } {
         const raw = d?.data;
         if (raw) {
           // Use the first part of the email as name fallback if name is empty
-          const displayName =
-            raw.name?.trim() ||
-            (raw.email ? raw.email.split("@")[0].replace(/[._-]/g, " ") : "");
+          const displayName = raw.name?.trim() || (raw.email ? raw.email.split("@")[0].replace(/[._-]/g, " ") : "");
           setUser({
             name: displayName,
             email: raw.email ?? "",
@@ -196,7 +194,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex h-14 items-center justify-between gap-2 px-2">
           <LogoLink variant="mark" size="sm" className="text-foreground" />
-          <SidebarTrigger className="size-8">
+          <SidebarTrigger className="size-8" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
             {collapsed ? <ChevronsRight className="size-4" /> : <ChevronsLeft className="size-4" />}
           </SidebarTrigger>
         </div>
@@ -207,9 +205,7 @@ export function AppSidebar() {
             key={section.title}
             open={collapsed ? false : openSections.includes(section.title)}
             onOpenChange={(open) =>
-              setOpenSections((prev) =>
-                open ? [...prev, section.title] : prev.filter((t) => t !== section.title)
-              )
+              setOpenSections((prev) => (open ? [...prev, section.title] : prev.filter((t) => t !== section.title)))
             }
           >
             <SidebarGroup>
@@ -230,9 +226,7 @@ export function AppSidebar() {
                   {section.items.map((item) => (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton asChild isActive={isActive(item.href)}>
-                        <Link href={item.href}>
-                          {collapsed ? null : item.label}
-                        </Link>
+                        <Link href={item.href}>{collapsed ? null : item.label}</Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
@@ -262,9 +256,7 @@ export function AppSidebar() {
                 ) : (
                   <>
                     <p className="truncate text-[13px] font-medium">{displayName}</p>
-                    <p className="truncate text-[11px] uppercase tracking-wider text-muted-foreground">
-                      {displayRole}
-                    </p>
+                    <p className="truncate text-[11px] uppercase tracking-wider text-muted-foreground">{displayRole}</p>
                   </>
                 )}
               </div>
@@ -278,7 +270,7 @@ export function AppSidebar() {
                   Settings
                 </Link>
               </Button>
-              <Button variant="ghost" size="sm" className="text-[13px]" onClick={handleSignOut}>
+              <Button variant="ghost" size="sm" className="text-[13px]" onClick={handleSignOut} aria-label="Log out">
                 <LogOut className="size-4" />
               </Button>
             </div>

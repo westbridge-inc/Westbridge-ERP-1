@@ -17,22 +17,22 @@ const AppSidebar = dynamic(() => import("@/components/dashboard/AppSidebar").the
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <QueryProvider>
-    <SidebarProvider>
-      <ShortcutsProvider>
-        <ErpConnectionProvider>
-          <div className="flex h-screen w-full">
-            <AppSidebar />
-            <SidebarInset>
-              <DashboardHeader />
-              <ErpConnectionBanner />
-              <main className="flex-1 overflow-y-auto bg-muted/30 p-6">
-                <PageTransition>{children}</PageTransition>
-              </main>
-            </SidebarInset>
-          </div>
-        </ErpConnectionProvider>
-      </ShortcutsProvider>
-    </SidebarProvider>
+      <SidebarProvider>
+        <ShortcutsProvider>
+          <ErpConnectionProvider>
+            <div className="flex h-screen w-full">
+              <AppSidebar />
+              <SidebarInset>
+                <DashboardHeader />
+                <ErpConnectionBanner />
+                <main id="main-content" className="flex-1 overflow-y-auto bg-muted/30 p-6">
+                  <PageTransition>{children}</PageTransition>
+                </main>
+              </SidebarInset>
+            </div>
+          </ErpConnectionProvider>
+        </ShortcutsProvider>
+      </SidebarProvider>
     </QueryProvider>
   );
 }

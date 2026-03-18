@@ -41,21 +41,27 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${plusJakarta.variable} ${playfair.variable}`} suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-background focus:px-4 focus:py-2 focus:text-foreground"
+        >
+          Skip to main content
+        </a>
         <PHProvider />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-        <ToastsProvider>
-          {children}
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              classNames: {
-                toast: "rounded-md font-sans text-sm border border-border shadow-lg",
-                success: "border-l-4 border-l-green-500",
-                error: "border-l-4 border-l-destructive",
-              },
-            }}
-          />
-        </ToastsProvider>
+          <ToastsProvider>
+            {children}
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                classNames: {
+                  toast: "rounded-md font-sans text-sm border border-border shadow-lg",
+                  success: "border-l-4 border-l-green-500",
+                  error: "border-l-4 border-l-destructive",
+                },
+              }}
+            />
+          </ToastsProvider>
         </ThemeProvider>
       </body>
     </html>
