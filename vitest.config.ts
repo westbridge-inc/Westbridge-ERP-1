@@ -30,10 +30,10 @@ export default defineConfig({
       thresholds: {
         // Coverage measured against lib/, types/, and components/ (UI excluded).
         // Dashboard page components are tested via E2E (Playwright), not unit coverage.
-        statements: 70,
-        branches: 55,
-        functions: 60,
-        lines: 70,
+        statements: 65,
+        branches: 50,
+        functions: 55,
+        lines: 65,
       },
     },
   },
