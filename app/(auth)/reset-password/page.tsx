@@ -106,7 +106,11 @@ function ResetPasswordContent() {
                     {pwResult.errors.length === 0 ? (
                       <li className="text-success">\u2713 Password meets all requirements</li>
                     ) : (
-                      pwResult.errors.map((e) => <li key={e} className="text-destructive">\u2717 {e}</li>)
+                      pwResult.errors.map((e) => (
+                        <li key={e} className="text-destructive">
+                          \u2717 {e}
+                        </li>
+                      ))
                     )}
                   </ul>
                   <div className="flex gap-1">
@@ -117,7 +121,11 @@ function ResetPasswordContent() {
                           key={i}
                           className={`h-1.5 flex-1 rounded-full transition-colors ${
                             i < passed
-                              ? passed === TOTAL_PW_REQUIREMENTS ? "bg-success" : passed >= 4 ? "bg-warning" : "bg-destructive"
+                              ? passed === TOTAL_PW_REQUIREMENTS
+                                ? "bg-success"
+                                : passed >= 4
+                                  ? "bg-warning"
+                                  : "bg-destructive"
                               : "bg-border"
                           }`}
                         />
@@ -143,7 +151,7 @@ function ResetPasswordContent() {
               )}
             </div>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            <div aria-live="polite">{error && <p className="text-sm text-destructive">{error}</p>}</div>
 
             <Button
               type="submit"
