@@ -68,19 +68,28 @@ Read these ADRs in order:
 5. [ADR-005: Prisma](./adr/ADR-005-prisma-orm.md)
 6. [ADR-006: Redis](./adr/ADR-006-redis-sessions.md)
 
-Key directories:
+Key directories (this frontend repo):
 | Directory | Purpose |
 |-----------|---------|
 | `app/` | Next.js pages and API routes |
-| `lib/` | Backend services, utilities |
+| `lib/` | Shared utilities, hooks, config |
+| `lib/api/` | API client and fetch helpers |
+| `lib/hooks/` | Custom React hooks |
+| `lib/config/` | App configuration (routes, site) |
+| `lib/utils/` | Pure utility functions (result types, CSV, etc.) |
+| `lib/caribbean/` | Caribbean-specific tax/currency logic |
+| `lib/locale/` | Date and currency formatting |
+| `components/` | React components |
+| `components/ui/` | shadcn/ui primitives |
+| `components/dashboard/` | Dashboard-specific components |
+| `docs/` | ADRs and runbooks |
+
+Backend directories (separate repo — `Westbridge-ERP-2`):
+| Directory | Purpose |
+|-----------|---------|
 | `lib/services/` | Domain service layer |
 | `lib/data/` | External API clients (ERPNext, PowerTranz) |
-| `lib/api/` | API pipeline, versioning, OpenAPI |
-| `components/` | React components |
-| `packages/ui/` | Design tokens |
 | `prisma/` | Schema and migrations |
-| `docs/` | ADRs and runbooks |
-| `load-tests/` | k6 scripts |
 
 ## Day 3: Your First PR
 
@@ -92,8 +101,8 @@ Key directories:
 
 ## Code Standards
 
-- All service functions return `Result<T, string>` — see `lib/utils/result.ts`
-- No `console.log` — use `logger.info()` / `logger.debug()` from `lib/logger.ts`
+- Utility functions return `Result<T, string>` — see `lib/utils/result.ts`
+- No `console.log` in production code
 - No `any` types
-- Every new API route needs: auth, rate limiting, CSRF (for mutations), input validation (Zod), Sentry try/catch
-- Cache keys must include `accountId` (use `cacheKey()` from `lib/cache.ts`)
+- Every new API route needs: auth, CSRF (for mutations), input validation (Zod)
+- Backend-specific standards (logging, caching, rate limiting) are in the backend repo's README

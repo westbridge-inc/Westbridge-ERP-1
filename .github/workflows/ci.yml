@@ -55,7 +55,7 @@ jobs:
         with: { node-version: "${{ env.NODE_VERSION }}" }
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-      - name: Run tests with coverage thresholds (80% statements, 70% branches)
+      - name: Run tests with coverage thresholds (65% statements, 50% branches, 55% functions, 65% lines)
         run: npm run test -- --coverage
       - name: Upload coverage
         uses: actions/upload-artifact@v7
