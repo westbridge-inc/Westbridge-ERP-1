@@ -58,3 +58,4 @@ lib/generated/
 
 # Editor/tool config
 .claude/
+storybook-static/
