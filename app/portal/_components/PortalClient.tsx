@@ -330,7 +330,7 @@ export function PortalClient() {
               </CardHeader>
               <CardContent>
                 {invoices.length === 0 ? (
-                  <EmptyDocState icon={<FileText className="h-8 w-8" />} label="No invoices found" />
+                  <EmptyDocState icon={<FileText className="h-8 w-8" />} label="No invoices yet" />
                 ) : (
                   <Table>
                     <TableHeader>
@@ -386,7 +386,7 @@ export function PortalClient() {
               </CardHeader>
               <CardContent>
                 {quotations.length === 0 ? (
-                  <EmptyDocState icon={<Clock className="h-8 w-8" />} label="No quotations found" />
+                  <EmptyDocState icon={<Clock className="h-8 w-8" />} label="No quotations yet" />
                 ) : (
                   <Table>
                     <TableHeader>
@@ -450,7 +450,7 @@ export function PortalClient() {
               </CardHeader>
               <CardContent>
                 {orders.length === 0 ? (
-                  <EmptyDocState icon={<Package className="h-8 w-8" />} label="No orders found" />
+                  <EmptyDocState icon={<Package className="h-8 w-8" />} label="No orders yet" />
                 ) : (
                   <Table>
                     <TableHeader>

@@ -232,6 +232,9 @@ export function AppSidebar() {
         });
       }
     } finally {
+      localStorage.removeItem("westbridge_ai_conversations");
+      localStorage.removeItem("westbridge_notifications");
+      localStorage.removeItem("westbridge_hidden_sections");
       router.push(ROUTES.login);
       router.refresh();
     }
