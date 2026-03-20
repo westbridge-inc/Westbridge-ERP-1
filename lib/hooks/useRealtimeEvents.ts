@@ -31,19 +31,47 @@ function defaultTitle(type: RealtimeEventType): string {
   }
 }
 
-const MAX_NOTIFICATIONS = 50;
+const MAX_NOTIFICATIONS = 100;
+const STORAGE_KEY = "westbridge_notifications";
 const RECONNECT_DELAY_MS = 3_000;
+
+/** Read persisted notifications from localStorage. */
+function loadStoredNotifications(): RealtimeNotification[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return (parsed as RealtimeNotification[]).slice(0, MAX_NOTIFICATIONS);
+  } catch {
+    return [];
+  }
+}
+
+/** Persist notifications to localStorage. */
+function saveNotifications(notifications: RealtimeNotification[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications.slice(0, MAX_NOTIFICATIONS)));
+  } catch {
+    // Storage full or unavailable — silently ignore
+  }
+}
 
 /**
  * SSE hook that connects to the real-time event stream and returns a list of
- * notifications. Reconnects automatically on disconnect. Stores the last 50
- * notifications in state.
+ * notifications. Reconnects automatically on disconnect. Persists the last 100
+ * notifications in localStorage so they survive page refreshes.
  */
 export function useRealtimeEvents() {
-  const [notifications, setNotifications] = useState<RealtimeNotification[]>([]);
+  const [notifications, setNotifications] = useState<RealtimeNotification[]>(() => loadStoredNotifications());
   const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const idCounterRef = useRef(0);
+
+  // Persist whenever notifications change
+  useEffect(() => {
+    saveNotifications(notifications);
+  }, [notifications]);
 
   const addNotification = useCallback(
     (type: RealtimeEventType, payload: Record<string, unknown>, timestamp: string) => {

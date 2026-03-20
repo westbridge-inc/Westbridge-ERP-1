@@ -384,8 +384,12 @@ function SignupContent() {
                       const payload = data.data ?? data;
                       if (payload.paymentUrl) {
                         // Validate payment URL to prevent open redirect attacks.
-                        // Only allow HTTPS URLs on trusted PowerTranz domains.
-                        const ALLOWED_PAYMENT_HOSTS = ["staging.ptranz.com", "ptranz.com"];
+                        // Only allow HTTPS URLs on trusted 2Checkout domains.
+                        const ALLOWED_PAYMENT_HOSTS = [
+                          "secure.2checkout.com",
+                          "sandbox.2checkout.com",
+                          "2checkout.com",
+                        ];
                         try {
                           const paymentUrlObj = new URL(payload.paymentUrl);
                           if (
@@ -496,7 +500,8 @@ function SignupContent() {
                         : "Continue to payment"}
                   </Button>
                   <p className="mt-2 text-center text-xs text-muted-foreground/40">
-                    You&apos;ll complete payment securely via PowerTranz. Cards and Caribbean payment methods supported.
+                    You&apos;ll complete payment securely via 2Checkout. All major cards and global payment methods
+                    supported.
                   </p>
                 </form>
                 <button

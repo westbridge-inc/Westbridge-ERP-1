@@ -36,14 +36,22 @@ function mapErpSalesOrder(d: Record<string, unknown>): InvoiceRow {
 export default async function InvoicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; type?: string }>;
+  searchParams: Promise<{ page?: string; type?: string; search?: string }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page ?? "0");
   const type = params.type ?? "invoice";
+  const searchQuery = params.search ?? "";
   const isOrder = type === "order";
   const doctype = isOrder ? "Sales Order" : "Sales Invoice";
   const mapper = isOrder ? mapErpSalesOrder : mapErpInvoice;
+
+  // Build server-side search filters
+  // Backend supports [["field", "like", "%term%"]] filter syntax
+  const filters: Record<string, unknown>[] = [];
+  if (searchQuery) {
+    filters.push({ name: ["like", `%${searchQuery}%`] });
+  }
 
   let invoices: InvoiceRow[] = [];
   let currentPage = page;
@@ -51,7 +59,10 @@ export default async function InvoicesPage({
   let error: string | null = null;
 
   try {
-    const result = await serverErpList(doctype, { page });
+    const result = await serverErpList(doctype, {
+      page,
+      filters: filters.length > 0 ? filters : undefined,
+    });
     invoices = (result.data as Record<string, unknown>[]).map(mapper);
     currentPage = result.meta.page;
     hasMore = result.meta.hasMore;

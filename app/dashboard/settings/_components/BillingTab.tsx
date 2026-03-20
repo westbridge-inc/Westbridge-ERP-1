@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { AlertCircle } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Modal } from "@/components/ui/Modal";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getPlan, type PlanId } from "@/lib/modules";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { PLANS, getPlan, type PlanId } from "@/lib/modules";
 import { api, type BillingData } from "@/lib/api/client";
+import { useToasts } from "@/components/ui/Toasts";
 
 function nextBillingDate(createdAt: string | null): string {
   if (!createdAt) return "";
@@ -23,8 +26,13 @@ function nextBillingDate(createdAt: string | null): string {
 }
 
 export function BillingTab() {
+  const { addToast } = useToasts();
   const [billing, setBilling] = useState<BillingData | null>(null);
   const [billingLoading, setBillingLoading] = useState(true);
+  const [manageOpen, setManageOpen] = useState(false);
+  const [changingPlan, setChangingPlan] = useState<string | null>(null);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -47,6 +55,38 @@ export function BillingTab() {
   const billingPlanId = (billing?.plan as string | null)?.toLowerCase() as PlanId | null;
   const billingPlan = billingPlanId ? getPlan(billingPlanId) : null;
   const nextBilling = nextBillingDate(billing?.accountCreatedAt ?? null);
+
+  const handleChangePlan = useCallback(
+    async (planId: string) => {
+      setChangingPlan(planId);
+      try {
+        await api.billing.changePlan(planId);
+        addToast(`Plan changed to ${planId}`, "success");
+        setBilling((prev) => (prev ? { ...prev, plan: planId } : prev));
+        setManageOpen(false);
+      } catch (err) {
+        addToast(err instanceof Error ? err.message : "Failed to change plan", "error");
+      } finally {
+        setChangingPlan(null);
+      }
+    },
+    [addToast],
+  );
+
+  const handleCancel = useCallback(async () => {
+    setCancelling(true);
+    try {
+      await api.billing.cancel();
+      addToast("Subscription cancelled", "success");
+      setBilling((prev) => (prev ? { ...prev, plan: null } : prev));
+      setCancelOpen(false);
+      setManageOpen(false);
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "Failed to cancel subscription", "error");
+    } finally {
+      setCancelling(false);
+    }
+  }, [addToast]);
 
   return (
     <div className="space-y-6">
@@ -88,6 +128,7 @@ export function BillingTab() {
                 variant="outline"
                 size="default"
                 className="rounded-md border border-input bg-background hover:bg-accent"
+                onClick={() => setManageOpen(true)}
               >
                 Manage subscription
               </Button>
@@ -138,6 +179,75 @@ export function BillingTab() {
           )}
         </CardContent>
       </Card>
+
+      {/* Manage Subscription Modal */}
+      <Modal open={manageOpen} onClose={() => setManageOpen(false)} title="Manage Subscription">
+        <div className="space-y-6">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Current plan: <span className="font-medium text-foreground">{billingPlan?.name ?? "None"}</span>
+            </p>
+          </div>
+          <div className="space-y-3">
+            {PLANS.map((plan) => {
+              const isCurrent = billingPlanId === plan.id;
+              return (
+                <div
+                  key={plan.id}
+                  className={`flex items-center justify-between rounded-lg border p-4 ${
+                    isCurrent ? "border-primary bg-primary/5" : "border-border"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-foreground">{plan.name}</p>
+                      {plan.badge && <Badge status="Active">{plan.badge}</Badge>}
+                      {isCurrent && <Badge status="Active">Current</Badge>}
+                    </div>
+                    <p className="mt-0.5 text-sm text-muted-foreground">${plan.pricePerMonth.toLocaleString()}/mo</p>
+                  </div>
+                  {!isCurrent && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={changingPlan !== null}
+                      onClick={() => handleChangePlan(plan.name)}
+                    >
+                      {changingPlan === plan.name ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : null}
+                      {billingPlanId &&
+                      PLANS.findIndex((p) => p.id === plan.id) < PLANS.findIndex((p) => p.id === billingPlanId)
+                        ? "Downgrade"
+                        : "Upgrade"}
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {billingPlan && (
+            <div className="border-t border-border pt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => setCancelOpen(true)}
+              >
+                Cancel subscription
+              </Button>
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        onConfirm={handleCancel}
+        title="Cancel subscription?"
+        description="Your subscription will remain active until the end of the current billing period. After that, you will lose access to paid features."
+        confirmLabel={cancelling ? "Cancelling..." : "Cancel subscription"}
+        variant="destructive"
+      />
     </div>
   );
 }

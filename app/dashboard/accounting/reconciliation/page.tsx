@@ -1,16 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, Check, X, Search, Upload, Download, RefreshCw } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ArrowLeft, Check, X, Search, Upload, Download, RefreshCw, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/Modal";
 import { toast } from "sonner";
 import { formatCurrency } from "@/lib/locale/currency";
 import { useErpList } from "@/lib/queries/useErpList";
+import { api } from "@/lib/api/client";
 
 interface BankEntry {
   name: string;
@@ -36,8 +45,10 @@ export default function BankReconciliationPage() {
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
   const [selectedJournal, setSelectedJournal] = useState<string | null>(null);
   const [matchedPairs, setMatchedPairs] = useState<Array<{ bank: string; journal: string }>>([]);
+  const [saving, setSaving] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  // Fetch Journal Entries from ERPNext
+  // Fetch Journal Entries
   const { data: journalEntries, isLoading } = useErpList("Journal Entry", {
     fields: ["name", "posting_date", "title", "total_debit", "total_credit", "docstatus"],
     orderBy: "posting_date desc",
@@ -89,6 +100,73 @@ export default function BankReconciliationPage() {
     toast.info("Match removed");
   }
 
+  const handleSaveReconciliation = useCallback(async () => {
+    if (matchedPairs.length === 0) {
+      toast.error("No matched pairs to save");
+      return;
+    }
+    setSaving(true);
+    let succeeded = 0;
+    let failed = 0;
+    const failedDetails: string[] = [];
+
+    for (const pair of matchedPairs) {
+      try {
+        // Find the payment entry to get amount and type
+        const paymentEntry = bankEntries.find((e) => e.name === pair.bank);
+        const amount = paymentEntry?.amount ?? 0;
+        const isReceive = paymentEntry?.type === "credit";
+
+        // Create a reconciliation Journal Entry that clears the matched entries.
+        // Debit the bank account and credit the clearing account (or vice versa)
+        // depending on the payment direction.
+        await api.erp.create("Journal Entry", {
+          title: `Reconciliation: ${pair.bank} - ${pair.journal}`,
+          voucher_type: "Journal Entry",
+          posting_date: new Date().toISOString().split("T")[0],
+          user_remark: `Bank reconciliation: Payment Entry ${pair.bank} matched with Journal Entry ${pair.journal}`,
+          accounts: [
+            {
+              account: "Bank Clearance Account - WB",
+              debit_in_account_currency: isReceive ? amount : 0,
+              credit_in_account_currency: isReceive ? 0 : amount,
+              reference_type: "Payment Entry",
+              reference_name: pair.bank,
+            },
+            {
+              account: "Bank Clearance Account - WB",
+              debit_in_account_currency: isReceive ? 0 : amount,
+              credit_in_account_currency: isReceive ? amount : 0,
+              reference_type: "Journal Entry",
+              reference_name: pair.journal,
+            },
+          ],
+        });
+        succeeded++;
+      } catch (err) {
+        failed++;
+        const msg = err instanceof Error ? err.message : "Unknown error";
+        if (failedDetails.length < 5) {
+          failedDetails.push(`${pair.bank}: ${msg}`);
+        }
+      }
+    }
+
+    setSaving(false);
+    setShowConfirm(false);
+
+    if (failed === 0) {
+      toast.success(
+        `${succeeded} reconciliation Journal ${succeeded === 1 ? "Entry" : "Entries"} created successfully`,
+      );
+      setMatchedPairs([]);
+    } else if (succeeded > 0) {
+      toast.error(`${succeeded} created, ${failed} failed. ${failedDetails.join("; ")}`);
+    } else {
+      toast.error(`All ${failed} reconciliations failed. ${failedDetails.join("; ")}`);
+    }
+  }, [matchedPairs, bankEntries]);
+
   const unmatchedBank = bankEntries.filter((e) => !e.matched);
   const unmatchedJournals = journals.filter((j) => !matchedPairs.some((p) => p.journal === j.name));
 
@@ -126,6 +204,12 @@ export default function BankReconciliationPage() {
           <Button variant="outline" size="sm">
             <Download className="mr-2 size-4" /> Export
           </Button>
+          {matchedPairs.length > 0 && (
+            <Button size="sm" onClick={() => setShowConfirm(true)} disabled={saving}>
+              {saving ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
+              Save ({matchedPairs.length})
+            </Button>
+          )}
         </div>
       </div>
 
@@ -134,13 +218,13 @@ export default function BankReconciliationPage() {
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Total Credits</p>
-            <p className="text-2xl font-semibold text-green-600">{formatCurrency(totalBankCredits, "GYD")}</p>
+            <p className="text-2xl font-semibold text-green-600">{formatCurrency(totalBankCredits, "USD")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Total Debits</p>
-            <p className="text-2xl font-semibold text-red-600">{formatCurrency(totalBankDebits, "GYD")}</p>
+            <p className="text-2xl font-semibold text-red-600">{formatCurrency(totalBankDebits, "USD")}</p>
           </CardContent>
         </Card>
         <Card>
@@ -242,7 +326,7 @@ export default function BankReconciliationPage() {
                           }`}
                         >
                           {entry.type === "credit" ? "+" : "-"}
-                          {formatCurrency(entry.amount, "GYD")}
+                          {formatCurrency(entry.amount, "USD")}
                         </TableCell>
                         <TableCell>
                           {entry.matched ? (
@@ -298,8 +382,8 @@ export default function BankReconciliationPage() {
                       >
                         <TableCell className="text-sm">{je.posting_date}</TableCell>
                         <TableCell className="max-w-[200px] truncate text-sm">{je.title}</TableCell>
-                        <TableCell className="text-right text-sm">{formatCurrency(je.total_debit, "GYD")}</TableCell>
-                        <TableCell className="text-right text-sm">{formatCurrency(je.total_credit, "GYD")}</TableCell>
+                        <TableCell className="text-right text-sm">{formatCurrency(je.total_debit, "USD")}</TableCell>
+                        <TableCell className="text-right text-sm">{formatCurrency(je.total_credit, "USD")}</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -342,6 +426,39 @@ export default function BankReconciliationPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Confirmation dialog */}
+      <Dialog open={showConfirm} onOpenChange={(v) => !v && setShowConfirm(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Reconciliation</DialogTitle>
+            <DialogDescription>
+              This will create {matchedPairs.length} reconciliation Journal{" "}
+              {matchedPairs.length === 1 ? "Entry" : "Entries"} to clear the matched payment and journal entry pairs.
+              This action cannot be easily undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-lg border p-3">
+            <p className="mb-2 text-sm font-medium">Pairs to reconcile:</p>
+            <ul className="space-y-1 text-sm text-muted-foreground">
+              {matchedPairs.map((pair) => (
+                <li key={pair.bank}>
+                  {pair.bank} &rarr; {pair.journal}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirm(false)} disabled={saving}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveReconciliation} disabled={saving}>
+              {saving ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Check className="mr-2 size-4" />}
+              Confirm Reconciliation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -8,21 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardContent } from "@/components/ui/Card";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/Select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/Select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { api } from "@/lib/api/client";
 
@@ -216,9 +203,7 @@ export function ErpFormPage({
       const csrfRes = await fetch(API_BASE + "/api/csrf", { credentials: "include" });
       const csrfData = (await csrfRes.json()) as Record<string, unknown>;
       const csrfToken =
-        ((csrfData?.data as Record<string, unknown>)?.token as string) ??
-        (csrfData?.token as string) ??
-        "";
+        ((csrfData?.data as Record<string, unknown>)?.token as string) ?? (csrfData?.token as string) ?? "";
 
       // Build body
       const body: Record<string, unknown> = { ...formData };
@@ -226,9 +211,8 @@ export function ErpFormPage({
         body[lineItemChildKey] = lineItems;
       }
 
-      const payload = isEdit && name
-        ? JSON.stringify({ doctype, name, data: body })
-        : JSON.stringify({ doctype, data: body });
+      const payload =
+        isEdit && name ? JSON.stringify({ doctype, name, data: body }) : JSON.stringify({ doctype, data: body });
 
       const res = await fetch(`${API_BASE}/api/erp/doc`, {
         method: isEdit ? "PUT" : "POST",
@@ -262,7 +246,19 @@ export function ErpFormPage({
     } finally {
       setSaving(false);
     }
-  }, [formData, lineItems, fields, doctype, name, isEdit, backHref, lineItemColumns, lineItemChildKey, onSuccess, router]);
+  }, [
+    formData,
+    lineItems,
+    fields,
+    doctype,
+    name,
+    isEdit,
+    backHref,
+    lineItemColumns,
+    lineItemChildKey,
+    onSuccess,
+    router,
+  ]);
 
   // -- Sections -------------------------------------------------------------
   const sections = groupBySection(fields);
@@ -344,9 +340,7 @@ export function ErpFormPage({
             placeholder={field.placeholder}
             value={value != null && value !== "" ? String(value) : ""}
             readOnly={field.readOnly}
-            onChange={(e) =>
-              handleChange(field.key, e.target.value === "" ? "" : Number(e.target.value))
-            }
+            onChange={(e) => handleChange(field.key, e.target.value === "" ? "" : Number(e.target.value))}
           />
         );
 
@@ -400,11 +394,7 @@ export function ErpFormPage({
   }
 
   // -- Render a line-item cell ----------------------------------------------
-  function renderLineItemCell(
-    col: LineItemColumnDef,
-    row: Record<string, unknown>,
-    rowIndex: number,
-  ) {
+  function renderLineItemCell(col: LineItemColumnDef, row: Record<string, unknown>, rowIndex: number) {
     const cellValue = row[col.key];
     const isComputed = Boolean(col.computed);
 
@@ -431,11 +421,7 @@ export function ErpFormPage({
             value={cellValue != null && cellValue !== "" ? String(cellValue) : ""}
             readOnly={isComputed}
             onChange={(e) =>
-              handleLineItemChange(
-                rowIndex,
-                col.key,
-                e.target.value === "" ? "" : Number(e.target.value),
-              )
+              handleLineItemChange(rowIndex, col.key, e.target.value === "" ? "" : Number(e.target.value))
             }
             className="h-8 text-sm"
           />
@@ -490,17 +476,11 @@ export function ErpFormPage({
             </Link>
           </Button>
           <div className="min-w-0">
-            <h1 className="truncate font-display text-2xl font-semibold tracking-tight text-foreground">
-              {title}
-            </h1>
+            <h1 className="truncate font-display text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
           </div>
         </div>
         <Button variant="default" size="default" disabled={saving} onClick={handleSave}>
-          {saving ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="mr-2 h-4 w-4" />
-          )}
+          {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           {saving ? "Saving..." : "Save"}
         </Button>
       </div>
@@ -509,9 +489,7 @@ export function ErpFormPage({
       {sections.map((sec) => (
         <Card key={sec.label}>
           <CardHeader className="pb-2">
-            <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              {sec.label}
-            </h2>
+            <h2 className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted-foreground">{sec.label}</h2>
           </CardHeader>
           <CardContent className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {sec.fields.map((f) => (
@@ -536,60 +514,58 @@ export function ErpFormPage({
             </h2>
           </CardHeader>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-10 text-center text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                    #
-                  </TableHead>
-                  {lineItemColumns.map((col) => (
-                    <TableHead
-                      key={col.key}
-                      className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
-                    >
-                      {col.label}
-                    </TableHead>
-                  ))}
-                  <TableHead className="w-12" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {lineItems.length === 0 ? (
+            <div className="overflow-x-auto -mx-0">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell
-                      colSpan={lineItemColumns.length + 2}
-                      className="py-6 text-center text-sm text-muted-foreground"
-                    >
-                      No items added yet.
-                    </TableCell>
+                    <TableHead className="w-10 text-center text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      #
+                    </TableHead>
+                    {lineItemColumns.map((col) => (
+                      <TableHead
+                        key={col.key}
+                        className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground"
+                      >
+                        {col.label}
+                      </TableHead>
+                    ))}
+                    <TableHead className="w-12" />
                   </TableRow>
-                ) : (
-                  lineItems.map((row, rowIndex) => (
-                    <TableRow key={rowIndex}>
-                      <TableCell className="text-center text-sm text-muted-foreground">
-                        {rowIndex + 1}
-                      </TableCell>
-                      {lineItemColumns.map((col) => (
-                        <TableCell key={col.key}>
-                          {renderLineItemCell(col, row, rowIndex)}
-                        </TableCell>
-                      ))}
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={() => removeLineItem(rowIndex)}
-                          aria-label={`Remove row ${rowIndex + 1}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                </TableHeader>
+                <TableBody>
+                  {lineItems.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={lineItemColumns.length + 2}
+                        className="py-6 text-center text-sm text-muted-foreground"
+                      >
+                        No items added yet.
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  ) : (
+                    lineItems.map((row, rowIndex) => (
+                      <TableRow key={rowIndex}>
+                        <TableCell className="text-center text-sm text-muted-foreground">{rowIndex + 1}</TableCell>
+                        {lineItemColumns.map((col) => (
+                          <TableCell key={col.key}>{renderLineItemCell(col, row, rowIndex)}</TableCell>
+                        ))}
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => removeLineItem(rowIndex)}
+                            aria-label={`Remove row ${rowIndex + 1}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
             <div className="border-t border-border p-4">
               <Button variant="outline" size="sm" onClick={addLineItem}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -599,6 +575,14 @@ export function ErpFormPage({
           </CardContent>
         </Card>
       )}
+
+      {/* Sticky save button on mobile */}
+      <div className="sticky bottom-20 z-10 sm:hidden">
+        <Button variant="default" size="lg" className="w-full shadow-lg" disabled={saving} onClick={handleSave}>
+          {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+          {saving ? "Saving..." : "Save"}
+        </Button>
+      </div>
     </div>
   );
 }

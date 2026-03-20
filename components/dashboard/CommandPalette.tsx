@@ -15,6 +15,8 @@ import {
   UserCog,
   DollarSign,
   BarChart3,
+  FolderKanban,
+  Factory,
   Settings,
   Plus,
   Clock,
@@ -47,7 +49,12 @@ type RecordItem = {
   href: string;
 };
 
-const RECORD_DOCTYPES: { doctype: string; label: string; hrefBase: string; icon: React.ComponentType<{ className?: string }> }[] = [
+const RECORD_DOCTYPES: {
+  doctype: string;
+  label: string;
+  hrefBase: string;
+  icon: React.ComponentType<{ className?: string }>;
+}[] = [
   { doctype: "Sales Invoice", label: "Invoice", hrefBase: "/dashboard/invoices", icon: FileText },
   { doctype: "Opportunity", label: "Deal", hrefBase: "/dashboard/crm", icon: Users },
   { doctype: "Quotation", label: "Quotation", hrefBase: "/dashboard/quotations", icon: FileBarChart },
@@ -67,6 +74,8 @@ const NAVIGATION_ACTIONS: ActionItem[] = [
   { label: "HR", href: "/dashboard/hr", icon: UserCog, group: "Navigation" },
   { label: "Payroll", href: "/dashboard/payroll", icon: DollarSign, group: "Navigation" },
   { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3, group: "Navigation" },
+  { label: "Projects", href: "/dashboard/projects", icon: FolderKanban, group: "Navigation" },
+  { label: "Manufacturing", href: "/dashboard/manufacturing", icon: Factory, group: "Navigation" },
   { label: "Settings", href: "/dashboard/settings", icon: Settings, group: "Navigation" },
 ];
 
@@ -74,6 +83,8 @@ const QUICK_ACTIONS: ActionItem[] = [
   { label: "New Invoice", href: "/dashboard/invoices?action=new", icon: Plus, group: "Quick Actions" },
   { label: "New Quote", href: "/dashboard/quotations?action=new", icon: Plus, group: "Quick Actions" },
   { label: "New Purchase Order", href: "/dashboard/procurement?action=new", icon: Plus, group: "Quick Actions" },
+  { label: "New Project", href: "/dashboard/projects/new", icon: Plus, group: "Quick Actions" },
+  { label: "New BOM", href: "/dashboard/manufacturing/new", icon: Plus, group: "Quick Actions" },
 ];
 
 const RECENT_KEY = "wb_cmd_recent";
@@ -125,7 +136,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           RECORD_DOCTYPES.map(async ({ doctype, label, hrefBase }) => {
             const res = await fetch(
               `${API_BASE}/api/erp/list?doctype=${encodeURIComponent(doctype)}&limit=5&filters=${encodeURIComponent(filters)}`,
-              { signal: recordAbortRef.current?.signal, credentials: "include" }
+              { signal: recordAbortRef.current?.signal, credentials: "include" },
             );
             if (!res.ok) return;
             const json = await res.json().catch(() => ({}));
@@ -140,7 +151,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
                 href: `${hrefBase}?search=${encodeURIComponent(name)}`,
               });
             });
-          })
+          }),
         );
         setRecordResults(results);
       } catch (err) {
@@ -166,7 +177,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   const recentItems = useMemo(
     () => recentHrefs.map((h) => ALL_ACTIONS.find((a) => a.href === h)).filter(Boolean) as ActionItem[],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [recentHrefs.join(",")]
+    [recentHrefs.join(",")],
   );
 
   const handleSelect = useCallback(
@@ -175,16 +186,12 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       router.push(href);
       onClose();
     },
-    [router, onClose]
+    [router, onClose],
   );
 
   return (
     <CommandDialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <CommandInput
-        placeholder="Search modules, actions, and records…"
-        value={query}
-        onValueChange={setQuery}
-      />
+      <CommandInput placeholder="Search modules, actions, and records…" value={query} onValueChange={setQuery} />
       <CommandList>
         <CommandEmpty>
           {recordLoading ? (
@@ -238,11 +245,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           {NAVIGATION_ACTIONS.map((item) => {
             const Icon = item.icon;
             return (
-              <CommandItem
-                key={item.href}
-                value={item.label}
-                onSelect={() => handleSelect(item.href)}
-              >
+              <CommandItem key={item.href} value={item.label} onSelect={() => handleSelect(item.href)}>
                 <Icon className="mr-2 size-4 shrink-0 opacity-70" />
                 {item.label}
               </CommandItem>
@@ -256,11 +259,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           {QUICK_ACTIONS.map((item) => {
             const Icon = item.icon;
             return (
-              <CommandItem
-                key={item.href}
-                value={item.label}
-                onSelect={() => handleSelect(item.href)}
-              >
+              <CommandItem key={item.href} value={item.label} onSelect={() => handleSelect(item.href)}>
                 <Icon className="mr-2 size-4 shrink-0 opacity-70" />
                 {item.label}
               </CommandItem>

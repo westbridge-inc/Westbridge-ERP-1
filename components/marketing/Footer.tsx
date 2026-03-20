@@ -85,7 +85,7 @@ export function Footer() {
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="font-display text-base font-semibold text-foreground">Stay updated</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Get Caribbean business tips and product updates.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Get business tips and product updates.</p>
           </div>
           <div className="flex flex-col gap-2">
             <NewsletterForm />

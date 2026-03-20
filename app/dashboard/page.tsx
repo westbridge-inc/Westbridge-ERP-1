@@ -1,14 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import {
-  FileText,
-  FileBarChart,
-  DollarSign,
-  Users,
-  Receipt,
-  ShoppingCart,
-} from "lucide-react";
+import { FileText, FileBarChart, DollarSign, Users, Receipt, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Button } from "@/components/ui/Button";
@@ -42,10 +35,14 @@ type ActivityType = "success" | "error" | "info" | "default";
 
 function activityDotColor(type: ActivityType): string {
   switch (type) {
-    case "success": return "bg-success";
-    case "error": return "bg-destructive";
-    case "info": return "bg-primary";
-    default: return "bg-muted-foreground";
+    case "success":
+      return "bg-success";
+    case "error":
+      return "bg-destructive";
+    case "info":
+      return "bg-primary";
+    default:
+      return "bg-muted-foreground";
   }
 }
 
@@ -93,11 +90,12 @@ export default async function DashboardPage() {
         <ErpStatusBadge />
       </div>
 
-      {data.isDemo && (
+      {data.isOffline && (
         <div className="mt-4 flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-warning">
           <span className="shrink-0">{"\u26A0"}</span>
           <span>
-            <strong>Sample data</strong> &mdash; your ERP is offline or not yet connected. These numbers are for illustration only.
+            <strong>Service temporarily unavailable</strong> &mdash; we&apos;re having trouble reaching your data.
+            Please try again shortly.
           </span>
         </div>
       )}
@@ -126,12 +124,7 @@ export default async function DashboardPage() {
           subtext={data.outstandingCount > 0 ? "Requires follow-up" : "All clear"}
           subtextVariant={data.outstandingCount > 0 ? "error" : "success"}
         />
-        <MetricCard
-          label="Pending Orders"
-          value={data.openDealsCount}
-          icon={ShoppingCart}
-          subtext="In pipeline"
-        />
+        <MetricCard label="Pending Orders" value={data.openDealsCount} icon={ShoppingCart} subtext="In pipeline" />
       </div>
 
       <RevenueChart data={data.revenueData} />
@@ -164,7 +157,12 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {QUICK_ACTIONS.map((action) => (
-                <Button key={action.href} variant="outline" className="h-9 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent" asChild>
+                <Button
+                  key={action.href}
+                  variant="outline"
+                  className="h-9 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
+                  asChild
+                >
                   <Link href={action.href}>
                     <action.icon className="mr-2 h-4 w-4 shrink-0" />
                     {action.label}

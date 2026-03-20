@@ -11,6 +11,7 @@ import {
   Calculator,
   Users,
   FolderKanban,
+  Factory,
   Settings,
   LogOut,
   ChevronDown,
@@ -44,15 +45,18 @@ interface SessionUser {
   role: string;
 }
 
+/** Maps sidebar sections to module bundle IDs from lib/modules.ts */
 const SECTIONS = [
   {
     title: "Overview",
     icon: LayoutDashboard,
+    bundleId: null, // always visible
     items: [{ label: "Dashboard", href: "/dashboard" }],
   },
   {
     title: "Sales",
     icon: TrendingUp,
+    bundleId: "crm",
     items: [
       { label: "Quotations", href: "/dashboard/quotations" },
       { label: "Sales Orders", href: "/dashboard/invoices?type=order" },
@@ -63,6 +67,7 @@ const SECTIONS = [
   {
     title: "Purchasing",
     icon: ShoppingCart,
+    bundleId: "inventory",
     items: [
       { label: "Purchase Orders", href: "/dashboard/procurement" },
       { label: "Purchase Invoices", href: "/dashboard/procurement?type=invoice" },
@@ -72,6 +77,7 @@ const SECTIONS = [
   {
     title: "Inventory",
     icon: Package,
+    bundleId: "inventory",
     items: [
       { label: "Items", href: "/dashboard/inventory" },
       { label: "Stock Entry", href: "/dashboard/inventory?type=entry" },
@@ -81,6 +87,7 @@ const SECTIONS = [
   {
     title: "Accounting",
     icon: Calculator,
+    bundleId: "finance",
     items: [
       { label: "Journal Entry", href: "/dashboard/accounting?type=journal" },
       { label: "Chart of Accounts", href: "/dashboard/accounting?type=coa" },
@@ -90,6 +97,7 @@ const SECTIONS = [
   {
     title: "HR",
     icon: Users,
+    bundleId: "hr",
     items: [
       { label: "Employees", href: "/dashboard/hr" },
       { label: "Attendance", href: "/dashboard/hr?type=attendance" },
@@ -99,13 +107,35 @@ const SECTIONS = [
   {
     title: "Projects",
     icon: FolderKanban,
+    bundleId: "projects",
     items: [
-      { label: "Projects", href: "/dashboard/analytics" },
-      { label: "Tasks", href: "/dashboard/analytics?type=task" },
-      { label: "Timesheets", href: "/dashboard/analytics?type=timesheet" },
+      { label: "Projects", href: "/dashboard/projects" },
+      { label: "Tasks", href: "/dashboard/projects?type=task" },
+      { label: "Timesheets", href: "/dashboard/projects?type=timesheet" },
+    ],
+  },
+  {
+    title: "Manufacturing",
+    icon: Factory,
+    bundleId: "manufacturing",
+    items: [
+      { label: "Bill of Materials", href: "/dashboard/manufacturing" },
+      { label: "Work Orders", href: "/dashboard/manufacturing?type=workorder" },
     ],
   },
 ];
+
+const HIDDEN_SECTIONS_KEY = "westbridge_hidden_sections";
+
+function loadHiddenSections(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(HIDDEN_SECTIONS_KEY);
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 function getInitials(name: string) {
   return (
@@ -130,9 +160,7 @@ function useSessionUser(): { user: SessionUser | null; loading: boolean } {
         const raw = d?.data;
         if (raw) {
           // Use the first part of the email as name fallback if name is empty
-          const displayName =
-            raw.name?.trim() ||
-            (raw.email ? raw.email.split("@")[0].replace(/[._-]/g, " ") : "");
+          const displayName = raw.name?.trim() || (raw.email ? raw.email.split("@")[0].replace(/[._-]/g, " ") : "");
           setUser({
             name: displayName,
             email: raw.email ?? "",
@@ -156,7 +184,29 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const [openSections, setOpenSections] = useState<string[]>(SECTIONS.map((s) => s.title));
+  const [hiddenSections, setHiddenSections] = useState<string[]>(() => loadHiddenSections());
   const { user, loading: userLoading } = useSessionUser();
+
+  // Listen for changes from the ModulesTab settings page
+  useEffect(() => {
+    function onStorage(e: StorageEvent) {
+      if (e.key === HIDDEN_SECTIONS_KEY) {
+        setHiddenSections(e.newValue ? (JSON.parse(e.newValue) as string[]) : []);
+      }
+    }
+    window.addEventListener("storage", onStorage);
+    // Also listen for custom event (same-tab updates from ModulesTab)
+    function onCustom() {
+      setHiddenSections(loadHiddenSections());
+    }
+    window.addEventListener("westbridge_modules_changed", onCustom);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("westbridge_modules_changed", onCustom);
+    };
+  }, []);
+
+  const visibleSections = SECTIONS.filter((s) => s.bundleId === null || !hiddenSections.includes(s.bundleId));
 
   function isActive(href: string): boolean {
     const [hrefPath, hrefQuery] = href.split("?");
@@ -202,14 +252,12 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {SECTIONS.map((section) => (
+        {visibleSections.map((section) => (
           <Collapsible
             key={section.title}
             open={collapsed ? false : openSections.includes(section.title)}
             onOpenChange={(open) =>
-              setOpenSections((prev) =>
-                open ? [...prev, section.title] : prev.filter((t) => t !== section.title)
-              )
+              setOpenSections((prev) => (open ? [...prev, section.title] : prev.filter((t) => t !== section.title)))
             }
           >
             <SidebarGroup>
@@ -230,9 +278,7 @@ export function AppSidebar() {
                   {section.items.map((item) => (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton asChild isActive={isActive(item.href)}>
-                        <Link href={item.href}>
-                          {collapsed ? null : item.label}
-                        </Link>
+                        <Link href={item.href}>{collapsed ? null : item.label}</Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
@@ -262,9 +308,7 @@ export function AppSidebar() {
                 ) : (
                   <>
                     <p className="truncate text-[13px] font-medium">{displayName}</p>
-                    <p className="truncate text-[11px] uppercase tracking-wider text-muted-foreground">
-                      {displayRole}
-                    </p>
+                    <p className="truncate text-[11px] uppercase tracking-wider text-muted-foreground">{displayRole}</p>
                   </>
                 )}
               </div>

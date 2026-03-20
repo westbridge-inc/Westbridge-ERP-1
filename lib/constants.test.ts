@@ -1,12 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  HTTP,
-  RATE_LIMIT,
-  COOKIE,
-  PAGINATION,
-  LOCALE,
-  CURRENCY_CODES,
-} from "./constants";
+import { HTTP, RATE_LIMIT, COOKIE, PAGINATION, LOCALE, CURRENCY_CODES } from "./constants";
 
 describe("constants", () => {
   it("HTTP has expected status codes", () => {
@@ -33,10 +26,10 @@ describe("constants", () => {
     expect(PAGINATION.DEFAULT_PER_PAGE).toBe(20);
     expect(PAGINATION.MAX_PER_PAGE).toBe(100);
   });
-  it("LOCALE defaults to GYD and Guyana timezone", () => {
-    expect(LOCALE.DEFAULT_CURRENCY).toBe("GYD");
-    expect(LOCALE.DEFAULT_TIMEZONE).toBe("America/Guyana");
-    expect(LOCALE.VAT_RATE_GUYANA).toBe(0.14);
+  it("LOCALE defaults to USD and UTC timezone", () => {
+    expect(LOCALE.DEFAULT_CURRENCY).toBe("USD");
+    expect(LOCALE.DEFAULT_TIMEZONE).toBe("UTC");
+    expect(LOCALE.VAT_RATE_DEFAULT).toBe(0);
   });
   it("CURRENCY_CODES includes Caribbean + international currencies", () => {
     expect(CURRENCY_CODES).toContain("GYD");
