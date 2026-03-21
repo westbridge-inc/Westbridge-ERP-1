@@ -64,6 +64,18 @@ export const MODULE_EMPTY_STATES = {
     actionLabel: "Go to Dashboard",
     actionLink: "/dashboard",
   },
+  projects: {
+    title: "No projects yet",
+    description: "Create your first project to track tasks, timelines, and progress.",
+    actionLabel: "New Project",
+    actionLink: "/dashboard/projects/new",
+  },
+  manufacturing: {
+    title: "No manufacturing data",
+    description: "Create a bill of materials or work order to manage your production.",
+    actionLabel: "New BOM",
+    actionLink: "/dashboard/manufacturing/new",
+  },
 } as const;
 
 export const EMPTY_STATE_SUPPORT_LINE = "Need help? Contact support@westbridge.gy";

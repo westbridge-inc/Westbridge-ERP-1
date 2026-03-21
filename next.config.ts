@@ -8,9 +8,13 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(process.cwd()),
   images: {
     formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      { protocol: "https", hostname: "api.westbridge.gy" },
+      { protocol: "https", hostname: "*.westbridge.gy" },
+      { protocol: "https", hostname: "api.westbridge.app" },
+      { protocol: "https", hostname: "*.westbridge.app" },
+    ],
   },
-  // CSP and security headers are now set dynamically via middleware.ts
-  // (nonce-based CSP replaces the previous static 'unsafe-inline' approach)
 };
 
 export default withSentryConfig(nextConfig, {

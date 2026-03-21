@@ -12,6 +12,7 @@ vi.mock("next/navigation", () => ({
     push: vi.fn(),
     refresh: vi.fn(),
   }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/components/ui/Toasts", () => ({
@@ -114,15 +115,14 @@ describe("InvoicesListClient", () => {
     expect(screen.queryByText("INV-003")).toBeNull();
   });
 
-  it("search filters invoices by customer name", () => {
+  it("search input accepts user input", () => {
     render(<InvoicesListClient invoices={mockInvoices} currentPage={0} hasMore={false} />);
 
     const searchInput = screen.getByPlaceholderText("Search invoices...");
     fireEvent.change(searchInput, { target: { value: "Acme" } });
 
-    expect(screen.getAllByText("INV-001").length).toBeGreaterThan(0);
-    expect(screen.queryByText("INV-002")).toBeNull();
-    expect(screen.queryByText("INV-003")).toBeNull();
+    // Search is now server-side via URL params — input should accept the value
+    expect((searchInput as HTMLInputElement).value).toBe("Acme");
   });
 
   it("renders custom title and subtitle", () => {

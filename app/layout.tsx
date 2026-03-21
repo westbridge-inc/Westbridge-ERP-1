@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
 import { Inter, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
@@ -31,6 +31,17 @@ export const metadata: Metadata = {
   openGraph: { type: "website", siteName: SITE.name },
   icons: { icon: SITE.faviconPath, apple: SITE.faviconPath },
   manifest: "/manifest.json",
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({

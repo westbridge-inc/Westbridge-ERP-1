@@ -9,6 +9,7 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 /** Strip internal infrastructure names from error messages shown to users. */
+// Removes references to underlying infrastructure names so users only see Westbridge branding.
 function sanitizeError(msg: string): string {
   let cleaned = msg
     .replace(/ERPNext\s*/gi, "")
@@ -129,7 +130,7 @@ async function erpList(doctype: string, params?: ErpListParams): Promise<ErpList
     headers: { "Content-Type": "application/json" },
   });
   if (!res.ok) {
-    // Treat 404 (no records), 502 (ERPNext unreachable), and 503 as empty data
+    // Treat 404 (no records), 502 (backend service unreachable), and 503 as empty data
     // rather than showing an error — the user just has no records yet.
     if (res.status === 404 || res.status === 502 || res.status === 503) {
       return {
@@ -166,6 +167,19 @@ async function erpDelete(doctype: string, name: string): Promise<void> {
   });
 }
 
+export interface ErpBatchResult {
+  created: number;
+  failed: number;
+  errors: string[];
+}
+
+async function erpBatch(doctype: string, items: Record<string, unknown>[]): Promise<ErpBatchResult> {
+  return request<ErpBatchResult>("/api/erp/batch", {
+    method: "POST",
+    body: JSON.stringify({ doctype, items }),
+  });
+}
+
 // ─── Account / Profile ────────────────────────────────────────────────────────
 
 export interface UserProfile {
@@ -184,7 +198,13 @@ async function getProfile(): Promise<UserProfile> {
   return request<UserProfile>("/api/account/profile");
 }
 
-async function updateProfile(data: { name?: string }): Promise<void> {
+async function updateProfile(data: {
+  name?: string;
+  taxId?: string;
+  address?: string;
+  phone?: string;
+  currency?: string;
+}): Promise<void> {
   await request<void>("/api/account/profile", { method: "PATCH", body: JSON.stringify(data) });
 }
 
@@ -289,12 +309,118 @@ async function acceptInvite(token: string, name: string, password: string): Prom
   await request<void>("/api/invite/accept", { method: "POST", body: JSON.stringify({ token, name, password }) });
 }
 
+// ─── Settings / Notifications ─────────────────────────────────────────────────
+
+export interface NotificationPrefs {
+  emailInvoices: boolean;
+  emailReports: boolean;
+  emailSecurityAlerts: boolean;
+  emailProductUpdates: boolean;
+}
+
+async function getNotificationPrefs(): Promise<NotificationPrefs> {
+  return request<NotificationPrefs>("/api/settings/notifications");
+}
+
+async function updateNotificationPrefs(prefs: Partial<NotificationPrefs>): Promise<{ updated: boolean }> {
+  return request<{ updated: boolean }>("/api/settings/notifications", {
+    method: "PUT",
+    body: JSON.stringify(prefs),
+  });
+}
+
+// ─── Settings / API Keys ──────────────────────────────────────────────────────
+
+export interface ApiKeyEntry {
+  id: string;
+  prefix: string;
+  label: string;
+  lastUsedAt: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+}
+
+export interface ApiKeyCreateResult {
+  key: string;
+  prefix: string;
+  expiresAt: string | null;
+  label: string;
+  warning: string;
+}
+
+async function getApiKeys(): Promise<{ keys: ApiKeyEntry[] }> {
+  return request<{ keys: ApiKeyEntry[] }>("/api/settings/api-keys");
+}
+
+async function createApiKey(label: string): Promise<ApiKeyCreateResult> {
+  return request<ApiKeyCreateResult>("/api/settings/api-keys", {
+    method: "POST",
+    body: JSON.stringify({ label }),
+  });
+}
+
+async function deleteApiKey(id: string): Promise<void> {
+  await request<void>(`/api/settings/api-keys/${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+// ─── Billing (extended) ───────────────────────────────────────────────────────
+
+export interface SubscriptionData {
+  planId: string | null;
+  status: string;
+  currentPeriodEnd: string | null;
+}
+
+async function getSubscription(): Promise<SubscriptionData> {
+  return request<SubscriptionData>("/api/billing/subscription");
+}
+
+async function changePlan(planId: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>("/api/billing/change-plan", {
+    method: "POST",
+    body: JSON.stringify({ planId }),
+  });
+}
+
+async function cancelSubscription(): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>("/api/billing/cancel", { method: "POST" });
+}
+
+// ─── ERP PDF ──────────────────────────────────────────────────────────────────
+
+async function erpDownloadPdf(doctype: string, name: string): Promise<Blob> {
+  const res = await fetch(
+    `${API_BASE}/api/erp/doc/pdf?doctype=${encodeURIComponent(doctype)}&name=${encodeURIComponent(name)}`,
+    { credentials: "include" },
+  );
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const message = (body as { error?: { message?: string } })?.error?.message ?? `HTTP ${res.status}`;
+    throw new Error(sanitizeError(message));
+  }
+  return res.blob();
+}
+
+// ─── Portal ──────────────────────────────────────────────────────────────────
+
+export interface PortalInviteResult {
+  tokenId: string;
+  portalUrl: string;
+}
+
+async function portalInvite(customerName: string, customerEmail: string): Promise<PortalInviteResult> {
+  return request<PortalInviteResult>("/api/portal/invite", {
+    method: "POST",
+    body: JSON.stringify({ customerName, customerEmail }),
+  });
+}
+
 // ─── Client export ────────────────────────────────────────────────────────────
 
 export const api = {
   auth: { login, logout, forgotPassword, resetPassword, getSession, changePassword, setup2FA, verify2FA, disable2FA },
   account: { getProfile, updateProfile },
-  billing: { getHistory: getBillingHistory },
+  billing: { getHistory: getBillingHistory, getSubscription, changePlan, cancel: cancelSubscription },
   team: {
     get: getTeam,
     remove: removeMember,
@@ -302,6 +428,19 @@ export const api = {
     pendingInvites: getPendingInvites,
     resendInvite,
   },
-  erp: { list: erpList, get: erpGet, create: erpCreate, update: erpUpdate, delete: erpDelete },
+  erp: {
+    list: erpList,
+    get: erpGet,
+    create: erpCreate,
+    update: erpUpdate,
+    delete: erpDelete,
+    batch: erpBatch,
+    downloadPdf: erpDownloadPdf,
+  },
   invite: { send: sendInvite, validate: validateInvite, accept: acceptInvite },
+  portal: { invite: portalInvite },
+  settings: {
+    notifications: { get: getNotificationPrefs, update: updateNotificationPrefs },
+    apiKeys: { list: getApiKeys, create: createApiKey, delete: deleteApiKey },
+  },
 } as const;

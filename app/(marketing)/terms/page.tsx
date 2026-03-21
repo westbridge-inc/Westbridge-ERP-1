@@ -33,8 +33,8 @@ export default function TermsPage() {
         <section>
           <h2 className="text-base font-semibold text-foreground">3. Payment and Subscription</h2>
           <p className="mt-2 leading-relaxed">
-            Subscription fees are billed in advance according to your selected plan. Payment is processed via
-            PowerTranz. Refunds are handled in accordance with our refund policy and applicable law. We may change
+            Subscription fees are billed in advance according to your selected plan. Payment is processed via 2Checkout
+            (Verifone). Refunds are handled in accordance with our refund policy and applicable law. We may change
             pricing with reasonable notice; continued use after changes constitutes acceptance.
           </p>
         </section>

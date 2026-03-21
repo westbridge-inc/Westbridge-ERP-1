@@ -16,6 +16,8 @@ export const G_KEYS: Record<string, string> = {
   h: "/dashboard/hr",
   r: "/dashboard/payroll",
   y: "/dashboard/analytics",
+  j: "/dashboard/projects",
+  m: "/dashboard/manufacturing",
   s: "/dashboard/settings",
 };
 
@@ -39,7 +41,7 @@ export function useKeyboardShortcuts({
     (e: KeyboardEvent) => {
       if (!pathname?.startsWith("/dashboard")) return;
       const target = e.target as HTMLElement;
-      if (target?.closest?.("input, textarea, [contenteditable=\"true\"]")) return;
+      if (target?.closest?.('input, textarea, [contenteditable="true"]')) return;
 
       const meta = e.metaKey || e.ctrlKey;
       if (meta && e.key.toLowerCase() === "k") {
@@ -79,7 +81,7 @@ export function useKeyboardShortcuts({
         }, 800);
       }
     },
-    [pathname, router, onOpenCommand, onOpenNotifications, onOpenShortcuts]
+    [pathname, router, onOpenCommand, onOpenNotifications, onOpenShortcuts],
   );
 
   useEffect(() => {

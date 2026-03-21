@@ -13,7 +13,7 @@ vi.mock("next/navigation", () => ({
 
 describe("useKeyboardShortcuts G_KEYS", () => {
   it("defines href for each expected shortcut key", () => {
-    const EXPECTED_KEYS = ["d", "i", "a", "e", "c", "q", "n", "p", "h", "r", "y", "s"];
+    const EXPECTED_KEYS = ["d", "i", "a", "e", "c", "q", "n", "p", "h", "r", "y", "j", "m", "s"];
     for (const key of EXPECTED_KEYS) {
       expect(G_KEYS[key]).toBeDefined();
       expect(typeof G_KEYS[key]).toBe("string");
@@ -46,7 +46,7 @@ describe("useKeyboardShortcuts hook", () => {
         onOpenCommand,
         onOpenNotifications,
         onOpenShortcuts,
-      })
+      }),
     );
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
     expect(onOpenCommand).toHaveBeenCalledTimes(1);
@@ -58,7 +58,7 @@ describe("useKeyboardShortcuts hook", () => {
         onOpenCommand,
         onOpenNotifications,
         onOpenShortcuts,
-      })
+      }),
     );
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "?", shiftKey: true }));
     expect(onOpenShortcuts).toHaveBeenCalledTimes(1);
@@ -70,7 +70,7 @@ describe("useKeyboardShortcuts hook", () => {
         onOpenCommand,
         onOpenNotifications,
         onOpenShortcuts,
-      })
+      }),
     );
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "n" }));
     expect(onOpenNotifications).toHaveBeenCalledTimes(1);
@@ -82,7 +82,7 @@ describe("useKeyboardShortcuts hook", () => {
         onOpenCommand,
         onOpenNotifications,
         onOpenShortcuts,
-      })
+      }),
     );
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "g" }));
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "d" }));
@@ -96,7 +96,7 @@ describe("useKeyboardShortcuts hook", () => {
         onOpenCommand,
         onOpenNotifications,
         onOpenShortcuts,
-      })
+      }),
     );
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "g" }));
     await vi.advanceTimersByTimeAsync(900);

@@ -198,7 +198,7 @@ const SidebarMenuButton = React.forwardRef<
       data-sidebar="menu-button"
       data-active={isActive}
       className={cn(
-        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring",
+        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] sm:min-h-0",
         isActive && "bg-accent text-accent-foreground",
         className,
       )}
@@ -217,7 +217,7 @@ SidebarInset.displayName = "SidebarInset";
 
 const SidebarTrigger = React.forwardRef<HTMLButtonElement, React.ComponentProps<"button">>(
   ({ className, onClick, ...props }, ref) => {
-    const { toggle, isMobile, setOpenMobile } = useSidebar();
+    const { toggle, isMobile, openMobile, setOpenMobile } = useSidebar();
     return (
       <button
         ref={ref}
@@ -225,7 +225,7 @@ const SidebarTrigger = React.forwardRef<HTMLButtonElement, React.ComponentProps<
         aria-label="Toggle sidebar"
         onClick={(e) => {
           if (isMobile) {
-            setOpenMobile(false);
+            setOpenMobile(!openMobile);
           } else {
             toggle();
           }
