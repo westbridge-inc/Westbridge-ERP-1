@@ -177,11 +177,13 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {error && (
-                <Alert variant="destructive" className="rounded-md">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+              <div aria-live="polite">
+                {error && (
+                  <Alert variant="destructive" className="rounded-md">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+              </div>
 
               <p className="text-sm text-muted-foreground">
                 <Link

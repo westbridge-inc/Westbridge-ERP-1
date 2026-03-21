@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { FileText } from "lucide-react";
 import { serverErpList } from "@/lib/api/server";
 import type { CurrencyCode } from "@/lib/constants";
+import { HydrateClient } from "@/lib/queries/HydrateClient";
 import { ListPageError } from "../_components/ListPageError";
 import { InvoicesListClient } from "./_components/InvoicesListClient";
 import type { InvoiceRow } from "./_components/InvoicesListClient";
@@ -36,33 +37,26 @@ function mapErpSalesOrder(d: Record<string, unknown>): InvoiceRow {
 export default async function InvoicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; type?: string; search?: string }>;
+  searchParams: Promise<{ page?: string; type?: string }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page ?? "0");
   const type = params.type ?? "invoice";
-  const searchQuery = params.search ?? "";
   const isOrder = type === "order";
   const doctype = isOrder ? "Sales Order" : "Sales Invoice";
   const mapper = isOrder ? mapErpSalesOrder : mapErpInvoice;
-
-  // Build server-side search filters
-  // Backend supports [["field", "like", "%term%"]] filter syntax
-  const filters: Record<string, unknown>[] = [];
-  if (searchQuery) {
-    filters.push({ name: ["like", `%${searchQuery}%`] });
-  }
 
   let invoices: InvoiceRow[] = [];
   let currentPage = page;
   let hasMore = false;
   let error: string | null = null;
+  let rawData: unknown[] = [];
+  let rawMeta: { page: number; pageSize: number; hasMore: boolean } = { page, pageSize: 20, hasMore: false };
 
   try {
-    const result = await serverErpList(doctype, {
-      page,
-      filters: filters.length > 0 ? filters : undefined,
-    });
+    const result = await serverErpList(doctype, { page });
+    rawData = result.data as unknown[];
+    rawMeta = result.meta;
     invoices = (result.data as Record<string, unknown>[]).map(mapper);
     currentPage = result.meta.page;
     hasMore = result.meta.hasMore;
@@ -82,17 +76,22 @@ export default async function InvoicesPage({
     );
   }
 
+  const queryParams = { page };
+
   return (
-    <InvoicesListClient
-      invoices={invoices}
-      currentPage={currentPage}
-      hasMore={hasMore}
-      title={isOrder ? "Sales Orders" : "Invoices"}
-      subtitle={isOrder ? "Manage and track sales orders" : "Manage and track invoices"}
-      dateLabel={isOrder ? "Order Date" : "Date"}
-      dueDateLabel={isOrder ? "Delivery Date" : "Due Date"}
-      searchPlaceholder={isOrder ? "Search orders..." : "Search invoices..."}
-      type={type}
-    />
+    <>
+      <HydrateClient queryKey={["erp", doctype, queryParams]} data={{ data: rawData, meta: rawMeta }} />
+      <InvoicesListClient
+        invoices={invoices}
+        currentPage={currentPage}
+        hasMore={hasMore}
+        title={isOrder ? "Sales Orders" : "Invoices"}
+        subtitle={isOrder ? "Manage and track sales orders" : "Manage and track invoices"}
+        dateLabel={isOrder ? "Order Date" : "Date"}
+        dueDateLabel={isOrder ? "Delivery Date" : "Due Date"}
+        searchPlaceholder={isOrder ? "Search orders..." : "Search invoices..."}
+        type={type}
+      />
+    </>
   );
 }

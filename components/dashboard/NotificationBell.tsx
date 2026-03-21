@@ -115,7 +115,13 @@ export function NotificationBell() {
                   Clear
                 </Button>
               )}
-              <Button variant="ghost" size="icon" onClick={() => setOpen(false)} className="size-7">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setOpen(false)}
+                className="size-7"
+                aria-label="Close notifications"
+              >
                 <X className="size-3.5" />
               </Button>
             </div>

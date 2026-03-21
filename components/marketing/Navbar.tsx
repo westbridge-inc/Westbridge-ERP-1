@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -9,12 +9,12 @@ import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
+const subscribe = () => () => {};
+const getSnapshot = () => document.cookie.split(";").some((c) => c.trim().startsWith("westbridge_logged_in="));
+const getServerSnapshot = () => false;
+
 function useIsLoggedIn() {
-  const [loggedIn] = useState(() => {
-    if (typeof document === "undefined") return false;
-    return document.cookie.split(";").some((c) => c.trim().startsWith("westbridge_logged_in="));
-  });
-  return loggedIn;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 const navLinks = [

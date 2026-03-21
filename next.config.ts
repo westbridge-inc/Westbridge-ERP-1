@@ -6,26 +6,13 @@ const nextConfig: NextConfig = {
   output: "standalone",
   productionBrowserSourceMaps: false,
   outputFileTracingRoot: path.join(process.cwd()),
-  // CSP and security headers are now set dynamically via middleware.ts
-  // (nonce-based CSP replaces the previous static 'unsafe-inline' approach)
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "api.westbridge.gy",
-      },
-      {
-        protocol: "https",
-        hostname: "*.westbridge.gy",
-      },
-      {
-        protocol: "https",
-        hostname: "api.westbridge.app",
-      },
-      {
-        protocol: "https",
-        hostname: "*.westbridge.app",
-      },
+      { protocol: "https", hostname: "api.westbridge.gy" },
+      { protocol: "https", hostname: "*.westbridge.gy" },
+      { protocol: "https", hostname: "api.westbridge.app" },
+      { protocol: "https", hostname: "*.westbridge.app" },
     ],
   },
 };

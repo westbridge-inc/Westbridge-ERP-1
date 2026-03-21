@@ -249,7 +249,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex h-14 items-center justify-between gap-2 px-2">
           <LogoLink variant="mark" size="sm" className="text-foreground" />
-          <SidebarTrigger className="size-8">
+          <SidebarTrigger className="size-8" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
             {collapsed ? <ChevronsRight className="size-4" /> : <ChevronsLeft className="size-4" />}
           </SidebarTrigger>
         </div>
@@ -325,7 +325,7 @@ export function AppSidebar() {
                   Settings
                 </Link>
               </Button>
-              <Button variant="ghost" size="sm" className="text-[13px]" onClick={handleSignOut}>
+              <Button variant="ghost" size="sm" className="text-[13px]" onClick={handleSignOut} aria-label="Log out">
                 <LogOut className="size-4" />
               </Button>
             </div>

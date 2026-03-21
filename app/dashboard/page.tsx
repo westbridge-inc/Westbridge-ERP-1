@@ -1,18 +1,24 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import dynamic_ from "next/dynamic";
 import { FileText, FileBarChart, DollarSign, Users, Receipt, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/locale/currency";
 import { cn } from "@/lib/utils";
-import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { serverFetchDashboard } from "@/lib/api/server";
-import { RevenueChart } from "./_components/RevenueChart";
 import { ErpStatusBadge } from "./_components/ErpStatusBadge";
 import { DashboardWelcome } from "./_components/DashboardWelcome";
 import { DashboardError } from "./_components/DashboardError";
+
+const RevenueChart = dynamic_(() => import("./_components/RevenueChart").then((m) => ({ default: m.RevenueChart })), {
+  loading: () => <div className="mt-8 h-80 animate-pulse rounded-xl bg-muted" />,
+});
+
+const AIChatPanel = dynamic_(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })));
 
 /* ------------------------------------------------------------------ */
 /*  Helpers (pure functions — safe for Server Components)              */
@@ -127,7 +133,9 @@ export default async function DashboardPage() {
         <MetricCard label="Pending Orders" value={data.openDealsCount} icon={ShoppingCart} subtext="In pipeline" />
       </div>
 
-      <RevenueChart data={data.revenueData} />
+      <ErrorBoundary boundary="revenue-chart">
+        <RevenueChart data={data.revenueData} />
+      </ErrorBoundary>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -173,7 +181,9 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      <AIChatPanel module="general" />
+      <ErrorBoundary boundary="ai-chat">
+        <AIChatPanel module="general" />
+      </ErrorBoundary>
     </div>
   );
 }

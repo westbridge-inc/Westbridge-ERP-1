@@ -1,10 +1,17 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 const transition = { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const };
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
+  const shouldReduceMotion = useReducedMotion();
+
+  // If reduced motion is preferred, render children without animation wrapper
+  if (shouldReduceMotion) {
+    return <>{children}</>;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}

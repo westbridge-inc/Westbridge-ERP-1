@@ -1,9 +1,5 @@
-"use client";
-
-import { use } from "react";
 import { ErpFormPage } from "@/components/dashboard/ErpFormPage";
 import type { FormFieldDef } from "@/components/dashboard/ErpFormPage";
-import { PortalInviteButton } from "./_components/PortalInviteButton";
 
 const FIELDS: FormFieldDef[] = [
   {
@@ -68,19 +64,15 @@ const FIELDS: FormFieldDef[] = [
   },
 ];
 
-export default function CustomerDetailPage({ params }: { params: Promise<{ name: string }> }) {
-  const { name } = use(params);
-  const decodedName = decodeURIComponent(name);
+export default async function CustomerDetailPage({ params }: { params: Promise<{ name: string }> }) {
+  const { name } = await params;
   return (
-    <div className="space-y-6">
-      <ErpFormPage
-        title={`Customer ${decodedName}`}
-        doctype="Customer"
-        name={decodedName}
-        fields={FIELDS}
-        backHref="/dashboard/crm"
-      />
-      <PortalInviteButton customerName={decodedName} />
-    </div>
+    <ErpFormPage
+      title={`Customer ${decodeURIComponent(name)}`}
+      doctype="Customer"
+      name={decodeURIComponent(name)}
+      fields={FIELDS}
+      backHref="/dashboard/crm"
+    />
   );
 }
