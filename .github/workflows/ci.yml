@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, master]
 
+permissions:
+  contents: read
+
 env:
   NODE_VERSION: "20"
   NEXT_PUBLIC_API_URL: http://localhost:4000
