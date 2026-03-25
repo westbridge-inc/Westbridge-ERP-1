@@ -6,6 +6,7 @@ import "./globals.css";
 import { SITE } from "@/lib/config/site";
 import { ToastsProvider } from "@/components/ui/Toasts";
 import { PHProvider } from "@/components/analytics/PHProvider";
+import { CookieConsent } from "@/components/marketing/CookieConsent";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -73,6 +74,7 @@ export default function RootLayout({
               }}
             />
           </ToastsProvider>
+          <CookieConsent />
         </ThemeProvider>
       </body>
     </html>
