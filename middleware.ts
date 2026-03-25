@@ -40,6 +40,7 @@ function buildCsp(): string {
     "font-src 'self' data: https://fonts.gstatic.com",
     `connect-src ${connectSrcParts.join(" ")}`,
     "frame-ancestors 'none'",
+    "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
   ];
