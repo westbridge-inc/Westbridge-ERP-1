@@ -15,8 +15,8 @@ const productLinks = [
 
 const companyLinks = [
   { href: ROUTES.about, label: "About" },
-  { href: "mailto:careers@westbridge.gy", label: "Careers" },
-  { href: "mailto:support@westbridge.gy", label: "Contact" },
+  { href: "mailto:careers@westbridgetoday.com", label: "Careers" },
+  { href: "mailto:support@westbridgetoday.com", label: "Contact" },
 ];
 
 const legalLinks = [

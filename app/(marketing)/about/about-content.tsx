@@ -105,10 +105,10 @@ export default function AboutContent() {
           Questions, partnerships, or enterprise inquiries — we would love to hear from you.
         </p>
         <a
-          href="mailto:support@westbridge.gy"
+          href="mailto:support@westbridgetoday.com"
           className="mt-2 inline-block text-sm font-medium text-foreground underline underline-offset-4 hover:text-foreground/80"
         >
-          support@westbridge.gy
+          support@westbridgetoday.com
         </a>
       </div>
 

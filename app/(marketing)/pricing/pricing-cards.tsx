@@ -95,7 +95,7 @@ export function PricingCards() {
               </ul>
 
               <Link
-                href={plan.id === "enterprise" ? "mailto:sales@westbridge.gy" : ROUTES.signup}
+                href={plan.id === "enterprise" ? "mailto:sales@westbridgetoday.com" : ROUTES.signup}
                 className={`mt-8 flex w-full items-center justify-center rounded-lg px-6 py-3 text-sm font-medium ${
                   isPopular
                     ? "bg-foreground text-background hover:opacity-90"

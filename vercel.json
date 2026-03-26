@@ -2,7 +2,7 @@
   "framework": "nextjs",
   "buildCommand": "npx next build",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://api.westbridge.gy",
-    "BACKEND_URL": "https://api.westbridge.gy"
+    "NEXT_PUBLIC_API_URL": "https://api.westbridgetoday.com",
+    "BACKEND_URL": "https://api.westbridgetoday.com"
   }
 }

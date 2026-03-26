@@ -227,8 +227,8 @@ Connect the repository to Vercel. It auto-detects Next.js and handles builds, CD
 ```bash
 docker build -t westbridge-frontend .
 docker run -d -p 3000:3000 \
-  -e NEXT_PUBLIC_API_URL=https://api.westbridge.gy \
-  -e BACKEND_URL=https://api.westbridge.gy \
+  -e NEXT_PUBLIC_API_URL=https://api.westbridgetoday.com \
+  -e BACKEND_URL=https://api.westbridgetoday.com \
   westbridge-frontend
 ```
 

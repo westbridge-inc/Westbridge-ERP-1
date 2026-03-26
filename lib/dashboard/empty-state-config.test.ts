@@ -7,6 +7,6 @@ describe("empty-state-config", () => {
     expect(MODULE_EMPTY_STATES.crm.actionLink).toContain("crm");
   });
   it("EMPTY_STATE_SUPPORT_LINE is string", () => {
-    expect(EMPTY_STATE_SUPPORT_LINE).toContain("support@westbridge.gy");
+    expect(EMPTY_STATE_SUPPORT_LINE).toContain("support@westbridgetoday.com");
   });
 });

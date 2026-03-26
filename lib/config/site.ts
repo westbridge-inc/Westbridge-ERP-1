@@ -7,8 +7,8 @@ export const SITE = {
   wordmark: "WESTBRIDGE",
   legal: "INC.",
   tagline: "Enterprise intelligence for growing businesses",
-  domain: "westbridge.gy",
-  appDomain: "app.westbridge.gy",
+  domain: "westbridgetoday.com",
+  appDomain: "app.westbridgetoday.com",
   /** Path to main logo (black/white mark + wordmark). Use in Navbar, Sidebar, Login. */
   logoPath: "/images/logo.png",
   /** Favicon (same logo, or use logoPath in metadata). */

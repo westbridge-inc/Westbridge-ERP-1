@@ -98,7 +98,7 @@ export function ApiTab() {
     [addToast],
   );
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.westbridge.gy";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.westbridgetoday.com";
   const webhookUrl = accountId ? `${appUrl}/api/webhooks/${accountId}` : "Loading\u2026";
 
   function formatKeyDate(dateStr: string | null): string {

@@ -9,10 +9,8 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
-      { protocol: "https", hostname: "api.westbridge.gy" },
-      { protocol: "https", hostname: "*.westbridge.gy" },
-      { protocol: "https", hostname: "api.westbridge.app" },
-      { protocol: "https", hostname: "*.westbridge.app" },
+      { protocol: "https", hostname: "api.westbridgetoday.com" },
+      { protocol: "https", hostname: "*.westbridgetoday.com" },
     ],
   },
 };

@@ -118,7 +118,7 @@ export function BillingTab() {
                 )}
                 {!billingPlan && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    <a href="mailto:support@westbridge.gy" className="text-primary hover:underline">
+                    <a href="mailto:support@westbridgetoday.com" className="text-primary hover:underline">
                       Contact support to manage billing
                     </a>
                   </p>

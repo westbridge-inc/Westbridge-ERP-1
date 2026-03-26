@@ -3,6 +3,7 @@
 ## Overview
 
 All secrets are stored as environment variables — never in code. Rotate secrets:
+
 - On suspected compromise (immediately)
 - Every 90 days for API keys (scheduled)
 - Quarterly for signing secrets
@@ -59,12 +60,13 @@ npx tsx scripts/rotate-encryption-key.ts
 ## Verification
 
 After rotation, verify:
+
 ```bash
-curl https://app.westbridge.app/api/health | jq .data.checks.database
+curl https://app.westbridgetoday.com/api/health | jq .data.checks.database
 # Should be: { "status": "healthy" }
 
 # Send test email
-curl -X POST https://app.westbridge.app/api/auth/forgot-password \
+curl -X POST https://app.westbridgetoday.com/api/auth/forgot-password \
   -H "Content-Type: application/json" \
-  -d '{"email": "test@westbridge.app"}'
+  -d '{"email": "test@westbridgetoday.com"}'
 ```

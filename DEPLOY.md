@@ -6,16 +6,16 @@
 2. Vercel auto-detects Next.js -- no build config changes needed.
 3. Set environment variables in the Vercel dashboard:
 
-| Variable                   | Value                       |
-| -------------------------- | --------------------------- |
-| `NEXT_PUBLIC_API_URL`      | `https://api.westbridge.gy` |
-| `BACKEND_URL`              | `https://api.westbridge.gy` |
-| `NEXT_PUBLIC_SENTRY_DSN`   | Your Sentry DSN             |
-| `NEXT_PUBLIC_POSTHOG_KEY`  | Your PostHog project key    |
-| `NEXT_PUBLIC_POSTHOG_HOST` | `https://app.posthog.com`   |
-| `SENTRY_ORG`               | `westbridge`                |
-| `SENTRY_PROJECT`           | `westbridge-frontend`       |
-| `SENTRY_AUTH_TOKEN`        | Your Sentry auth token      |
+| Variable                   | Value                             |
+| -------------------------- | --------------------------------- |
+| `NEXT_PUBLIC_API_URL`      | `https://api.westbridgetoday.com` |
+| `BACKEND_URL`              | `https://api.westbridgetoday.com` |
+| `NEXT_PUBLIC_SENTRY_DSN`   | Your Sentry DSN                   |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | Your PostHog project key          |
+| `NEXT_PUBLIC_POSTHOG_HOST` | `https://app.posthog.com`         |
+| `SENTRY_ORG`               | `westbridge`                      |
+| `SENTRY_PROJECT`           | `westbridge-frontend`             |
+| `SENTRY_AUTH_TOKEN`        | Your Sentry auth token            |
 
 4. Deploy. Vercel handles builds, CDN, and SSL automatically.
 
@@ -30,8 +30,8 @@ docker build -t westbridge-frontend .
 # Run
 docker run -d \
   -p 3000:3000 \
-  -e NEXT_PUBLIC_API_URL=https://api.westbridge.gy \
-  -e BACKEND_URL=https://api.westbridge.gy \
+  -e NEXT_PUBLIC_API_URL=https://api.westbridgetoday.com \
+  -e BACKEND_URL=https://api.westbridgetoday.com \
   --name westbridge-frontend \
   westbridge-frontend
 ```

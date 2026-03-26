@@ -4,7 +4,7 @@ import { SITE, ROUTES, TRIAL, CURRENCY } from "./site";
 describe("site", () => {
   it("SITE has name and domain", () => {
     expect(SITE.name).toBe("Westbridge");
-    expect(SITE.domain).toBe("westbridge.gy");
+    expect(SITE.domain).toBe("westbridgetoday.com");
   });
   it("ROUTES has login and dashboard", () => {
     expect(ROUTES.login).toBe("/login");

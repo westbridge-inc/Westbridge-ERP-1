@@ -20,7 +20,7 @@ docker tag westbridge:<previous_sha> westbridge:latest
 docker-compose up -d app
 
 # 3. Verify
-curl https://app.westbridge.app/api/health/ready
+curl https://app.westbridgetoday.com/api/health/ready
 ```
 
 ### Vercel

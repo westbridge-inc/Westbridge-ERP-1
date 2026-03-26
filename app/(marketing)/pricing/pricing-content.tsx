@@ -148,7 +148,7 @@ export function PricingContent() {
 
               {/* CTA */}
               <Link
-                href={isEnterprise ? "mailto:sales@westbridge.gy" : ROUTES.signup}
+                href={isEnterprise ? "mailto:sales@westbridgetoday.com" : ROUTES.signup}
                 className={`mt-8 flex w-full items-center justify-center rounded-lg px-6 py-3 text-sm font-medium transition-colors ${
                   isPopular
                     ? "bg-foreground text-background hover:opacity-90"

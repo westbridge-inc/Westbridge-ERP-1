@@ -78,4 +78,4 @@ export const MODULE_EMPTY_STATES = {
   },
 } as const;
 
-export const EMPTY_STATE_SUPPORT_LINE = "Need help? Contact support@westbridge.gy";
+export const EMPTY_STATE_SUPPORT_LINE = "Need help? Contact support@westbridgetoday.com";
