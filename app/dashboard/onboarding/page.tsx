@@ -43,7 +43,12 @@ export default function OnboardingPage() {
   async function handleCompanySave() {
     setLoading(true);
     try {
-      // Save company details via profile update
+      await api.account.updateProfile({
+        taxId: companyDetails.taxId,
+        address: companyDetails.address,
+        phone: companyDetails.phone,
+        currency: companyDetails.currency,
+      });
       toast.success("Company details saved");
       setStep(2);
     } catch {

@@ -1,8 +1,8 @@
 "use client";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-import { useState, useRef, useEffect } from "react";
-import { Zap, X, Send, Loader2, AlertCircle, Sparkles } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Zap, X, Send, Loader2, AlertCircle, Sparkles, Plus, Trash2 } from "lucide-react";
 
 const AI_NOT_CONFIGURED_MSG = "AI is not configured on this plan yet.";
 import ReactMarkdown from "react-markdown";
@@ -15,6 +15,56 @@ interface Message {
 interface AIChatPanelProps {
   module?: "finance" | "crm" | "inventory" | "hr" | "manufacturing" | "projects" | "biztools" | "general";
 }
+
+// ---------------------------------------------------------------------------
+// localStorage persistence helpers
+// ---------------------------------------------------------------------------
+
+const LS_KEY = "westbridge_ai_conversations";
+const MAX_MESSAGES_PER_CONVERSATION = 50;
+const MAX_CONVERSATIONS = 5;
+
+interface StoredConversation {
+  id: string;
+  module: string;
+  messages: Message[];
+  updatedAt: number;
+}
+
+function loadConversations(): StoredConversation[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed as StoredConversation[];
+  } catch {
+    return [];
+  }
+}
+
+function saveConversations(conversations: StoredConversation[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    // Keep only the most recent MAX_CONVERSATIONS
+    const trimmed = conversations.sort((a, b) => b.updatedAt - a.updatedAt).slice(0, MAX_CONVERSATIONS);
+    localStorage.setItem(LS_KEY, JSON.stringify(trimmed));
+  } catch {
+    // Storage full or unavailable — silently ignore
+  }
+}
+
+function clearAllConversations(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(LS_KEY);
+  } catch {
+    // Silently ignore
+  }
+}
+
+// ---------------------------------------------------------------------------
 
 const SUGGESTIONS: Record<string, string[]> = {
   finance: ["Summarise last 30 days revenue", "Show overdue invoices", "What are my top 5 expenses?"],
@@ -42,9 +92,58 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
   const [aiUnconfigured, setAiUnconfigured] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // ── Load persisted conversation on mount ──────────────────────────────────
+  useEffect(() => {
+    const stored = loadConversations();
+    // Find the most recent conversation for the current module
+    const match = stored.find((c) => c.module === module);
+    if (match && match.messages.length > 0) {
+      setMessages(match.messages);
+      setConvId(match.id);
+    }
+  }, [module]);
+
+  // ── Persist messages whenever they change ─────────────────────────────────
+  const persistMessages = useCallback(
+    (msgs: Message[], conversationId: string | undefined) => {
+      if (msgs.length === 0 && !conversationId) return;
+      const id = conversationId ?? `local-${Date.now()}`;
+      const stored = loadConversations();
+      const existing = stored.filter((c) => c.module !== module);
+      const capped = msgs.slice(-MAX_MESSAGES_PER_CONVERSATION);
+      if (capped.length > 0) {
+        existing.push({ id, module, messages: capped, updatedAt: Date.now() });
+      }
+      saveConversations(existing);
+    },
+    [module],
+  );
+
+  useEffect(() => {
+    persistMessages(messages, convId);
+  }, [messages, convId, persistMessages]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // ── New conversation ──────────────────────────────────────────────────────
+  function handleNewConversation() {
+    setMessages([]);
+    setConvId(undefined);
+    setError(null);
+    // Remove persisted conversation for this module
+    const stored = loadConversations();
+    saveConversations(stored.filter((c) => c.module !== module));
+  }
+
+  // ── Clear all history ─────────────────────────────────────────────────────
+  function handleClearHistory() {
+    setMessages([]);
+    setConvId(undefined);
+    setError(null);
+    clearAllConversations();
+  }
 
   async function send(text?: string) {
     const msg = (text ?? input).trim();
@@ -130,6 +229,24 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
             <div className="flex items-center gap-3">
               {!aiUnconfigured && remaining !== null && remaining !== undefined && (
                 <span className="text-xs text-muted-foreground">{remaining} queries left</span>
+              )}
+              {!aiUnconfigured && messages.length > 0 && (
+                <button
+                  onClick={handleNewConversation}
+                  className="text-muted-foreground hover:text-foreground"
+                  title="New conversation"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              )}
+              {!aiUnconfigured && (
+                <button
+                  onClick={handleClearHistory}
+                  className="text-muted-foreground hover:text-destructive"
+                  title="Clear all history"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
               )}
               <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />

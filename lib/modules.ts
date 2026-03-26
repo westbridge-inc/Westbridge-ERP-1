@@ -68,7 +68,7 @@ export interface Module {
   name: string;
   category: string;
   bundleId: string;
-  erpnextDoctype: string;
+  doctype: string;
   description: string;
 }
 
@@ -81,7 +81,7 @@ const MODULE_LIST: Module[] = [
     name: "General Ledger",
     category: "Finance & Accounting",
     bundleId: "finance",
-    erpnextDoctype: "GL Entry",
+    doctype: "GL Entry",
     description: "Chart of accounts, journal entries, trial balance.",
   },
   {
@@ -89,7 +89,7 @@ const MODULE_LIST: Module[] = [
     name: "Accounts Payable",
     category: "Finance & Accounting",
     bundleId: "finance",
-    erpnextDoctype: "Purchase Invoice",
+    doctype: "Purchase Invoice",
     description: "Vendor bills and payment tracking.",
   },
   {
@@ -97,7 +97,7 @@ const MODULE_LIST: Module[] = [
     name: "Accounts Receivable",
     category: "Finance & Accounting",
     bundleId: "finance",
-    erpnextDoctype: "Sales Invoice",
+    doctype: "Sales Invoice",
     description: "Customer invoices and collections.",
   },
   {
@@ -105,7 +105,7 @@ const MODULE_LIST: Module[] = [
     name: "Fixed Assets",
     category: "Finance & Accounting",
     bundleId: "finance",
-    erpnextDoctype: "Asset",
+    doctype: "Asset",
     description: "Asset register and depreciation schedules.",
   },
   {
@@ -113,7 +113,7 @@ const MODULE_LIST: Module[] = [
     name: "Bank Reconciliation",
     category: "Finance & Accounting",
     bundleId: "finance",
-    erpnextDoctype: "Bank Reconciliation",
+    doctype: "Bank Reconciliation",
     description: "Match bank statements to ledger entries.",
   },
   {
@@ -121,7 +121,7 @@ const MODULE_LIST: Module[] = [
     name: "Budgeting & Forecasting",
     category: "Finance & Accounting",
     bundleId: "finance",
-    erpnextDoctype: "Budget",
+    doctype: "Budget",
     description: "Budgets, variance analysis, and financial planning.",
   },
   {
@@ -129,7 +129,7 @@ const MODULE_LIST: Module[] = [
     name: "Multi-Currency",
     category: "Finance & Accounting",
     bundleId: "finance",
-    erpnextDoctype: "Currency Exchange",
+    doctype: "Currency Exchange",
     description: "Multi-currency with live exchange rates.",
   },
   {
@@ -137,7 +137,7 @@ const MODULE_LIST: Module[] = [
     name: "Tax Management",
     category: "Finance & Accounting",
     bundleId: "finance",
-    erpnextDoctype: "Sales Taxes and Charges Template",
+    doctype: "Sales Taxes and Charges Template",
     description: "VAT, sales tax, withholding, configurable rules.",
   },
   {
@@ -145,7 +145,7 @@ const MODULE_LIST: Module[] = [
     name: "Financial Reporting",
     category: "Finance & Accounting",
     bundleId: "finance",
-    erpnextDoctype: "Report",
+    doctype: "Report",
     description: "P&L, balance sheet, cash flow, custom reports.",
   },
   // SALES & CRM
@@ -154,7 +154,7 @@ const MODULE_LIST: Module[] = [
     name: "Lead Management",
     category: "Sales & CRM",
     bundleId: "crm",
-    erpnextDoctype: "Lead",
+    doctype: "Lead",
     description: "Capture, qualify, and track inbound leads.",
   },
   {
@@ -162,7 +162,7 @@ const MODULE_LIST: Module[] = [
     name: "Opportunity Tracking",
     category: "Sales & CRM",
     bundleId: "crm",
-    erpnextDoctype: "Opportunity",
+    doctype: "Opportunity",
     description: "Deal pipeline, stages, and win/loss analysis.",
   },
   {
@@ -170,7 +170,7 @@ const MODULE_LIST: Module[] = [
     name: "Quotation Builder",
     category: "Sales & CRM",
     bundleId: "crm",
-    erpnextDoctype: "Quotation",
+    doctype: "Quotation",
     description: "Create, send, and track professional quotes.",
   },
   {
@@ -178,7 +178,7 @@ const MODULE_LIST: Module[] = [
     name: "Sales Orders",
     category: "Sales & CRM",
     bundleId: "crm",
-    erpnextDoctype: "Sales Order",
+    doctype: "Sales Order",
     description: "Sales orders, fulfillment, and delivery tracking.",
   },
   {
@@ -186,15 +186,15 @@ const MODULE_LIST: Module[] = [
     name: "Customer Portal",
     category: "Sales & CRM",
     bundleId: "crm",
-    erpnextDoctype: "Portal Settings",
-    description: "Self-service portal for customers.",
+    doctype: "Portal Settings",
+    description: "Self-service portal for customers (coming soon -- backend doctype available, UI in development).",
   },
   {
     id: "territory-management",
     name: "Territory Management",
     category: "Sales & CRM",
     bundleId: "crm",
-    erpnextDoctype: "Territory",
+    doctype: "Territory",
     description: "Sales territories, hierarchy, and rep assignment.",
   },
   // INVENTORY & SUPPLY CHAIN
@@ -203,7 +203,7 @@ const MODULE_LIST: Module[] = [
     name: "Stock Management",
     category: "Inventory & Supply Chain",
     bundleId: "inventory",
-    erpnextDoctype: "Stock Entry",
+    doctype: "Stock Entry",
     description: "Real-time stock levels, movements, and valuation.",
   },
   {
@@ -211,7 +211,7 @@ const MODULE_LIST: Module[] = [
     name: "Warehouse Management",
     category: "Inventory & Supply Chain",
     bundleId: "inventory",
-    erpnextDoctype: "Warehouse",
+    doctype: "Warehouse",
     description: "Multi-warehouse, bins, and location management.",
   },
   {
@@ -219,7 +219,7 @@ const MODULE_LIST: Module[] = [
     name: "Purchase Orders",
     category: "Inventory & Supply Chain",
     bundleId: "inventory",
-    erpnextDoctype: "Purchase Order",
+    doctype: "Purchase Order",
     description: "POs, supplier orders, and goods receipts.",
   },
   {
@@ -227,7 +227,7 @@ const MODULE_LIST: Module[] = [
     name: "Supplier Management",
     category: "Inventory & Supply Chain",
     bundleId: "inventory",
-    erpnextDoctype: "Supplier",
+    doctype: "Supplier",
     description: "Supplier master data and performance tracking.",
   },
   {
@@ -235,7 +235,7 @@ const MODULE_LIST: Module[] = [
     name: "Bill of Materials",
     category: "Inventory & Supply Chain",
     bundleId: "inventory",
-    erpnextDoctype: "BOM",
+    doctype: "BOM",
     description: "BOMs, product structures, and component costing.",
   },
   {
@@ -243,7 +243,7 @@ const MODULE_LIST: Module[] = [
     name: "Quality Inspection",
     category: "Inventory & Supply Chain",
     bundleId: "inventory",
-    erpnextDoctype: "Quality Inspection",
+    doctype: "Quality Inspection",
     description: "Incoming and in-process quality inspections.",
   },
   {
@@ -251,7 +251,7 @@ const MODULE_LIST: Module[] = [
     name: "Batch & Serial Tracking",
     category: "Inventory & Supply Chain",
     bundleId: "inventory",
-    erpnextDoctype: "Batch",
+    doctype: "Batch",
     description: "Full batch and serial number traceability.",
   },
   // HR & PAYROLL
@@ -260,7 +260,7 @@ const MODULE_LIST: Module[] = [
     name: "Employee Management",
     category: "HR & Payroll",
     bundleId: "hr",
-    erpnextDoctype: "Employee",
+    doctype: "Employee",
     description: "Employee records, org chart, and documents.",
   },
   {
@@ -268,7 +268,7 @@ const MODULE_LIST: Module[] = [
     name: "Attendance & Leave",
     category: "HR & Payroll",
     bundleId: "hr",
-    erpnextDoctype: "Leave Application",
+    doctype: "Leave Application",
     description: "Leave requests, attendance, and timesheets.",
   },
   {
@@ -276,7 +276,7 @@ const MODULE_LIST: Module[] = [
     name: "Payroll Processing",
     category: "HR & Payroll",
     bundleId: "hr",
-    erpnextDoctype: "Salary Slip",
+    doctype: "Salary Slip",
     description: "Payroll runs, tax deductions, and salary slips.",
   },
   {
@@ -284,7 +284,7 @@ const MODULE_LIST: Module[] = [
     name: "Expense Claims",
     category: "HR & Payroll",
     bundleId: "hr",
-    erpnextDoctype: "Expense Claim",
+    doctype: "Expense Claim",
     description: "Employee expense claims and reimbursements.",
   },
   {
@@ -292,7 +292,7 @@ const MODULE_LIST: Module[] = [
     name: "Recruitment",
     category: "HR & Payroll",
     bundleId: "hr",
-    erpnextDoctype: "Job Applicant",
+    doctype: "Job Applicant",
     description: "Applicant tracking and hiring pipeline.",
   },
   {
@@ -300,7 +300,7 @@ const MODULE_LIST: Module[] = [
     name: "Training & Development",
     category: "HR & Payroll",
     bundleId: "hr",
-    erpnextDoctype: "Training Event",
+    doctype: "Training Event",
     description: "Training events, certifications, and skill tracking.",
   },
   {
@@ -308,7 +308,7 @@ const MODULE_LIST: Module[] = [
     name: "Performance Reviews",
     category: "HR & Payroll",
     bundleId: "hr",
-    erpnextDoctype: "Appraisal",
+    doctype: "Appraisal",
     description: "Goal setting, KPIs, and performance appraisals.",
   },
   // MANUFACTURING
@@ -317,7 +317,7 @@ const MODULE_LIST: Module[] = [
     name: "Production Planning",
     category: "Manufacturing",
     bundleId: "manufacturing",
-    erpnextDoctype: "Work Order",
+    doctype: "Work Order",
     description: "Production plans, MRP, and scheduling.",
   },
   {
@@ -325,7 +325,7 @@ const MODULE_LIST: Module[] = [
     name: "Work Orders",
     category: "Manufacturing",
     bundleId: "manufacturing",
-    erpnextDoctype: "Work Order",
+    doctype: "Work Order",
     description: "Work order creation, execution, and tracking.",
   },
   {
@@ -333,7 +333,7 @@ const MODULE_LIST: Module[] = [
     name: "Routing & Operations",
     category: "Manufacturing",
     bundleId: "manufacturing",
-    erpnextDoctype: "BOM",
+    doctype: "BOM",
     description: "Routings, operations, and workstation management.",
   },
   {
@@ -341,7 +341,7 @@ const MODULE_LIST: Module[] = [
     name: "Subcontracting",
     category: "Manufacturing",
     bundleId: "manufacturing",
-    erpnextDoctype: "Subcontracting Order",
+    doctype: "Subcontracting Order",
     description: "Outsourced manufacturing and subcontractor orders.",
   },
   {
@@ -349,7 +349,7 @@ const MODULE_LIST: Module[] = [
     name: "Capacity Planning",
     category: "Manufacturing",
     bundleId: "manufacturing",
-    erpnextDoctype: "Workstation",
+    doctype: "Workstation",
     description: "Machine capacity, load balancing, bottleneck analysis.",
   },
   // PROJECT MANAGEMENT
@@ -358,7 +358,7 @@ const MODULE_LIST: Module[] = [
     name: "Project Tracking",
     category: "Project Management",
     bundleId: "projects",
-    erpnextDoctype: "Project",
+    doctype: "Project",
     description: "Projects, milestones, budgets, and progress.",
   },
   {
@@ -366,7 +366,7 @@ const MODULE_LIST: Module[] = [
     name: "Task Management",
     category: "Project Management",
     bundleId: "projects",
-    erpnextDoctype: "Task",
+    doctype: "Task",
     description: "Tasks, dependencies, assignments, and deadlines.",
   },
   {
@@ -374,7 +374,7 @@ const MODULE_LIST: Module[] = [
     name: "Timesheets",
     category: "Project Management",
     bundleId: "projects",
-    erpnextDoctype: "Timesheet",
+    doctype: "Timesheet",
     description: "Time logging, billable hours, and project costing.",
   },
   {
@@ -382,7 +382,7 @@ const MODULE_LIST: Module[] = [
     name: "Gantt Charts",
     category: "Project Management",
     bundleId: "projects",
-    erpnextDoctype: "Project",
+    doctype: "Project",
     description: "Visual timelines, Gantt views, and critical path.",
   },
   // BUSINESS TOOLS
@@ -391,7 +391,7 @@ const MODULE_LIST: Module[] = [
     name: "Website Builder",
     category: "Business Tools",
     bundleId: "biztools",
-    erpnextDoctype: "Web Page",
+    doctype: "Web Page",
     description: "Build and host your business website.",
   },
   {
@@ -399,7 +399,7 @@ const MODULE_LIST: Module[] = [
     name: "E-Commerce",
     category: "Business Tools",
     bundleId: "biztools",
-    erpnextDoctype: "Website Item",
+    doctype: "Website Item",
     description: "Full online storefront, catalog, and order management.",
   },
   {
@@ -407,7 +407,7 @@ const MODULE_LIST: Module[] = [
     name: "Point of Sale",
     category: "Business Tools",
     bundleId: "biztools",
-    erpnextDoctype: "POS Invoice",
+    doctype: "POS Invoice",
     description: "POS terminals for retail, F&B, and counters.",
   },
   {
@@ -415,7 +415,7 @@ const MODULE_LIST: Module[] = [
     name: "Custom Reports",
     category: "Business Tools",
     bundleId: "biztools",
-    erpnextDoctype: "Report",
+    doctype: "Report",
     description: "Custom query builder, dashboards, and data exports.",
   },
 ];

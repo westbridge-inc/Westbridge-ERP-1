@@ -84,7 +84,7 @@ export async function serverErpList(doctype: string, params?: ErpListParams): Pr
     },
   });
   if (!res.ok) {
-    // Treat 404 (no records), 502 (ERPNext unreachable), and 503 as empty data
+    // Treat 404 (no records), 502 (backend service unreachable), and 503 as empty data
     // rather than crashing the page — the user just has no records yet.
     if (res.status === 404 || res.status === 502 || res.status === 503) {
       return {
@@ -118,7 +118,7 @@ export interface DashboardData {
   employeeDelta: number;
   revenueData: { month: string; value: number }[];
   activity: { text: string; time: string; type: "success" | "error" | "info" | "default" }[];
-  isDemo?: boolean;
+  isOffline?: boolean;
 }
 
 export async function serverFetchDashboard(): Promise<DashboardData> {
@@ -132,7 +132,7 @@ export async function serverFetchDashboard(): Promise<DashboardData> {
     },
   });
   if (!res.ok) {
-    // 502/503 = ERPNext offline — return demo/fallback data instead of crashing
+    // 502/503 = service offline — return empty data instead of crashing
     if (res.status === 502 || res.status === 503) {
       return {
         revenueMTD: 0,
@@ -143,7 +143,7 @@ export async function serverFetchDashboard(): Promise<DashboardData> {
         employeeDelta: 0,
         revenueData: [],
         activity: [],
-        isDemo: true,
+        isOffline: true,
       } as DashboardData;
     }
     throw new Error(res.status === 401 ? "Session expired. Please sign in again." : "Failed to load dashboard data.");

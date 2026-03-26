@@ -28,9 +28,9 @@ function buildCsp(): string {
   if (apiHost) connectSrcParts.push(apiHost);
   if (sentryDsn) connectSrcParts.push("https://*.ingest.sentry.io", "https://*.ingest.de.sentry.io");
   if (posthogHost) connectSrcParts.push(posthogHost);
-  // PowerTranz — only expose staging endpoint in non-production
-  connectSrcParts.push("https://ptranz.com");
-  if (!isProd) connectSrcParts.push("https://staging.ptranz.com");
+  // 2Checkout (Verifone) — expose sandbox endpoint in non-production
+  connectSrcParts.push("https://secure.2checkout.com");
+  if (!isProd) connectSrcParts.push("https://sandbox.2checkout.com");
 
   const parts = [
     "default-src 'self'",
@@ -40,6 +40,7 @@ function buildCsp(): string {
     "font-src 'self' data: https://fonts.gstatic.com",
     `connect-src ${connectSrcParts.join(" ")}`,
     "frame-ancestors 'none'",
+    "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
   ];

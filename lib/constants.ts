@@ -21,11 +21,11 @@ export const RATE_LIMIT = {
 
 /** Per-plan rate limit tiers. Values are max requests per windowMs. */
 export const RATE_LIMIT_TIERS = {
-  anonymous:    { requests: 20,   windowMs: 60_000 },
-  starter:      { requests: 60,   windowMs: 60_000 },
-  business:     { requests: 200,  windowMs: 60_000 },
-  enterprise:   { requests: 1000, windowMs: 60_000 },
-  api_key:      { requests: 500,  windowMs: 60_000 },
+  anonymous: { requests: 20, windowMs: 60_000 },
+  starter: { requests: 60, windowMs: 60_000 },
+  business: { requests: 200, windowMs: 60_000 },
+  enterprise: { requests: 1000, windowMs: 60_000 },
+  api_key: { requests: 500, windowMs: 60_000 },
 } as const;
 
 export type RateLimitTier = keyof typeof RATE_LIMIT_TIERS;
@@ -35,11 +35,11 @@ export type RateLimitTier = keyof typeof RATE_LIMIT_TIERS;
  * A request that costs 5x counts as 5 tokens against the rate limit.
  */
 export const RATE_LIMIT_COST = {
-  erp_list:   5,  // listing all docs is DB + ERP overhead
-  erp_doc:    2,  // single doc fetch is cheaper
-  erp_create: 3,  // write to ERP is expensive
-  ai_chat:    10, // LLM calls are expensive and slow
-  default:    1,
+  erp_list: 5, // listing all docs is DB + ERP overhead
+  erp_doc: 2, // single doc fetch is cheaper
+  erp_create: 3, // write to ERP is expensive
+  ai_chat: 10, // LLM calls are expensive and slow
+  default: 1,
 } as const;
 
 export type RateLimitOperation = keyof typeof RATE_LIMIT_COST;
@@ -57,19 +57,19 @@ export const PAGINATION = {
   MAX_PER_PAGE: 100,
 } as const;
 
-/** Caribbean / Guyana defaults */
+/** Defaults — configurable per account via onboarding / settings */
 export const LOCALE = {
-  DEFAULT_CURRENCY: "GYD" as const,
-  DEFAULT_TIMEZONE: "America/Guyana",
-  DATE_FORMAT: "DD/MM/YYYY",
-  VAT_RATE_GUYANA: 0.14, // 14%
+  DEFAULT_CURRENCY: "USD" as const,
+  DEFAULT_TIMEZONE: "UTC",
+  DATE_FORMAT: "MM/DD/YYYY",
+  VAT_RATE_DEFAULT: 0, // No VAT by default — set per-account
 } as const;
 
 /**
  * Supported currencies — Caribbean-first, international-second.
  * For full Caribbean constants (NIS, PAYE, CARICOM) see ./caribbean/constants.ts
  */
-export const CURRENCY_CODES = ["GYD", "USD", "TTD", "BBD", "JMD", "XCD", "EUR", "GBP", "CAD"] as const;
+export const CURRENCY_CODES = ["USD", "EUR", "GBP", "CAD", "GYD", "TTD", "BBD", "JMD", "XCD"] as const;
 export type CurrencyCode = (typeof CURRENCY_CODES)[number];
 
 export const SECURITY = {

@@ -96,12 +96,12 @@ export default async function DashboardPage() {
         <ErpStatusBadge />
       </div>
 
-      {data.isDemo && (
+      {data.isOffline && (
         <div className="mt-4 flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-warning">
           <span className="shrink-0">{"\u26A0"}</span>
           <span>
-            <strong>Sample data</strong> &mdash; your ERP is offline or not yet connected. These numbers are for
-            illustration only.
+            <strong>Service temporarily unavailable</strong> &mdash; we&apos;re having trouble reaching your data.
+            Please try again shortly.
           </span>
         </div>
       )}

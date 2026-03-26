@@ -194,7 +194,7 @@ export function DataTable<T>({
   return (
     <div className={className}>
       {/* Desktop: table */}
-      <div className="hidden overflow-hidden rounded-lg border border-border md:block">
+      <div className="hidden overflow-x-auto rounded-lg border border-border md:block">
         <table className="w-full text-[0.9375rem]">
           <thead>
             <tr className="border-b border-border bg-muted/50">
@@ -273,7 +273,7 @@ export function DataTable<T>({
                   {columns.map((col) => (
                     <td
                       key={col.id}
-                      className="px-4 py-3 text-sm text-foreground"
+                      className="whitespace-nowrap px-4 py-3 text-sm text-foreground"
                       style={{ textAlign: col.align ?? "left" }}
                     >
                       {col.accessor(row)}

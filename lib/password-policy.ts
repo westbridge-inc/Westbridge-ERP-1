@@ -5,7 +5,7 @@ export interface PasswordValidationResult {
 
 /**
  * Validates password against SOC 2 policy (min length, complexity).
- * Actual authentication is performed by ERPNext; this is a client-side pre-check
+ * Actual authentication is performed by the backend; this is a client-side pre-check
  * so users get immediate feedback (e.g. in change-password or invite flows).
  */
 export const TOTAL_PW_REQUIREMENTS = 6;
