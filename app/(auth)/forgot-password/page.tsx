@@ -64,7 +64,8 @@ export default function ForgotPasswordPage() {
             </div>
             <h1 className="text-lg font-semibold text-foreground font-display">Check your inbox</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              If an account exists for <strong>{email}</strong>, we&apos;ve sent a reset link. Check your spam folder if it doesn&apos;t arrive within a minute.
+              If an account exists for <strong>{email}</strong>, we&apos;ve sent a reset link. Check your spam folder if
+              it doesn&apos;t arrive within a minute.
             </p>
             <Link href={ROUTES.login} className="mt-6 block text-sm font-medium text-primary hover:underline">
               Back to sign in
@@ -89,7 +90,7 @@ export default function ForgotPasswordPage() {
                 />
               </div>
 
-              {error && <p className="text-sm text-destructive">{error}</p>}
+              <div aria-live="polite">{error && <p className="text-sm text-destructive">{error}</p>}</div>
 
               <Button
                 type="submit"

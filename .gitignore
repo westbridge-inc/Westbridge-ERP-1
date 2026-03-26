@@ -56,5 +56,6 @@ lib/generated/
 .cursor/
 .zap/
 
-# Claude Code internal
+# Editor/tool config
 .claude/
+storybook-static/

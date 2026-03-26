@@ -1,6 +1,3 @@
-"use client";
-
-import { use } from "react";
 import { ErpFormPage } from "@/components/dashboard/ErpFormPage";
 import type { FormFieldDef } from "@/components/dashboard/ErpFormPage";
 
@@ -67,12 +64,8 @@ const FIELDS: FormFieldDef[] = [
   },
 ];
 
-export default function CustomerDetailPage({
-  params,
-}: {
-  params: Promise<{ name: string }>;
-}) {
-  const { name } = use(params);
+export default async function CustomerDetailPage({ params }: { params: Promise<{ name: string }> }) {
+  const { name } = await params;
   return (
     <ErpFormPage
       title={`Customer ${decodeURIComponent(name)}`}

@@ -1,4 +1,4 @@
-# CLAUDE.md -- Westbridge ERP Frontend
+# Contributing Patterns -- Westbridge ERP Frontend
 
 ## Overview
 

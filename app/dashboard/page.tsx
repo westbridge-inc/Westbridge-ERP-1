@@ -1,25 +1,24 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import {
-  FileText,
-  FileBarChart,
-  DollarSign,
-  Users,
-  Receipt,
-  ShoppingCart,
-} from "lucide-react";
+import dynamic_ from "next/dynamic";
+import { FileText, FileBarChart, DollarSign, Users, Receipt, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/locale/currency";
 import { cn } from "@/lib/utils";
-import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { serverFetchDashboard } from "@/lib/api/server";
-import { RevenueChart } from "./_components/RevenueChart";
 import { ErpStatusBadge } from "./_components/ErpStatusBadge";
 import { DashboardWelcome } from "./_components/DashboardWelcome";
 import { DashboardError } from "./_components/DashboardError";
+
+const RevenueChart = dynamic_(() => import("./_components/RevenueChart").then((m) => ({ default: m.RevenueChart })), {
+  loading: () => <div className="mt-8 h-80 animate-pulse rounded-xl bg-muted" />,
+});
+
+const AIChatPanel = dynamic_(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })));
 
 /* ------------------------------------------------------------------ */
 /*  Helpers (pure functions — safe for Server Components)              */
@@ -42,10 +41,14 @@ type ActivityType = "success" | "error" | "info" | "default";
 
 function activityDotColor(type: ActivityType): string {
   switch (type) {
-    case "success": return "bg-success";
-    case "error": return "bg-destructive";
-    case "info": return "bg-primary";
-    default: return "bg-muted-foreground";
+    case "success":
+      return "bg-success";
+    case "error":
+      return "bg-destructive";
+    case "info":
+      return "bg-primary";
+    default:
+      return "bg-muted-foreground";
   }
 }
 
@@ -97,7 +100,8 @@ export default async function DashboardPage() {
         <div className="mt-4 flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-warning">
           <span className="shrink-0">{"\u26A0"}</span>
           <span>
-            <strong>Sample data</strong> &mdash; your ERP is offline or not yet connected. These numbers are for illustration only.
+            <strong>Sample data</strong> &mdash; your ERP is offline or not yet connected. These numbers are for
+            illustration only.
           </span>
         </div>
       )}
@@ -126,15 +130,12 @@ export default async function DashboardPage() {
           subtext={data.outstandingCount > 0 ? "Requires follow-up" : "All clear"}
           subtextVariant={data.outstandingCount > 0 ? "error" : "success"}
         />
-        <MetricCard
-          label="Pending Orders"
-          value={data.openDealsCount}
-          icon={ShoppingCart}
-          subtext="In pipeline"
-        />
+        <MetricCard label="Pending Orders" value={data.openDealsCount} icon={ShoppingCart} subtext="In pipeline" />
       </div>
 
-      <RevenueChart data={data.revenueData} />
+      <ErrorBoundary boundary="revenue-chart">
+        <RevenueChart data={data.revenueData} />
+      </ErrorBoundary>
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -164,7 +165,12 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {QUICK_ACTIONS.map((action) => (
-                <Button key={action.href} variant="outline" className="h-9 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent" asChild>
+                <Button
+                  key={action.href}
+                  variant="outline"
+                  className="h-9 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
+                  asChild
+                >
                   <Link href={action.href}>
                     <action.icon className="mr-2 h-4 w-4 shrink-0" />
                     {action.label}
@@ -175,7 +181,9 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      <AIChatPanel module="general" />
+      <ErrorBoundary boundary="ai-chat">
+        <AIChatPanel module="general" />
+      </ErrorBoundary>
     </div>
   );
 }
