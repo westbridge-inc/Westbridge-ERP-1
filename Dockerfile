@@ -19,8 +19,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build-time env vars (safe defaults for Docker build validation)
-ENV NEXT_PUBLIC_API_URL=http://localhost:4000
+# Build-time env vars — Railway injects service variables as Docker build args
+ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
