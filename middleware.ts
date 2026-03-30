@@ -28,9 +28,8 @@ function buildCsp(): string {
   if (apiHost) connectSrcParts.push(apiHost);
   if (sentryDsn) connectSrcParts.push("https://*.ingest.sentry.io", "https://*.ingest.de.sentry.io");
   if (posthogHost) connectSrcParts.push(posthogHost);
-  // 2Checkout (Verifone) — expose sandbox endpoint in non-production
-  connectSrcParts.push("https://secure.2checkout.com");
-  if (!isProd) connectSrcParts.push("https://sandbox.2checkout.com");
+  // WiPay — Caribbean payment gateway
+  connectSrcParts.push("https://*.wipayfinancial.com");
 
   const parts = [
     "default-src 'self'",

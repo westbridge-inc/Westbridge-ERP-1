@@ -74,9 +74,9 @@ npm start               # start Next.js server
 
 ---
 
-## PowerTranz (payments)
+## WiPay (payments)
 
-Payment processing is handled by the **backend API** via PowerTranz (Caribbean-focused payment gateway). See [Westbridge-ERP-2](https://github.com/westbridge-inc/Westbridge-ERP-2) and `docs/POWERTRANZ-SETUP.md` for configuration.
+Payment processing is handled by the **backend API** via WiPay (Caribbean-focused payment gateway). See [Westbridge-ERP-2](https://github.com/westbridge-inc/Westbridge-ERP-2) and `docs/WIPAY-SETUP.md` for configuration.
 
 ---
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/Button";
@@ -11,6 +11,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export interface SignupStep4Props {
   returnFromPayment: boolean;
+  paymentFailed: boolean;
   planName: string;
   planIncludedBundleIds: string[];
   addOnIds: Set<string>;
@@ -22,6 +23,7 @@ export interface SignupStep4Props {
 
 export function SignupStep4({
   returnFromPayment,
+  paymentFailed,
   planName,
   planIncludedBundleIds,
   addOnIds,
@@ -43,15 +45,35 @@ export function SignupStep4({
     return re.test(value.trim());
   }, []);
 
+  if (paymentFailed) {
+    return (
+      <div className="flex flex-col items-center text-center py-8">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+          <XCircle className="h-10 w-10 text-destructive" />
+        </div>
+        <h1 className="mt-6 text-2xl font-semibold text-foreground font-display">Payment failed</h1>
+        <p className="mt-3 text-muted-foreground max-w-sm">
+          Your payment could not be processed. Please try again or contact support if the issue persists.
+        </p>
+        <Button
+          variant="default"
+          size="lg"
+          className="mt-8 h-12 w-full max-w-xs text-sm font-medium tracking-wide"
+          asChild
+        >
+          <Link href={ROUTES.signup}>Try again</Link>
+        </Button>
+      </div>
+    );
+  }
+
   if (returnFromPayment) {
     return (
       <div className="flex flex-col items-center text-center py-8">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
           <CheckCircle className="h-10 w-10 text-success" />
         </div>
-        <h1 className="mt-6 text-2xl font-semibold text-foreground font-display">
-          Your account is now active!
-        </h1>
+        <h1 className="mt-6 text-2xl font-semibold text-foreground font-display">Your account is now active!</h1>
         <p className="mt-3 text-muted-foreground max-w-sm">
           You&apos;re all set on the <strong>{planName}</strong> plan. Your workspace is ready to go.
         </p>
@@ -63,10 +85,7 @@ export function SignupStep4({
         >
           <Link href={ROUTES.dashboard}>Go to Dashboard</Link>
         </Button>
-        <Link
-          href={ROUTES.login}
-          className="mt-4 text-sm text-muted-foreground hover:text-foreground transition"
-        >
+        <Link href={ROUTES.login} className="mt-4 text-sm text-muted-foreground hover:text-foreground transition">
           Go to Login
         </Link>
       </div>
@@ -117,14 +136,17 @@ export function SignupStep4({
             const payload = data.data ?? data;
             if (payload.paymentUrl) {
               // Validate payment URL to prevent open redirect attacks.
-              // Only allow HTTPS URLs on trusted PowerTranz domains.
-              const ALLOWED_PAYMENT_HOSTS = ["staging.ptranz.com", "ptranz.com"];
+              // Only allow HTTPS URLs on trusted WiPay domains.
+              const ALLOWED_PAYMENT_HOSTS = [
+                "gy.wipayfinancial.com",
+                "tt.wipayfinancial.com",
+                "jm.wipayfinancial.com",
+                "bb.wipayfinancial.com",
+                "sandbox.wipayfinancial.com",
+              ];
               try {
                 const paymentUrlObj = new URL(payload.paymentUrl);
-                if (
-                  paymentUrlObj.protocol !== "https:" ||
-                  !ALLOWED_PAYMENT_HOSTS.includes(paymentUrlObj.hostname)
-                ) {
+                if (paymentUrlObj.protocol !== "https:" || !ALLOWED_PAYMENT_HOSTS.includes(paymentUrlObj.hostname)) {
                   setSignupError("Invalid payment URL received. Please contact support.");
                   return;
                 }
@@ -171,12 +193,7 @@ export function SignupStep4({
         </div>
         <div className="space-y-2">
           <Label htmlFor="signup-password">Password</Label>
-          <Input
-            id="signup-password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <Input id="signup-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           {password.length > 0 &&
             (() => {
               const pwResult = validatePassword(password);
@@ -214,9 +231,7 @@ export function SignupStep4({
               );
             })()}
         </div>
-        <div aria-live="polite">
-          {signupError && <p className="text-sm text-destructive">{signupError}</p>}
-        </div>
+        <div aria-live="polite">{signupError && <p className="text-sm text-destructive">{signupError}</p>}</div>
         <Button
           variant="default"
           size="lg"
@@ -224,21 +239,13 @@ export function SignupStep4({
           disabled={submitting || !csrfToken || !validateEmail(email) || !validatePassword(password).valid}
           className="mt-6 h-11 w-full"
         >
-          {!csrfToken
-            ? "Loading\u2026"
-            : submitting
-              ? "Setting up your workspace\u2026"
-              : "Continue to payment"}
+          {!csrfToken ? "Loading\u2026" : submitting ? "Setting up your workspace\u2026" : "Continue to payment"}
         </Button>
         <p className="mt-2 text-center text-xs text-muted-foreground/40">
-          You&apos;ll complete payment securely via PowerTranz. Cards and Caribbean payment methods supported.
+          You&apos;ll complete payment securely via WiPay. Cards and Caribbean payment methods supported.
         </p>
       </form>
-      <button
-        type="button"
-        onClick={onBack}
-        className="mt-4 text-sm text-muted-foreground/60 hover:opacity-100"
-      >
+      <button type="button" onClick={onBack} className="mt-4 text-sm text-muted-foreground/60 hover:opacity-100">
         Back
       </button>
     </>

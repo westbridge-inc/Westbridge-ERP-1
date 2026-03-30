@@ -36,7 +36,11 @@ function SignupContent() {
     [router],
   );
 
-  const returnFromPayment = searchParams.get("success") === "true";
+  // WiPay redirects with ?payment=success or ?payment=failed.
+  // Also support the legacy ?success=true param for backwards compatibility.
+  const paymentParam = searchParams.get("payment");
+  const returnFromPayment = paymentParam === "success" || searchParams.get("success") === "true";
+  const paymentFailed = paymentParam === "failed";
 
   // Fetch CSRF token on mount and auto-refresh every 4 minutes to prevent
   // token expiry during long signup flows.
@@ -53,8 +57,8 @@ function SignupContent() {
   }, []);
 
   useEffect(() => {
-    if (returnFromPayment) setStep(4);
-  }, [returnFromPayment, setStep]);
+    if (returnFromPayment || paymentFailed) setStep(4);
+  }, [returnFromPayment, paymentFailed, setStep]);
 
   useEffect(() => {
     setStepState(stepFromUrl);
@@ -109,12 +113,7 @@ function SignupContent() {
         )}
 
         {step === 2 && (
-          <SignupStep2
-            planId={planId}
-            setPlanId={setPlanId}
-            onBack={() => setStep(1)}
-            onNext={() => setStep(3)}
-          />
+          <SignupStep2 planId={planId} setPlanId={setPlanId} onBack={() => setStep(1)} onNext={() => setStep(3)} />
         )}
 
         {step === 3 && (
@@ -132,6 +131,7 @@ function SignupContent() {
         {step === 4 && (
           <SignupStep4
             returnFromPayment={returnFromPayment}
+            paymentFailed={paymentFailed}
             planName={plan.name}
             planIncludedBundleIds={[...plan.includedBundleIds]}
             addOnIds={addOnIds}

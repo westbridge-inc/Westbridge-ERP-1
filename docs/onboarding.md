@@ -88,7 +88,7 @@ Backend directories (separate repo — `Westbridge-ERP-2`):
 | Directory | Purpose |
 |-----------|---------|
 | `lib/services/` | Domain service layer |
-| `lib/data/` | External API clients (ERPNext, PowerTranz) |
+| `lib/data/` | External API clients (ERPNext, WiPay) |
 | `prisma/` | Schema and migrations |
 
 ## Day 3: Your First PR
