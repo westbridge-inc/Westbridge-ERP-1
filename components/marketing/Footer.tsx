@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 const productLinks = [
   { href: ROUTES.modules, label: "Features" },
   { href: ROUTES.pricing, label: "Pricing" },
-  { href: ROUTES.about, label: "Documentation" },
+  { href: ROUTES.about, label: "About" },
 ];
 
 const companyLinks = [

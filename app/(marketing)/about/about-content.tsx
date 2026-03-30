@@ -9,7 +9,7 @@ const STATS = [
   { value: "38", label: "Modules" },
   { value: "7", label: "Module bundles" },
   { value: "AI", label: "Powered insights" },
-  { value: "SOC 2", label: "Ready" },
+  { value: "256-bit", label: "Encryption" },
 ];
 
 const PRINCIPLES = [

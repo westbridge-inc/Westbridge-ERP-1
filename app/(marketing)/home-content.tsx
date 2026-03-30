@@ -34,7 +34,7 @@ const FEATURES = [
   {
     icon: ShieldCheck,
     title: "Enterprise Security",
-    desc: "SSO, 2FA, audit logging, role-based access, API keys",
+    desc: "OIDC single sign-on, TOTP 2FA, audit logging, role-based access, API keys",
   },
 ];
 
@@ -87,20 +87,16 @@ export function HomeContent() {
         </div>
       </section>
 
-      {/* Social proof */}
-      <section className="border-y border-border/60 bg-muted/30 px-6 py-12">
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="text-sm font-medium tracking-wide text-muted-foreground/60">
-            Trusted by businesses in 12+ countries
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-6">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex h-10 w-28 items-center justify-center rounded-md bg-muted/60">
-                <span className="text-[11px] text-muted-foreground/30">Logo</span>
-              </div>
-            ))}
-          </div>
-          <p className="mt-4 text-xs text-muted-foreground/40">Join hundreds of businesses already using Westbridge</p>
+      {/* Value prop strip */}
+      <section className="border-y border-border/60 bg-muted/30 px-6 py-10">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-10 gap-y-4 text-sm text-muted-foreground/60">
+          <span>No credit card required</span>
+          <span className="hidden sm:inline">|</span>
+          <span>{TRIAL.days}-day free trial</span>
+          <span className="hidden sm:inline">|</span>
+          <span>Cancel anytime</span>
+          <span className="hidden sm:inline">|</span>
+          <span>Set up in under 5 minutes</span>
         </div>
       </section>
 
