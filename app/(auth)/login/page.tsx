@@ -19,7 +19,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [csrfLoaded, setCsrfLoaded] = useState(false);
-  const [, setFailedAttempts] = useState(0);
+  const [failedAttempts, setFailedAttempts] = useState(0);
 
   useEffect(() => {
     fetch("/api/csrf", { credentials: "include" })
@@ -180,7 +180,14 @@ export default function LoginPage() {
               <div aria-live="polite">
                 {error && (
                   <Alert variant="destructive" className="rounded-md">
-                    <AlertDescription>{error}</AlertDescription>
+                    <AlertDescription>
+                      {error}
+                      {failedAttempts >= 3 && (
+                        <span className="mt-1 block text-xs opacity-80">
+                          Too many attempts? Try resetting your password.
+                        </span>
+                      )}
+                    </AlertDescription>
                   </Alert>
                 )}
               </div>
