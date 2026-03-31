@@ -84,19 +84,20 @@ export async function middleware(request: NextRequest) {
           "X-Forwarded-For": request.headers.get("x-forwarded-for") ?? "",
         },
         cache: "no-store",
-        signal: AbortSignal.timeout(5_000),
+        signal: AbortSignal.timeout(15_000),
       });
 
-      if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        // Explicit auth rejection — session is invalid, redirect to login
         const response = NextResponse.redirect(new URL("/login", request.url));
         response.cookies.delete(COOKIE.SESSION_NAME);
         return addSecurityHeaders(response);
       }
+      // For any other non-ok status (500, 502, 503), let the user through
+      // — the dashboard will show an error state rather than a login loop
     } catch {
-      const response = NextResponse.redirect(new URL("/login", request.url));
-      response.cookies.delete(COOKIE.SESSION_NAME);
-      response.cookies.set("westbridge_logged_in", "", { maxAge: 0, path: "/" });
-      return addSecurityHeaders(response);
+      // Network error or timeout — don't kick the user out.
+      // Let them through; client-side will handle if session is truly invalid.
     }
   }
 
