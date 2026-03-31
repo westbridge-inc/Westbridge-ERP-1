@@ -28,6 +28,7 @@ export const ROUTES = {
   invite: "/invite",
   terms: "/terms",
   privacy: "/privacy",
+  docs: "/docs",
 } as const;
 
 export const TRIAL = {
