@@ -106,23 +106,12 @@ export function Footer() {
               <ul className="mt-4 space-y-3">
                 {productLinks.map((link) => (
                   <li key={link.href}>
-                    {"external" in link && link.external ? (
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        {link.label}
-                      </a>
-                    ) : (
-                      <Link
-                        href={link.href}
-                        className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-                      >
-                        {link.label}
-                      </Link>
-                    )}
+                    <Link
+                      href={link.href}
+                      className="text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -169,7 +158,7 @@ export function Footer() {
           </div>
         </div>
         <p className="mt-12 border-t border-border pt-8 text-[13px] text-muted-foreground">
-          &copy; 2026 {SITE.name} {SITE.legal}. All rights reserved.
+          &copy; {new Date().getFullYear()} {SITE.name} {SITE.legal}. All rights reserved.
         </p>
       </div>
     </footer>

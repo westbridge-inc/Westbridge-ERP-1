@@ -31,6 +31,11 @@ export const metadata: Metadata = {
   title: { default: SITE.name, template: `%s | ${SITE.name}` },
   description: SITE.tagline,
   openGraph: { type: "website", siteName: SITE.name },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE.name,
+    description: SITE.tagline,
+  },
   icons: { icon: SITE.faviconPath, apple: SITE.faviconPath },
   manifest: "/manifest.json",
   other: {

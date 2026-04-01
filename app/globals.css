@@ -166,7 +166,10 @@
   ::selection {
     @apply bg-foreground/10;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display-family, var(--font-sans));
     font-weight: 600;
     letter-spacing: -0.025em;
@@ -220,5 +223,21 @@
   }
   .font-display {
     font-family: var(--font-display-family, var(--font-sans));
+  }
+
+  /* Subtle fade-in for marketing sections — pure CSS, no JS overhead */
+  .fade-in {
+    animation: fadeInUp 0.7s ease-out both;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
