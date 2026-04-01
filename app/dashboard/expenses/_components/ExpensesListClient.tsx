@@ -183,7 +183,7 @@ export function ExpensesListClient({ rows, currentPage, hasMore }: ExpensesListC
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Expenses</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Expenses</h1>
           <p className="text-sm text-muted-foreground">Expense claims and approvals</p>
         </div>
         <div className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export function ExpensesListClient({ rows, currentPage, hasMore }: ExpensesListC
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         title={`Delete ${deleteTarget?.name ?? "record"}?`}
-        description="This action cannot be undone."
+        description="This action cannot be undone. The expense claim will be permanently removed."
         confirmLabel={deleting ? "Deleting..." : "Delete"}
         variant="destructive"
       />

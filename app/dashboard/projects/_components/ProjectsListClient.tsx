@@ -191,7 +191,7 @@ export function ProjectsListClient({ rows, currentPage, hasMore }: ProjectsListC
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Projects</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Projects</h1>
           <p className="text-sm text-muted-foreground">Manage projects and track progress</p>
         </div>
         <div className="flex items-center gap-2">
@@ -278,7 +278,7 @@ export function ProjectsListClient({ rows, currentPage, hasMore }: ProjectsListC
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         title={`Delete ${deleteTarget?.name ?? "record"}?`}
-        description="This action cannot be undone."
+        description="This action cannot be undone. The project and its associated data will be permanently removed."
         confirmLabel={deleting ? "Deleting..." : "Delete"}
         variant="destructive"
       />

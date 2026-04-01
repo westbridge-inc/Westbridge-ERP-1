@@ -190,7 +190,7 @@ export default function QuotationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Quotations</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Quotations</h1>
           <p className="text-sm text-muted-foreground">Sales quotations and proposals</p>
         </div>
         <div className="flex items-center gap-2">

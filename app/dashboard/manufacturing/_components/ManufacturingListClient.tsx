@@ -304,7 +304,7 @@ export function ManufacturingListClient({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Manufacturing</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Manufacturing</h1>
           <p className="text-sm text-muted-foreground">Bills of materials and work orders</p>
         </div>
         <div className="flex items-center gap-2">
@@ -455,7 +455,7 @@ export function ManufacturingListClient({
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         title={`Delete ${deleteTarget?.name ?? "record"}?`}
-        description="This action cannot be undone."
+        description="This action cannot be undone. The record will be permanently removed."
         confirmLabel={deleting ? "Deleting..." : "Delete"}
         variant="destructive"
       />

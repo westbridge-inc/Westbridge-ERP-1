@@ -312,7 +312,7 @@ function AccountingListView({ type }: { type: string }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{config.title}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
           <p className="text-sm text-muted-foreground">{config.subtitle}</p>
         </div>
         <Button variant="primary" onClick={() => router.push("/dashboard/accounting/new")}>

@@ -76,7 +76,7 @@ export default async function DashboardPage() {
   if (error || !data) {
     return (
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{getGreeting()}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{getGreeting()}</h1>
         <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening at your account</p>
         <DashboardError message={error ?? "Failed to load dashboard data."} />
       </div>
@@ -144,7 +144,12 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent className="p-0">
             {data.activity.length === 0 ? (
-              <p className="px-6 pb-6 text-sm text-muted-foreground">No recent activity to display.</p>
+              <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
+                <p className="text-sm font-medium text-foreground">No recent activity</p>
+                <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+                  Activity will appear here as you create invoices, update deals, and process transactions.
+                </p>
+              </div>
             ) : (
               <ul className="divide-y divide-border">
                 {data.activity.map((a, i) => (

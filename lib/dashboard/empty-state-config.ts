@@ -53,14 +53,15 @@ export const MODULE_EMPTY_STATES = {
     actionLink: "/dashboard/quotations?action=new",
   },
   accounting: {
-    title: "Chart of accounts not configured",
-    description: "Set up your chart of accounts to start financial tracking.",
-    actionLabel: "Configure",
+    title: "No accounting entries yet",
+    description: "Set up your chart of accounts and create your first journal entry to start tracking finances.",
+    actionLabel: "Set Up Accounts",
     actionLink: "/dashboard/settings",
   },
   analytics: {
-    title: "Not enough data yet",
-    description: "Analytics will populate as you create invoices, deals, and process payroll.",
+    title: "Analytics will appear here",
+    description:
+      "Start by creating invoices, recording expenses, or processing payroll. Reports and trends will generate automatically as data flows in.",
     actionLabel: "Go to Dashboard",
     actionLink: "/dashboard",
   },
@@ -71,9 +72,9 @@ export const MODULE_EMPTY_STATES = {
     actionLink: "/dashboard/projects/new",
   },
   manufacturing: {
-    title: "No manufacturing data",
-    description: "Create a bill of materials or work order to manage your production.",
-    actionLabel: "New BOM",
+    title: "No bills of materials yet",
+    description: "Define your first bill of materials to track raw materials, components, and production workflows.",
+    actionLabel: "Create BOM",
     actionLink: "/dashboard/manufacturing/new",
   },
 } as const;

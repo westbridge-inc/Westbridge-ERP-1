@@ -19,8 +19,11 @@ export function RevenueChart({ data }: { data: RevenuePoint[] }) {
       <p className="font-display text-lg font-semibold text-foreground">Revenue</p>
       <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Last 6 months</p>
       {isEmpty ? (
-        <div className="mt-4 flex h-64 w-full items-center justify-center">
-          <p className="text-sm text-muted-foreground">No revenue data yet</p>
+        <div className="mt-4 flex h-64 w-full flex-col items-center justify-center text-center">
+          <p className="text-sm font-medium text-foreground">No revenue data yet</p>
+          <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+            Revenue trends will appear here once you create and submit your first invoices.
+          </p>
         </div>
       ) : (
         <div className="mt-4 h-64 w-full">
