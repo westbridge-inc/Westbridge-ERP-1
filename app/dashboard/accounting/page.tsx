@@ -26,7 +26,9 @@ import { SkeletonTable } from "@/components/ui/SkeletonTable";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { formatCurrency } from "@/lib/locale/currency";
-import { AIChatPanel } from "@/components/ai/AIChatPanel";
+const AIChatPanel = nextDynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
+  ssr: false,
+});
 import { useErpList } from "@/lib/queries/useErpList";
 import { fetchDoctype } from "@/lib/api/fetchDoctype";
 

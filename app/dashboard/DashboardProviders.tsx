@@ -5,7 +5,10 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ErpConnectionBanner } from "@/components/dashboard/ErpConnectionBanner";
 import { ErpConnectionProvider } from "@/components/dashboard/ErpConnectionContext";
-import { PageTransition } from "@/components/dashboard/PageTransition";
+const PageTransition = dynamic(
+  () => import("@/components/dashboard/PageTransition").then((m) => ({ default: m.PageTransition })),
+  { ssr: false },
+);
 import { ShortcutsProvider } from "@/components/dashboard/ShortcutsContext";
 import { QueryProvider } from "@/components/dashboard/QueryProvider";
 import { WebVitalsReporter } from "@/lib/web-vitals";

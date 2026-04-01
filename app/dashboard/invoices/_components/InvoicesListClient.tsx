@@ -17,7 +17,11 @@ import { api } from "@/lib/api/client";
 import type { CurrencyCode } from "@/lib/constants";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { FileText, Download, Trash2, FileDown, Upload, Settings2, Check } from "lucide-react";
-import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import dynamic from "next/dynamic";
+
+const AIChatPanel = dynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
+  ssr: false,
+});
 import { ImportModal, type ImportFieldMapping } from "@/components/dashboard/ImportModal";
 
 /* ---------- types ---------- */

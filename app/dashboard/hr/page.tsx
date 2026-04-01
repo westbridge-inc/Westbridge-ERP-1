@@ -17,7 +17,11 @@ import { useToasts } from "@/components/ui/Toasts";
 import { formatDate } from "@/lib/locale/date";
 import { downloadCsv } from "@/lib/utils/csv";
 import { api } from "@/lib/api/client";
-import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import dynamic from "next/dynamic";
+
+const AIChatPanel = dynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
+  ssr: false,
+});
 import { useErpList } from "@/lib/queries/useErpList";
 
 /* ------------------------------------------------------------------ */

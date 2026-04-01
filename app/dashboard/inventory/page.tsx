@@ -12,7 +12,11 @@ import { Button } from "@/components/ui/Button";
 import { SkeletonTable } from "@/components/ui/SkeletonTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCurrency } from "@/lib/locale/currency";
-import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import dynamic from "next/dynamic";
+
+const AIChatPanel = dynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
+  ssr: false,
+});
 import { useErpList } from "@/lib/queries/useErpList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToasts } from "@/components/ui/Toasts";

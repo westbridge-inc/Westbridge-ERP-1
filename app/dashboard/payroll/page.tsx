@@ -14,7 +14,11 @@ import { SkeletonTable } from "@/components/ui/SkeletonTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatCurrency } from "@/lib/locale/currency";
 import { formatDate } from "@/lib/locale/date";
-import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import dynamic from "next/dynamic";
+
+const AIChatPanel = dynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
+  ssr: false,
+});
 import { useErpList } from "@/lib/queries/useErpList";
 
 /* ------------------------------------------------------------------ */

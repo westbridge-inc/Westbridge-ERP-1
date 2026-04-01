@@ -4,6 +4,8 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  poweredByHeader: false,
+  reactStrictMode: true,
   productionBrowserSourceMaps: false,
   outputFileTracingRoot: path.join(process.cwd()),
   images: {

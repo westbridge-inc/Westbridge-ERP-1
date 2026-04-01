@@ -12,7 +12,11 @@ import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/e
 import { formatCurrency } from "@/lib/locale/currency";
 import { FileBarChart, Download, Trash2 } from "lucide-react";
 import { formatDateLong } from "@/lib/locale/date";
-import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import dynamic from "next/dynamic";
+
+const AIChatPanel = dynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
+  ssr: false,
+});
 import { useErpList } from "@/lib/queries/useErpList";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToasts } from "@/components/ui/Toasts";

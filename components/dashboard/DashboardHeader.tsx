@@ -15,7 +15,12 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/Button";
 import { useSidebar } from "@/components/ui/sidebar";
-import { CommandPalette } from "@/components/dashboard/CommandPalette";
+import dynamic from "next/dynamic";
+
+const CommandPalette = dynamic(
+  () => import("@/components/dashboard/CommandPalette").then((m) => ({ default: m.CommandPalette })),
+  { ssr: false },
+);
 import { NotificationPanel, useNotifications } from "@/components/dashboard/NotificationPanel";
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { ShortcutsModal } from "@/components/dashboard/ShortcutsModal";

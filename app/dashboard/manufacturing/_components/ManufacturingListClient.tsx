@@ -15,7 +15,11 @@ import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/e
 import { formatDate } from "@/lib/locale/date";
 import { downloadCsv } from "@/lib/utils/csv";
 import { api } from "@/lib/api/client";
-import { AIChatPanel } from "@/components/ai/AIChatPanel";
+import dynamic from "next/dynamic";
+
+const AIChatPanel = dynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
+  ssr: false,
+});
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
