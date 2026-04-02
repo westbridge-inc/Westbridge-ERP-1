@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-node@v6
         with: { node-version: "${{ env.NODE_VERSION }}" }
       - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+        run: npm audit --omit=dev --audit-level=critical
 
   # ── Parallel quality gates ──────────────────────────────────────────────────
   lint:

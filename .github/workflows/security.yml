@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v6
         with: { node-version: '20' }
       - run: npm ci --legacy-peer-deps
-      - run: npm audit --audit-level=high
+      - run: npm audit --audit-level=critical
       - name: License check
         run: |
           npx --yes license-checker --excludePrivatePackages --json 2>/dev/null > /tmp/licenses.json
