@@ -72,7 +72,7 @@ export default function DocsPage() {
               </li>
               <li>
                 <span className="font-medium text-foreground">Create your account</span> — Set your email and password.
-                After payment confirmation (processed via WiPay), you land directly in your dashboard.
+                After payment confirmation (processed via Paddle), you land directly in your dashboard.
               </li>
             </ol>
             <p>
@@ -245,7 +245,7 @@ export default function DocsPage() {
               </li>
               <li>
                 <span className="font-medium text-foreground">256-bit encryption</span> — All data is encrypted in
-                transit (TLS) and at rest. Payment data is handled by WiPay in accordance with PCI standards.
+                transit (TLS) and at rest. Payment data is handled by Paddle in accordance with PCI standards.
               </li>
               <li>
                 <span className="font-medium text-foreground">Session fingerprinting</span> — Sessions are bound to
@@ -275,9 +275,9 @@ export default function DocsPage() {
               .
             </p>
             <p>
-              Payments are processed via <span className="font-medium text-foreground">WiPay</span>, a Caribbean payment
-              gateway supporting all major credit cards and international payment methods. Subscription fees are billed
-              in advance monthly or annually.
+              Payments are processed via <span className="font-medium text-foreground">Paddle</span>, supporting all
+              major credit cards and international payment methods. Subscription fees are billed in advance monthly or
+              annually.
             </p>
             <p>
               <span className="font-medium text-foreground">Overage billing</span> applies automatically on Solo,

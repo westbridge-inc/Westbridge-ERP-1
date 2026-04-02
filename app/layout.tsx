@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
 import { Inter, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
@@ -7,6 +8,7 @@ import { SITE } from "@/lib/config/site";
 import { ToastsProvider } from "@/components/ui/Toasts";
 import { PHProvider } from "@/components/analytics/PHProvider";
 import { CookieConsent } from "@/components/marketing/CookieConsent";
+import { PaddleInit } from "@/components/payments/PaddleInit";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -65,6 +67,8 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
+        <Script src="https://cdn.paddle.com/paddle/v2/paddle.js" strategy="lazyOnload" />
+        <PaddleInit />
         <PHProvider />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <ToastsProvider>

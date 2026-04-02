@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/Button";
@@ -8,6 +8,13 @@ import { validatePassword, TOTAL_PW_REQUIREMENTS } from "@/lib/password-policy";
 import { ROUTES } from "@/lib/config/site";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+const PADDLE_PRICES: Record<string, string> = {
+  Solo: process.env.NEXT_PUBLIC_PADDLE_PRICE_SOLO ?? "",
+  Starter: process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER ?? "",
+  Business: process.env.NEXT_PUBLIC_PADDLE_PRICE_BUSINESS ?? "",
+  Enterprise: process.env.NEXT_PUBLIC_PADDLE_PRICE_ENTERPRISE ?? "",
+};
 
 export interface SignupStep4Props {
   returnFromPayment: boolean;
@@ -36,6 +43,7 @@ export function SignupStep4({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [paddleOpen, setPaddleOpen] = useState(false);
   const [signupError, setSignupError] = useState<string | null>(null);
   const [emailTouched, setEmailTouched] = useState(false);
   const [, setEmailValid] = useState(false);
@@ -134,30 +142,26 @@ export function SignupStep4({
               return;
             }
             const payload = data.data ?? data;
-            if (payload.paymentUrl) {
-              // Validate payment URL to prevent open redirect attacks.
-              // Only allow HTTPS URLs on trusted WiPay domains.
-              const ALLOWED_PAYMENT_HOSTS = [
-                "gy.wipayfinancial.com",
-                "tt.wipayfinancial.com",
-                "jm.wipayfinancial.com",
-                "bb.wipayfinancial.com",
-                "sandbox.wipayfinancial.com",
-              ];
-              try {
-                const paymentUrlObj = new URL(payload.paymentUrl);
-                if (paymentUrlObj.protocol !== "https:" || !ALLOWED_PAYMENT_HOSTS.includes(paymentUrlObj.hostname)) {
-                  setSignupError("Invalid payment URL received. Please contact support.");
-                  return;
-                }
-              } catch {
-                setSignupError("Invalid payment URL received. Please contact support.");
-                return;
-              }
-              window.location.href = payload.paymentUrl;
+            const selectedPriceId = PADDLE_PRICES[planName] ?? "";
+            if (selectedPriceId && window.Paddle) {
+              setPaddleOpen(true);
+              window.Paddle.Checkout.open({
+                items: [{ priceId: selectedPriceId, quantity: 1 }],
+                customer: { email },
+                customData: { accountId: payload.accountId ?? "" },
+                settings: {
+                  successUrl: `${window.location.origin}/signup?payment=success`,
+                  displayMode: "overlay",
+                  theme: "light",
+                },
+              });
               return;
             }
-            setSignupError(payload.message || "Account created. Contact support to complete payment.");
+            setSignupError(
+              !selectedPriceId
+                ? "No price configured for the selected plan. Please contact support."
+                : "Payment system is loading. Please try again in a moment.",
+            );
           } catch {
             setSignupError("Something went wrong. Please try again.");
           } finally {
@@ -236,13 +240,25 @@ export function SignupStep4({
           variant="default"
           size="lg"
           type="submit"
-          disabled={submitting || !csrfToken || !validateEmail(email) || !validatePassword(password).valid}
+          disabled={
+            submitting || paddleOpen || !csrfToken || !validateEmail(email) || !validatePassword(password).valid
+          }
           className="mt-6 h-11 w-full"
         >
-          {!csrfToken ? "Loading\u2026" : submitting ? "Setting up your workspace\u2026" : "Continue to payment"}
+          {!csrfToken ? (
+            "Loading\u2026"
+          ) : submitting ? (
+            "Setting up your workspace\u2026"
+          ) : paddleOpen ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" /> Waiting for payment...
+            </span>
+          ) : (
+            "Continue to payment"
+          )}
         </Button>
         <p className="mt-2 text-center text-xs text-muted-foreground/40">
-          You&apos;ll complete payment securely via WiPay. Cards and Caribbean payment methods supported.
+          You&apos;ll complete payment securely via Paddle. All major cards supported.
         </p>
       </form>
       <button type="button" onClick={onBack} className="mt-4 text-sm text-muted-foreground/60 hover:opacity-100">

@@ -74,9 +74,9 @@ npm start               # start Next.js server
 
 ---
 
-## WiPay (payments)
+## Paddle (payments)
 
-Payment processing is handled by the **backend API** via WiPay (Caribbean-focused payment gateway). See [Westbridge-ERP-2](https://github.com/westbridge-inc/Westbridge-ERP-2) and `docs/WIPAY-SETUP.md` for configuration.
+Payment processing uses **Paddle** for subscription billing. The frontend loads Paddle.js and opens an overlay checkout. See [Westbridge-ERP-2](https://github.com/westbridge-inc/Westbridge-ERP-2) and `docs/PADDLE-SETUP.md` for configuration.
 
 ---
 

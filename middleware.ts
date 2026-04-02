@@ -20,7 +20,9 @@ const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN ?? "";
 const posthogHost = process.env.POSTHOG_HOST ?? "https://app.posthog.com";
 
 function buildCsp(): string {
-  const scriptSrc = isProd ? "script-src 'self' 'unsafe-inline'" : "script-src 'self' 'unsafe-eval' 'unsafe-inline'";
+  const scriptSrc = isProd
+    ? "script-src 'self' 'unsafe-inline' https://cdn.paddle.com"
+    : "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.paddle.com";
 
   const styleSrc = "style-src 'self' 'unsafe-inline'";
 
@@ -28,8 +30,8 @@ function buildCsp(): string {
   if (apiHost) connectSrcParts.push(apiHost);
   if (sentryDsn) connectSrcParts.push("https://*.ingest.sentry.io", "https://*.ingest.de.sentry.io");
   if (posthogHost) connectSrcParts.push(posthogHost);
-  // WiPay — Caribbean payment gateway
-  connectSrcParts.push("https://*.wipayfinancial.com");
+  // Paddle — payment gateway
+  connectSrcParts.push("https://*.paddle.com", "https://cdn.paddle.com");
 
   const parts = [
     "default-src 'self'",
@@ -38,6 +40,7 @@ function buildCsp(): string {
     "img-src 'self' data: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
     `connect-src ${connectSrcParts.join(" ")}`,
+    "frame-src https://*.paddle.com",
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",

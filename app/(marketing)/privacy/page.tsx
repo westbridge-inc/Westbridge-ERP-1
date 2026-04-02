@@ -25,7 +25,7 @@ export default function PrivacyPage() {
           <h2 className="text-base font-semibold text-foreground">2. Information we collect</h2>
           <p className="mt-2 leading-relaxed">
             We collect information you provide when you sign up (e.g. name, email, company name, country), payment and
-            billing information processed by our payment provider (WiPay), and usage data necessary to operate the
+            billing information processed by our payment provider (Paddle), and usage data necessary to operate the
             Service (e.g. login sessions, feature usage). We do not sell your personal data.
           </p>
         </section>

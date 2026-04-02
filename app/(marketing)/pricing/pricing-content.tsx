@@ -21,7 +21,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "What payment methods do you accept?",
-    a: "We accept all major credit and debit cards processed securely through WiPay.",
+    a: "We accept all major credit and debit cards processed securely through Paddle.",
   },
   {
     q: "Can I cancel anytime?",

@@ -36,7 +36,7 @@ function SignupContent() {
     [router],
   );
 
-  // WiPay redirects with ?payment=success or ?payment=failed.
+  // Paddle overlay redirects with ?payment=success on completion.
   // Also support the legacy ?success=true param for backwards compatibility.
   const paymentParam = searchParams.get("payment");
   const returnFromPayment = paymentParam === "success" || searchParams.get("success") === "true";
