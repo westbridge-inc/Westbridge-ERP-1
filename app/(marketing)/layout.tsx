@@ -5,7 +5,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-background pt-16">
       <Navbar />
-      {children}
+      <main id="main-content">{children}</main>
       <Footer />
     </div>
   );

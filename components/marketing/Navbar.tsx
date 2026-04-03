@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useSyncExternalStore, useCallback } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { ROUTES } from "@/lib/config/site";
 import { Logo } from "@/components/brand/Logo";
@@ -17,20 +18,21 @@ function useIsLoggedIn() {
 }
 
 const navLinks = [
-  { href: ROUTES.modules, label: "Features" },
+  { href: ROUTES.home, label: "Home" },
   { href: ROUTES.pricing, label: "Pricing" },
+  { href: ROUTES.modules, label: "Modules" },
   { href: ROUTES.about, label: "About" },
+  { href: ROUTES.docs, label: "Docs" },
 ];
-
-const SCROLL_THRESHOLD = 24;
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const isLoggedIn = useIsLoggedIn();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD);
+    const onScroll = () => setScrolled(window.scrollY > 10);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -54,24 +56,28 @@ export function Navbar() {
     <>
       <nav
         className={cn(
-          "fixed left-0 right-0 top-0 z-50 h-16 transition-all duration-200",
+          "fixed left-0 right-0 top-0 z-40 h-16 transition-all duration-200",
           scrolled
-            ? "border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+            ? "border-b border-border/50 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/80"
             : "border-b border-transparent bg-transparent",
         )}
       >
-        <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-6">
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6">
+          {/* Logo */}
           <Link href={ROUTES.home} className="inline-flex text-foreground hover:opacity-90">
             <Logo variant="full" size="sm" />
           </Link>
 
           {/* Desktop nav links */}
-          <div className="hidden items-center gap-8 md:flex">
+          <div className="hidden items-center gap-6 md:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-[13px] font-medium uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+                className={cn(
+                  "text-sm font-medium transition-colors duration-100 hover:text-foreground",
+                  pathname === link.href ? "text-foreground" : "text-muted-foreground",
+                )}
               >
                 {link.label}
               </Link>
@@ -86,12 +92,9 @@ export function Navbar() {
               </Button>
             ) : (
               <>
-                <Link
-                  href={ROUTES.login}
-                  className="text-[13px] font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  Sign in
-                </Link>
+                <Button asChild variant="ghost" size="sm">
+                  <Link href={ROUTES.login}>Log in</Link>
+                </Button>
                 <Button asChild size="sm">
                   <Link href={ROUTES.signup}>Get Started</Link>
                 </Button>
@@ -103,7 +106,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="flex h-10 w-10 items-center justify-center rounded-md border border-border md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-md md:hidden"
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5 text-foreground" />
@@ -111,10 +114,10 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile overlay + drawer — pure CSS transitions */}
+      {/* Mobile overlay + drawer */}
       <div
         className={cn(
-          "fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity duration-200 md:hidden",
+          "fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm transition-opacity duration-200 md:hidden",
           mobileOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={closeMobile}
@@ -137,32 +140,35 @@ export function Navbar() {
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="flex flex-1 flex-col gap-6 px-6 py-8">
+        <div className="flex flex-1 flex-col gap-1 px-4 py-6">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={closeMobile}
-              className="text-[13px] font-medium uppercase tracking-wider text-foreground"
+              className={cn(
+                "rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                pathname === link.href
+                  ? "bg-accent text-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )}
             >
               {link.label}
             </Link>
           ))}
-          <div className="flex flex-col gap-3 border-t border-border pt-6">
+          <div className="mt-4 flex flex-col gap-2 border-t border-border pt-4">
             {isLoggedIn ? (
-              <Link href={ROUTES.dashboard} onClick={closeMobile}>
-                <Button className="w-full justify-center">Dashboard</Button>
-              </Link>
+              <Button asChild className="w-full justify-center" onClick={closeMobile}>
+                <Link href={ROUTES.dashboard}>Dashboard</Link>
+              </Button>
             ) : (
               <>
-                <Link href={ROUTES.login} onClick={closeMobile}>
-                  <Button variant="ghost" className="w-full justify-center">
-                    Sign in
-                  </Button>
-                </Link>
-                <Link href={ROUTES.signup} onClick={closeMobile}>
-                  <Button className="w-full justify-center">Get Started</Button>
-                </Link>
+                <Button asChild variant="ghost" className="w-full justify-center" onClick={closeMobile}>
+                  <Link href={ROUTES.login}>Log in</Link>
+                </Button>
+                <Button asChild className="w-full justify-center" onClick={closeMobile}>
+                  <Link href={ROUTES.signup}>Get Started</Link>
+                </Button>
               </>
             )}
           </div>

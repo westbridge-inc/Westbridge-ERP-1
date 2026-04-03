@@ -1,55 +1,68 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
-const COOKIE_CONSENT_KEY = "westbridge_cookie_consent";
+const COOKIE_NAME = "westbridge_consent";
+
+function setCookie(name: string, value: string, days: number) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${value};expires=${expires};path=/;SameSite=Lax`;
+}
+
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? match[1] : null;
+}
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
+  const pathname = usePathname();
+
+  // Don't show on dashboard pages (user already accepted by signing up)
+  const isDashboard = pathname?.startsWith("/dashboard");
 
   useEffect(() => {
-    const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+    if (isDashboard) return;
+    const consent = getCookie(COOKIE_NAME);
     if (!consent) {
-      // Slight delay so it doesn't flash on page load
       const timer = setTimeout(() => setVisible(true), 1000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isDashboard]);
 
-  function accept() {
-    localStorage.setItem(COOKIE_CONSENT_KEY, "accepted");
+  function acceptAll() {
+    setCookie(COOKIE_NAME, "all", 365);
     setVisible(false);
   }
 
-  function decline() {
-    localStorage.setItem(COOKIE_CONSENT_KEY, "declined");
+  function essentialOnly() {
+    setCookie(COOKIE_NAME, "essential", 365);
     setVisible(false);
   }
 
-  if (!visible) return null;
+  if (!visible || isDashboard) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background p-4 shadow-lg md:bottom-4 md:left-4 md:right-auto md:max-w-md md:rounded-lg md:border">
-      <p className="text-sm text-foreground">
-        We use essential cookies for authentication and security. We also use analytics cookies to improve our
-        platform.
-      </p>
-      <p className="mt-1 text-xs text-muted-foreground">
-        By clicking &quot;Accept&quot;, you consent to analytics cookies. Essential cookies are always active.
-        See our{" "}
-        <a href="/privacy" className="underline hover:text-foreground">
-          Privacy Policy
-        </a>
-        .
-      </p>
-      <div className="mt-3 flex gap-2">
-        <Button size="sm" onClick={accept}>
-          Accept
-        </Button>
-        <Button size="sm" variant="outline" onClick={decline}>
-          Essential Only
-        </Button>
+    <div className="fixed bottom-0 left-0 right-0 z-50 animate-in slide-in-from-bottom duration-300 border-t border-border bg-background p-4 shadow-lg">
+      <div className="mx-auto flex max-w-7xl flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          We use cookies to improve your experience and analyze usage. Read our{" "}
+          <Link href="/privacy" className="text-foreground underline hover:no-underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={essentialOnly}>
+            Manage
+          </Button>
+          <Button size="sm" onClick={acceptAll}>
+            Accept All
+          </Button>
+        </div>
       </div>
     </div>
   );

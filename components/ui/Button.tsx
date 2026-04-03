@@ -5,14 +5,15 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-60 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 ring-offset-background cursor-pointer min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,background-color,border-color,box-shadow] duration-100 active:scale-[0.98] active:transition-transform active:duration-75 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 ring-offset-background cursor-pointer min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0",
   {
     variants: {
       variant: {
         default: "bg-foreground text-background hover:bg-foreground/90",
         primary: "bg-foreground text-background hover:bg-foreground/90",
-        destructive: "bg-destructive text-white hover:bg-destructive/90",
-        outline: "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+        destructive: "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive",
+        outline:
+          "border border-input bg-background hover:bg-accent hover:border-foreground/20 hover:text-accent-foreground",
         secondary: "bg-transparent border border-border text-foreground hover:bg-accent",
         ghost: "bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",

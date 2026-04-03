@@ -228,14 +228,20 @@
 
   /* Subtle fade-in for marketing sections — pure CSS, no JS overhead */
   .fade-in {
-    animation: fadeInUp 0.7s ease-out both;
+    animation: fadeInUp 0.6s ease-out both;
+  }
+  .fade-in-delay-1 {
+    animation: fadeInUp 0.6s ease-out 0.15s both;
+  }
+  .fade-in-delay-2 {
+    animation: fadeInUp 0.6s ease-out 0.3s both;
   }
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -252,11 +258,32 @@
   }
 }
 
+/* Shake animation for error feedback (OTP, etc.) */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Custom thin scrollbar
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -265,8 +292,22 @@
   background: oklch(0 0 0 / 0.15);
   border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0 0 0 / 0.25);
+}
 .dark ::-webkit-scrollbar-thumb {
   background: oklch(1 0 0 / 0.15);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(1 0 0 / 0.25);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Scroll containment for nested scrollable areas
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.scroll-contain {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
