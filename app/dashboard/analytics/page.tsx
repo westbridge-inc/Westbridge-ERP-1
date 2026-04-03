@@ -374,11 +374,50 @@ function getLast12Months(): string[] {
 /*  Analytics dashboard sub-view                                       */
 /* ------------------------------------------------------------------ */
 
+type PeriodKey = "this_month" | "last_month" | "this_quarter" | "this_year";
+
+const PERIOD_OPTIONS: { value: PeriodKey; label: string }[] = [
+  { value: "this_month", label: "This Month" },
+  { value: "last_month", label: "Last Month" },
+  { value: "this_quarter", label: "This Quarter" },
+  { value: "this_year", label: "This Year" },
+];
+
+function getPeriodRange(period: PeriodKey): { start: string; end: string } {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+
+  switch (period) {
+    case "this_month": {
+      const start = new Date(y, m, 1);
+      const end = new Date(y, m + 1, 0);
+      return { start: start.toISOString().split("T")[0], end: end.toISOString().split("T")[0] };
+    }
+    case "last_month": {
+      const start = new Date(y, m - 1, 1);
+      const end = new Date(y, m, 0);
+      return { start: start.toISOString().split("T")[0], end: end.toISOString().split("T")[0] };
+    }
+    case "this_quarter": {
+      const qStart = Math.floor(m / 3) * 3;
+      const start = new Date(y, qStart, 1);
+      const end = new Date(y, qStart + 3, 0);
+      return { start: start.toISOString().split("T")[0], end: end.toISOString().split("T")[0] };
+    }
+    case "this_year":
+    default: {
+      return { start: `${y}-01-01`, end: `${y}-12-31` };
+    }
+  }
+}
+
 function AnalyticsDashboard() {
   const [state, setState] = useState<PageState>("loading");
   const [, setErrorMessage] = useState<string | null>(null);
   const [salesInvoices, setSalesInvoices] = useState<RawInvoice[]>([]);
   const [purchaseInvoices, setPurchaseInvoices] = useState<RawInvoice[]>([]);
+  const [period, setPeriod] = useState<PeriodKey>("this_year");
 
   const [fetchKey, setFetchKey] = useState(0);
 
@@ -500,20 +539,38 @@ function AnalyticsDashboard() {
       .slice(0, 6);
   }, [salesInvoices]);
 
-  const totalRevenue = useMemo(
+  const periodRange = useMemo(() => getPeriodRange(period), [period]);
+
+  const filteredSales = useMemo(
     () =>
-      salesInvoices
-        .filter((inv) => inv.status === "Paid" || inv.docstatus === 1)
-        .reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
-    [salesInvoices],
+      salesInvoices.filter(
+        (inv) =>
+          (inv.status === "Paid" || inv.docstatus === 1) &&
+          (inv.posting_date ?? "") >= periodRange.start &&
+          (inv.posting_date ?? "") <= periodRange.end,
+      ),
+    [salesInvoices, periodRange],
+  );
+
+  const filteredPurchases = useMemo(
+    () =>
+      purchaseInvoices.filter(
+        (inv) =>
+          (inv.status === "Paid" || inv.docstatus === 1) &&
+          (inv.posting_date ?? "") >= periodRange.start &&
+          (inv.posting_date ?? "") <= periodRange.end,
+      ),
+    [purchaseInvoices, periodRange],
+  );
+
+  const totalRevenue = useMemo(
+    () => filteredSales.reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
+    [filteredSales],
   );
 
   const totalExpenses = useMemo(
-    () =>
-      purchaseInvoices
-        .filter((inv) => inv.status === "Paid" || inv.docstatus === 1)
-        .reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
-    [purchaseInvoices],
+    () => filteredPurchases.reduce((sum, inv) => sum + (inv.grand_total ?? 0), 0),
+    [filteredPurchases],
   );
 
   const profitMargin = totalRevenue > 0 ? ((totalRevenue - totalExpenses) / totalRevenue) * 100 : 0;
@@ -536,6 +593,21 @@ function AnalyticsDashboard() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Analytics</h1>
         <p className="text-sm text-muted-foreground">Business insights and reports.</p>
+      </div>
+      <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+        {PERIOD_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => setPeriod(opt.value)}
+            className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+              period === opt.value
+                ? "bg-foreground text-background font-medium shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -621,13 +693,13 @@ function AnalyticsDashboard() {
         <MetricCard
           label="Revenue"
           value={formatCurrency(totalRevenue, "USD")}
-          subtext={`${salesInvoices.filter((i) => i.status === "Paid" || i.docstatus === 1).length} paid invoices`}
+          subtext={`${filteredSales.length} paid invoices`}
           subtextVariant="muted"
         />
         <MetricCard
           label="Expenses"
           value={formatCurrency(totalExpenses, "USD")}
-          subtext={`${purchaseInvoices.filter((i) => i.status === "Paid" || i.docstatus === 1).length} paid bills`}
+          subtext={`${filteredPurchases.length} paid bills`}
           subtextVariant="muted"
         />
         <MetricCard
@@ -746,6 +818,52 @@ function AnalyticsDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* P&L Summary Card */}
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-xl font-semibold text-foreground font-display">Profit & Loss Summary</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            {PERIOD_OPTIONS.find((o) => o.value === period)?.label ?? "This Year"}
+          </p>
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between py-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Revenue</span>
+              <span className="text-sm font-medium text-foreground tabular-nums">
+                {formatCurrency(totalRevenue, "USD")}
+              </span>
+            </div>
+            <div className="flex items-center justify-between py-2 border-b border-border/50">
+              <span className="text-sm text-muted-foreground">Expenses</span>
+              <span className="text-sm font-medium text-foreground tabular-nums">
+                {formatCurrency(totalExpenses, "USD")}
+              </span>
+            </div>
+            <div className="flex items-center justify-between py-2">
+              <span className="text-sm font-semibold text-foreground">Net Profit</span>
+              <span
+                className={`text-sm font-semibold tabular-nums ${
+                  totalRevenue - totalExpenses >= 0 ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                {formatCurrency(totalRevenue - totalExpenses, "USD")}
+              </span>
+            </div>
+            {totalRevenue > 0 && (
+              <div className="flex items-center justify-between py-2 border-t border-border">
+                <span className="text-xs text-muted-foreground">Profit Margin</span>
+                <span
+                  className={`text-xs font-medium tabular-nums ${
+                    profitMargin >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {profitMargin.toFixed(1)}%
+                </span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -758,17 +876,13 @@ function AnalyticsPageInner() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
 
-  // Projects section in sidebar maps here
+  // Projects section in sidebar maps here via ?type=
   if (type && PROJECT_TYPE_CONFIG[type]) {
     return <ProjectsListView type={type} />;
   }
 
-  // Default: show the Projects list (since sidebar "Projects" links here)
-  // Check if we're coming from the Projects sidebar section (no type = Projects list)
-  // Analytics dashboard is accessed via the default (no sidebar link currently points to it directly)
-  // NOTE: AnalyticsDashboard component is available but not yet wired into the sidebar.
-  // To enable, route to /dashboard/analytics?type=analytics and render <AnalyticsDashboard />
-  return <ProjectsListView type="project" />;
+  // Default: show the Analytics dashboard with charts and insights
+  return <AnalyticsDashboard />;
 }
 
 export default function AnalyticsPage() {

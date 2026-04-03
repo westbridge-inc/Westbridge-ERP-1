@@ -10,6 +10,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { SkeletonTable } from "@/components/ui/SkeletonTable";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { formatCurrency } from "@/lib/locale/currency";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { Truck, Download, Trash2 } from "lucide-react";
 import { formatDateLong } from "@/lib/locale/date";
 import dynamic from "next/dynamic";
@@ -257,6 +259,9 @@ function ProcurementPageInner() {
   const type = searchParams.get("type") ?? "default";
   const config = TYPE_CONFIG[type as keyof typeof TYPE_CONFIG] ?? TYPE_CONFIG.default;
   const isSupplier = type === "supplier";
+  const isInvoice = type === "invoice";
+
+  const activeTab = isSupplier ? "supplier" : isInvoice ? "invoice" : "default";
 
   const { addToast } = useToasts();
   const [page, setPage] = useState(0);
@@ -284,6 +289,36 @@ function ProcurementPageInner() {
     const q = search.toLowerCase();
     return data.filter((row) => Object.values(row).some((v) => String(v).toLowerCase().includes(q)));
   }, [data, search]);
+
+  /* Metric computations */
+  const poMetrics = useMemo(() => {
+    if (activeTab !== "default") return null;
+    const orders = filtered as unknown as PurchaseOrder[];
+    const total = orders.length;
+    const pending = orders.filter(
+      (o) => o.status === "Draft" || o.status === "To Receive and Bill" || o.status === "To Receive",
+    ).length;
+    const received = orders.filter(
+      (o) => o.status === "Completed" || o.status === "Received" || o.status === "Closed",
+    ).length;
+    const totalAmount = orders.reduce((sum, o) => sum + o.amount, 0);
+    return { total, pending, received, totalAmount };
+  }, [filtered, activeTab]);
+
+  const piMetrics = useMemo(() => {
+    if (activeTab !== "invoice") return null;
+    const invoices = filtered as unknown as PurchaseOrder[];
+    const total = invoices.length;
+    const unpaid = invoices.filter((i) => i.status === "Unpaid" || i.status === "Overdue").length;
+    const paid = invoices.filter((i) => i.status === "Paid").length;
+    const totalAmount = invoices.reduce((sum, i) => sum + i.amount, 0);
+    return { total, unpaid, paid, totalAmount };
+  }, [filtered, activeTab]);
+
+  const supplierMetrics = useMemo(() => {
+    if (activeTab !== "supplier") return null;
+    return { total: (filtered as SupplierRow[]).length };
+  }, [filtered, activeTab]);
 
   const poColumns = useMemo(() => getPoColumns(setDeleteTarget), []);
   const piColumns = useMemo(() => getPiColumns(setDeleteTarget), []);
@@ -332,6 +367,19 @@ function ProcurementPageInner() {
     }
   }, [filtered, isSupplier, type]);
 
+  const handleTabChange = useCallback(
+    (value: string) => {
+      setPage(0);
+      setSearch("");
+      if (value === "default") {
+        router.push("/dashboard/procurement");
+      } else {
+        router.push(`/dashboard/procurement?type=${value}`);
+      }
+    },
+    [router],
+  );
+
   const error =
     queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
 
@@ -340,13 +388,20 @@ function ProcurementPageInner() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
-            <p className="text-sm text-muted-foreground">{config.subtitle}</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Procurement</h1>
+            <p className="text-sm text-muted-foreground">Manage purchases, invoices, and suppliers.</p>
           </div>
           <Button variant="primary" onClick={() => router.push("/dashboard/procurement/new")}>
             + Create New
           </Button>
         </div>
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <TabsList>
+            <TabsTrigger value="default">Purchase Orders</TabsTrigger>
+            <TabsTrigger value="invoice">Purchase Invoices</TabsTrigger>
+            <TabsTrigger value="supplier">Suppliers</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
@@ -374,8 +429,8 @@ function ProcurementPageInner() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
-          <p className="text-sm text-muted-foreground">{config.subtitle}</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Procurement</h1>
+          <p className="text-sm text-muted-foreground">Manage purchases, invoices, and suppliers.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleExport}>
@@ -386,6 +441,38 @@ function ProcurementPageInner() {
           </Button>
         </div>
       </div>
+
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <TabsList>
+          <TabsTrigger value="default">Purchase Orders</TabsTrigger>
+          <TabsTrigger value="invoice">Purchase Invoices</TabsTrigger>
+          <TabsTrigger value="supplier">Suppliers</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* Metric cards per active tab */}
+      {activeTab === "default" && poMetrics && !loading && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricCard label="Total POs" value={poMetrics.total} />
+          <MetricCard label="Pending" value={poMetrics.pending} subtextVariant="muted" />
+          <MetricCard label="Received" value={poMetrics.received} subtextVariant="success" />
+          <MetricCard label="Total Amount" value={formatCurrency(poMetrics.totalAmount, "USD")} />
+        </div>
+      )}
+      {activeTab === "invoice" && piMetrics && !loading && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricCard label="Total Invoices" value={piMetrics.total} />
+          <MetricCard label="Unpaid" value={piMetrics.unpaid} subtextVariant="error" />
+          <MetricCard label="Paid" value={piMetrics.paid} subtextVariant="success" />
+          <MetricCard label="Total Amount" value={formatCurrency(piMetrics.totalAmount, "USD")} />
+        </div>
+      )}
+      {activeTab === "supplier" && supplierMetrics && !loading && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+          <MetricCard label="Total Suppliers" value={supplierMetrics.total} />
+        </div>
+      )}
+
       <Card>
         <CardContent className="p-0">
           <div className="p-4">

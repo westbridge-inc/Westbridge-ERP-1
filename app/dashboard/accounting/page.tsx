@@ -1,10 +1,9 @@
 "use client";
 
-import { Suspense, useState, useEffect, useMemo } from "react";
+import { Suspense, useState, useEffect, useMemo, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import nextDynamic from "next/dynamic";
-import { Calculator } from "lucide-react";
+import { Calculator, ChevronRight, ChevronDown } from "lucide-react";
 
 const LazyBarChart = nextDynamic(() => import("recharts").then((m) => m.BarChart), { ssr: false });
 const LazyBar = nextDynamic(() => import("recharts").then((m) => m.Bar), { ssr: false });
@@ -24,6 +23,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { SkeletonTable } from "@/components/ui/SkeletonTable";
 import { MetricCard } from "@/components/dashboard/MetricCard";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { MODULE_EMPTY_STATES, EMPTY_STATE_SUPPORT_LINE } from "@/lib/dashboard/empty-state-config";
 import { formatCurrency } from "@/lib/locale/currency";
 const AIChatPanel = nextDynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
@@ -87,6 +87,21 @@ function mapAccount(d: Record<string, unknown>): GenericRow {
     accountType: String(d.account_type ?? "\u2014"),
     rootType: String(d.root_type ?? "\u2014"),
     isGroup: d.is_group ? "Yes" : "No",
+    parentAccount: String(d.parent_account ?? ""),
+    _isGroup: Boolean(d.is_group),
+  };
+}
+
+function mapReconciliation(d: Record<string, unknown>): GenericRow {
+  return {
+    id: String(d.name ?? ""),
+    postingDate: String(d.posting_date ?? ""),
+    referenceNo: String(d.reference_no ?? d.name ?? "\u2014"),
+    paidAmount: Number(d.paid_amount ?? 0),
+    partyName: String(d.party_name ?? d.party ?? "\u2014"),
+    paymentType: String(d.payment_type ?? "\u2014"),
+    status: String(d.docstatus === 1 ? "Submitted" : d.docstatus === 2 ? "Cancelled" : "Draft"),
+    clearanceDate: String(d.clearance_date ?? "\u2014"),
   };
 }
 
@@ -221,6 +236,60 @@ const paymentColumns: Column<GenericRow>[] = [
   },
 ];
 
+const reconciliationColumns: Column<GenericRow>[] = [
+  {
+    id: "id",
+    header: "Entry #",
+    accessor: (r) => <span className="font-medium text-foreground">{r.id as string}</span>,
+    sortValue: (r) => r.id,
+  },
+  {
+    id: "postingDate",
+    header: "Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{r.postingDate as string}</span>,
+    sortValue: (r) => r.postingDate as string,
+  },
+  {
+    id: "referenceNo",
+    header: "Reference",
+    accessor: (r) => <span className="text-muted-foreground">{r.referenceNo as string}</span>,
+    sortValue: (r) => r.referenceNo as string,
+  },
+  {
+    id: "partyName",
+    header: "Party",
+    accessor: (r) => <span className="text-muted-foreground">{r.partyName as string}</span>,
+    sortValue: (r) => r.partyName as string,
+  },
+  {
+    id: "paidAmount",
+    header: "Amount",
+    align: "right",
+    accessor: (r) => (
+      <span className="font-medium text-foreground tabular-nums">{formatCurrency(r.paidAmount as number, "USD")}</span>
+    ),
+    sortValue: (r) => r.paidAmount as number,
+  },
+  {
+    id: "paymentType",
+    header: "Type",
+    accessor: (r) => <span className="text-muted-foreground">{r.paymentType as string}</span>,
+    sortValue: (r) => r.paymentType as string,
+  },
+  {
+    id: "clearanceDate",
+    header: "Clearance Date",
+    accessor: (r) => <span className="text-muted-foreground/60">{r.clearanceDate as string}</span>,
+    sortValue: (r) => r.clearanceDate as string,
+  },
+  {
+    id: "status",
+    header: "Status",
+    accessor: (r) => <Badge status={r.status as string}>{r.status as string}</Badge>,
+    sortValue: (r) => r.status as string,
+  },
+];
+
 const LIST_TYPE_CONFIG: Record<
   string,
   {
@@ -252,7 +321,195 @@ const LIST_TYPE_CONFIG: Record<
     columns: paymentColumns,
     mapper: mapPaymentEntry,
   },
+  reconciliation: {
+    doctype: "Payment Entry",
+    title: "Reconciliation",
+    subtitle: "Bank reconciliation entries",
+    columns: reconciliationColumns,
+    mapper: mapReconciliation,
+  },
 };
+
+/* ------------------------------------------------------------------ */
+/*  COA Tree View                                                      */
+/* ------------------------------------------------------------------ */
+
+interface TreeNode {
+  id: string;
+  accountName: string;
+  accountType: string;
+  rootType: string;
+  isGroup: boolean;
+  children: TreeNode[];
+  level: number;
+}
+
+function buildAccountTree(accounts: GenericRow[]): TreeNode[] {
+  const nodeMap = new Map<string, TreeNode>();
+  const roots: TreeNode[] = [];
+
+  // Create nodes
+  accounts.forEach((acc) => {
+    nodeMap.set(acc.id, {
+      id: acc.id,
+      accountName: acc.accountName as string,
+      accountType: acc.accountType as string,
+      rootType: acc.rootType as string,
+      isGroup: acc._isGroup as boolean,
+      children: [],
+      level: 0,
+    });
+  });
+
+  // Build hierarchy
+  accounts.forEach((acc) => {
+    const node = nodeMap.get(acc.id);
+    if (!node) return;
+    const parentId = acc.parentAccount as string;
+    if (parentId && nodeMap.has(parentId)) {
+      const parent = nodeMap.get(parentId)!;
+      node.level = parent.level + 1;
+      parent.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  // If tree is flat (no parent_account data), group by root_type
+  if (roots.length === accounts.length && accounts.length > 0) {
+    const byRootType = new Map<string, TreeNode>();
+    const grouped: TreeNode[] = [];
+
+    accounts.forEach((acc) => {
+      const rt = acc.rootType as string;
+      if (!byRootType.has(rt)) {
+        const group: TreeNode = {
+          id: `group-${rt}`,
+          accountName: rt,
+          accountType: "",
+          rootType: rt,
+          isGroup: true,
+          children: [],
+          level: 0,
+        };
+        byRootType.set(rt, group);
+        grouped.push(group);
+      }
+      const parent = byRootType.get(rt)!;
+      const node = nodeMap.get(acc.id);
+      if (node) {
+        node.level = 1;
+        parent.children.push(node);
+      }
+    });
+
+    return grouped;
+  }
+
+  // Fix levels recursively
+  function fixLevels(nodes: TreeNode[], level: number) {
+    nodes.forEach((n) => {
+      n.level = level;
+      fixLevels(n.children, level + 1);
+    });
+  }
+  fixLevels(roots, 0);
+
+  return roots;
+}
+
+function COATreeView({ accounts, onRowClick }: { accounts: GenericRow[]; onRowClick: (id: string) => void }) {
+  const tree = useMemo(() => buildAccountTree(accounts), [accounts]);
+  const [expanded, setExpanded] = useState<Set<string>>(() => {
+    // Expand root-level groups by default
+    return new Set(tree.map((n) => n.id));
+  });
+
+  const toggleExpand = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  function renderNode(node: TreeNode): ReactNode {
+    const isExpanded = expanded.has(node.id);
+    const hasChildren = node.children.length > 0;
+    const isGroupRow = node.isGroup || hasChildren;
+
+    return (
+      <div key={node.id}>
+        <div
+          className="flex items-center border-b border-border/50 px-4 py-2.5 hover:bg-muted/50 cursor-pointer transition-colors"
+          style={{ paddingLeft: `${node.level * 20 + 16}px` }}
+          onClick={() => {
+            if (hasChildren) {
+              toggleExpand(node.id);
+            } else if (!node.id.startsWith("group-")) {
+              onRowClick(node.id);
+            }
+          }}
+        >
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {hasChildren ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleExpand(node.id);
+                }}
+                className="flex-shrink-0 rounded p-0.5 hover:bg-muted"
+              >
+                {isExpanded ? (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+            ) : (
+              <span className="w-5" />
+            )}
+            <span className={`text-sm truncate ${isGroupRow ? "font-semibold text-foreground" : "text-foreground"}`}>
+              {node.accountName}
+            </span>
+          </div>
+          {node.accountType !== "" && (
+            <span className="text-sm text-muted-foreground w-32 text-right flex-shrink-0">{node.accountType}</span>
+          )}
+          <span className="text-sm text-muted-foreground w-24 text-right flex-shrink-0">{node.rootType}</span>
+        </div>
+        {isExpanded && hasChildren && node.children.map((child) => renderNode(child))}
+      </div>
+    );
+  }
+
+  if (tree.length === 0) {
+    return (
+      <EmptyState
+        icon={<Calculator className="h-6 w-6" />}
+        title="No accounts yet"
+        description="Create your first account to get started."
+        actionLabel="Create New"
+        actionHref="/dashboard/accounting/new"
+        supportLine={EMPTY_STATE_SUPPORT_LINE}
+      />
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center border-b border-border px-4 py-2 bg-muted/30">
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex-1">Account Name</span>
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider w-32 text-right">Type</span>
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider w-24 text-right">
+          Root Type
+        </span>
+      </div>
+      {tree.map((node) => renderNode(node))}
+    </div>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  List sub-view component                                            */
@@ -261,6 +518,7 @@ const LIST_TYPE_CONFIG: Record<
 function AccountingListView({ type }: { type: string }) {
   const router = useRouter();
   const config = LIST_TYPE_CONFIG[type]!;
+  const isCOA = type === "coa";
   const [page, setPage] = useState(0);
   const {
     data: rawList = [],
@@ -270,7 +528,12 @@ function AccountingListView({ type }: { type: string }) {
     isError,
     error: queryError,
     refetch,
-  } = useErpList(config.doctype, { page });
+  } = useErpList(config.doctype, {
+    page,
+    ...(isCOA
+      ? { limit: 200, fields: ["name", "account_name", "account_type", "root_type", "is_group", "parent_account"] }
+      : {}),
+  });
   const data = useMemo(() => (rawList as Record<string, unknown>[]).map(config.mapper), [rawList, config.mapper]);
   const error =
     queryError instanceof Error ? queryError.message : isError ? `Failed to load ${config.title.toLowerCase()}.` : null;
@@ -278,15 +541,6 @@ function AccountingListView({ type }: { type: string }) {
   if (error) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
-            <p className="text-sm text-muted-foreground">{config.subtitle}</p>
-          </div>
-          <Button variant="primary" onClick={() => router.push("/dashboard/accounting/new")}>
-            + Create New
-          </Button>
-        </div>
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
@@ -312,19 +566,15 @@ function AccountingListView({ type }: { type: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{config.title}</h1>
-          <p className="text-sm text-muted-foreground">{config.subtitle}</p>
-        </div>
-        <Button variant="primary" onClick={() => router.push("/dashboard/accounting/new")}>
-          + Create New
-        </Button>
-      </div>
       <Card>
         <CardContent className="p-0">
           {loading ? (
             <SkeletonTable rows={6} columns={config.columns.length} />
+          ) : isCOA ? (
+            <COATreeView
+              accounts={data}
+              onRowClick={(id) => router.push(`/dashboard/accounting/${encodeURIComponent(id)}`)}
+            />
           ) : (
             <DataTable<GenericRow>
               columns={config.columns}
@@ -344,17 +594,19 @@ function AccountingListView({ type }: { type: string }) {
               pageSize={20}
             />
           )}
-          <div className="flex items-center justify-between border-t border-border px-4 py-2">
-            <span className="text-sm text-muted-foreground">Page {currentPage + 1}</span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={currentPage === 0} onClick={() => setPage((p) => p - 1)}>
-                Previous
-              </Button>
-              <Button variant="outline" size="sm" disabled={!hasMore} onClick={() => setPage((p) => p + 1)}>
-                Next
-              </Button>
+          {!isCOA && (
+            <div className="flex items-center justify-between border-t border-border px-4 py-2">
+              <span className="text-sm text-muted-foreground">Page {currentPage + 1}</span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" disabled={currentPage === 0} onClick={() => setPage((p) => p - 1)}>
+                  Previous
+                </Button>
+                <Button variant="outline" size="sm" disabled={!hasMore} onClick={() => setPage((p) => p + 1)}>
+                  Next
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
       <AIChatPanel module="finance" />
@@ -584,22 +836,9 @@ function AccountingDashboard() {
     return `Monthly (${getMonthLabel(months[0])} \u2013 ${getMonthLabel(months[months.length - 1])})`;
   }, []);
 
-  const header = (
-    <div className="flex items-center justify-between">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Accounting</h1>
-        <p className="text-sm text-muted-foreground">Manual accounting entries.</p>
-      </div>
-      <Link href="/dashboard/accounting?type=journal">
-        <Button variant="primary">+ New Journal Entry</Button>
-      </Link>
-    </div>
-  );
-
   if (state === "empty") {
     return (
       <div className="space-y-6">
-        {header}
         <Card>
           <CardContent className="p-0">
             <EmptyState
@@ -619,7 +858,6 @@ function AccountingDashboard() {
   if (state === "loading") {
     return (
       <div className="space-y-6">
-        {header}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Skeleton className="h-24 w-full rounded-lg" />
           <Skeleton className="h-24 w-full rounded-lg" />
@@ -642,7 +880,6 @@ function AccountingDashboard() {
   if (state === "error") {
     return (
       <div className="space-y-6">
-        {header}
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
@@ -663,8 +900,6 @@ function AccountingDashboard() {
 
   return (
     <div className="space-y-6">
-      {header}
-
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <MetricCard
           label="Revenue YTD"
@@ -786,15 +1021,53 @@ function AccountingDashboard() {
 /*  Page component — routes based on ?type=                            */
 /* ------------------------------------------------------------------ */
 
+const ACCOUNTING_TABS = [
+  { value: "dashboard", label: "Dashboard" },
+  { value: "journal", label: "Journal Entries" },
+  { value: "coa", label: "Chart of Accounts" },
+  { value: "payment", label: "Payments" },
+  { value: "reconciliation", label: "Reconciliation" },
+] as const;
+
 function AccountingPageInner() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
+  const activeTab = type && LIST_TYPE_CONFIG[type] ? type : "dashboard";
 
-  if (type && LIST_TYPE_CONFIG[type]) {
-    return <AccountingListView type={type} />;
-  }
+  const handleTabChange = (value: string) => {
+    if (value === "dashboard") {
+      router.push("/dashboard/accounting");
+    } else {
+      router.push(`/dashboard/accounting?type=${value}`);
+    }
+  };
 
-  return <AccountingDashboard />;
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Accounting</h1>
+          <p className="text-sm text-muted-foreground">Financial management and reporting.</p>
+        </div>
+        <Button variant="primary" onClick={() => router.push("/dashboard/accounting/new")}>
+          + Create New
+        </Button>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <TabsList>
+          {ACCOUNTING_TABS.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
+      {activeTab === "dashboard" ? <AccountingDashboard /> : <AccountingListView type={activeTab} />}
+    </div>
+  );
 }
 
 export default function AccountingPage() {
