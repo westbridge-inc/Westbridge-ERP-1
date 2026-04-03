@@ -125,7 +125,7 @@ const journalColumns: Column<GenericRow>[] = [
     header: "Debit",
     align: "right",
     accessor: (r) => (
-      <span className="font-medium text-foreground">{formatCurrency(r.totalDebit as number, "USD")}</span>
+      <span className="font-medium text-foreground tabular-nums">{formatCurrency(r.totalDebit as number, "USD")}</span>
     ),
     sortValue: (r) => r.totalDebit as number,
   },
@@ -134,7 +134,7 @@ const journalColumns: Column<GenericRow>[] = [
     header: "Credit",
     align: "right",
     accessor: (r) => (
-      <span className="font-medium text-foreground">{formatCurrency(r.totalCredit as number, "USD")}</span>
+      <span className="font-medium text-foreground tabular-nums">{formatCurrency(r.totalCredit as number, "USD")}</span>
     ),
     sortValue: (r) => r.totalCredit as number,
   },
@@ -209,7 +209,7 @@ const paymentColumns: Column<GenericRow>[] = [
     header: "Amount",
     align: "right",
     accessor: (r) => (
-      <span className="font-medium text-foreground">{formatCurrency(r.paidAmount as number, "USD")}</span>
+      <span className="font-medium text-foreground tabular-nums">{formatCurrency(r.paidAmount as number, "USD")}</span>
     ),
     sortValue: (r) => r.paidAmount as number,
   },
@@ -727,10 +727,10 @@ function AccountingDashboard() {
                       style={{ width: `${agingData.total > 0 ? (row.amount / agingData.total) * 100 : 0}%` }}
                     />
                   </div>
-                  <span className="w-28 text-right text-sm font-medium text-foreground">
+                  <span className="w-28 text-right text-sm font-medium text-foreground tabular-nums">
                     {formatCurrency(row.amount, "USD")}
                   </span>
-                  <span className="w-12 text-right text-xs text-muted-foreground">
+                  <span className="w-12 text-right text-xs text-muted-foreground tabular-nums">
                     {agingData.total > 0 ? `${((row.amount / agingData.total) * 100).toFixed(0)}%` : "0%"}
                   </span>
                 </div>
@@ -738,7 +738,7 @@ function AccountingDashboard() {
               <div className="flex items-center gap-4 border-t border-border pt-2">
                 <span className="w-28 text-sm font-medium text-foreground">Total</span>
                 <div className="h-2 flex-1" />
-                <span className="w-28 text-right text-sm font-semibold text-foreground">
+                <span className="w-28 text-right text-sm font-semibold text-foreground tabular-nums">
                   {formatCurrency(agingData.total, "USD")}
                 </span>
                 <span className="w-12 text-right text-xs text-muted-foreground">100%</span>
@@ -767,7 +767,7 @@ function AccountingDashboard() {
                       {pe.mode_of_payment ? `\u00b7 ${pe.mode_of_payment}` : ""}
                     </span>
                   </div>
-                  <span className="text-sm font-semibold text-foreground">
+                  <span className="text-sm font-semibold text-foreground tabular-nums">
                     {formatCurrency(pe.paid_amount ?? 0, "USD")}
                   </span>
                 </div>

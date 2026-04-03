@@ -233,7 +233,7 @@ export function InvoicesListClient({
         header: "Amount",
         align: "right" as const,
         accessor: (row) => (
-          <span className="font-medium text-foreground">{formatCurrency(row.amount, row.currency)}</span>
+          <span className="font-medium text-foreground tabular-nums">{formatCurrency(row.amount, row.currency)}</span>
         ),
         sortValue: (row) => row.amount,
       },
@@ -355,7 +355,9 @@ export function InvoicesListClient({
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{title}</h1>
+            <h1 className="text-2xl leading-tight tracking-tight font-display font-semibold text-foreground text-balance">
+              {title}
+            </h1>
             <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
           <Button variant="primary" onClick={() => router.push("/dashboard/invoices/new")}>

@@ -106,7 +106,7 @@ export default async function StatusPage() {
       {/* Header */}
       <div className="mb-10">
         <h1 className="text-2xl font-semibold tracking-tight text-white">Westbridge Status</h1>
-        <p className="mt-1 text-sm text-zinc-500">Real-time system status</p>
+        <p className="mt-1 text-sm text-muted-foreground">Real-time system status</p>
       </div>
 
       {/* Overall status banner */}
@@ -123,12 +123,12 @@ export default async function StatusPage() {
               <StatusDot status={svc.status} />
               <div>
                 <p className="text-sm font-medium text-white">{svc.name}</p>
-                <p className="text-xs text-zinc-500">{svc.description}</p>
+                <p className="text-xs text-muted-foreground">{svc.description}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               {svc.responseTime !== null && (
-                <span className="text-xs tabular-nums text-zinc-500">{svc.responseTime}ms</span>
+                <span className="text-xs tabular-nums text-muted-foreground">{svc.responseTime}ms</span>
               )}
               <StatusLabel status={svc.status} />
             </div>
@@ -137,7 +137,7 @@ export default async function StatusPage() {
       </div>
 
       {/* Footer */}
-      <div className="mt-8 flex items-center justify-between text-xs text-zinc-600">
+      <div className="mt-8 flex items-center justify-between text-xs text-muted-foreground/70">
         <span>Last checked: {new Date(checkedAt).toLocaleString("en-US", { timeZone: "UTC" })} UTC</span>
         <span>Refreshes on each page load</span>
       </div>

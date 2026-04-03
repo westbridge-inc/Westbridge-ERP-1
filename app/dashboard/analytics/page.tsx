@@ -700,7 +700,7 @@ function AnalyticsDashboard() {
                   <li key={c.name} className="flex items-center justify-between">
                     <span className="text-muted-foreground/60">{i + 1}.</span>
                     <span className="flex-1 pl-2 text-foreground">{c.name}</span>
-                    <span className="font-medium text-foreground">{formatCurrency(c.total, "USD")}</span>
+                    <span className="font-medium text-foreground tabular-nums">{formatCurrency(c.total, "USD")}</span>
                   </li>
                 ))}
               </ul>

@@ -8,15 +8,15 @@ export const metadata: Metadata = {
 
 export default function PortalLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="border-b border-gray-100 bg-white">
+      <header className="border-b border-border bg-background">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-lg font-bold tracking-tight text-gray-900">Westbridge</span>
-              <span className="hidden sm:inline-block text-sm text-gray-400">|</span>
-              <span className="hidden sm:inline-block text-sm text-gray-500">Customer Portal</span>
+              <span className="text-lg font-bold tracking-tight text-foreground">Westbridge</span>
+              <span className="hidden sm:inline-block text-sm text-muted-foreground/70">|</span>
+              <span className="hidden sm:inline-block text-sm text-muted-foreground">Customer Portal</span>
             </div>
           </div>
         </div>
@@ -28,9 +28,9 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-100 bg-gray-50/50 py-6">
+      <footer className="border-t border-border bg-muted/50 py-6">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs text-gray-400">Powered by Westbridge</p>
+          <p className="text-center text-xs text-muted-foreground/70">Powered by Westbridge</p>
         </div>
       </footer>
     </div>

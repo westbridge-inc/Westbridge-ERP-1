@@ -170,7 +170,7 @@ export function CrmPipelineClient({ deals }: CrmPipelineClientProps) {
                   <h2 className="text-sm font-semibold text-foreground font-display">{col.title}</h2>
                   <Badge status={col.title}>{col.count}</Badge>
                 </div>
-                <span className="text-xs font-medium text-muted-foreground/70">
+                <span className="text-xs font-medium text-muted-foreground/70 tabular-nums">
                   {col.total > 0 ? formatCurrency(col.total, "USD") : "\u2014"}
                 </span>
               </div>
@@ -196,7 +196,7 @@ export function CrmPipelineClient({ deals }: CrmPipelineClientProps) {
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
-                    <p className="mt-0.5 text-sm text-muted-foreground">
+                    <p className="mt-0.5 text-sm text-muted-foreground tabular-nums">
                       {deal.amount > 0 ? formatCurrency(deal.amount, "USD") : "\u2014"}
                     </p>
                     <div className="mt-3 flex items-center justify-between">

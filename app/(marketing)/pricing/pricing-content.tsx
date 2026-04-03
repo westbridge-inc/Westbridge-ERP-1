@@ -108,7 +108,7 @@ export function PricingContent() {
                   <span className="text-3xl font-semibold tracking-tight text-foreground">Contact Sales</span>
                 ) : (
                   <>
-                    <span className="text-4xl font-semibold tracking-tight text-foreground">
+                    <span className="text-4xl font-semibold tracking-tight text-foreground tabular-nums">
                       {formatCurrency(price, "USD")}
                     </span>
                     <span className="text-sm text-muted-foreground">/mo</span>
@@ -120,11 +120,11 @@ export function PricingContent() {
               {isEnterprise ? (
                 <p className="mt-1.5 text-xs text-muted-foreground">Custom pricing for your organization</p>
               ) : annual ? (
-                <p className="mt-1.5 text-xs text-muted-foreground">
+                <p className="mt-1.5 text-xs text-muted-foreground tabular-nums">
                   Billed annually at {formatCurrency(price * 12, "USD")}/yr
                 </p>
               ) : (
-                <p className="mt-1.5 text-xs text-muted-foreground">
+                <p className="mt-1.5 text-xs text-muted-foreground tabular-nums">
                   {formatCurrency(plan.annualPricePerMonth, "USD")}/mo if billed annually
                 </p>
               )}

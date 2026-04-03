@@ -239,8 +239,8 @@ export function PortalClient() {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
-          <p className="text-sm text-gray-500">Verifying your access...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
+          <p className="text-sm text-muted-foreground">Verifying your access...</p>
         </div>
       </div>
     );
@@ -253,14 +253,14 @@ export function PortalClient() {
       <div className="flex items-center justify-center py-20">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
-            <div className="rounded-full bg-red-50 p-3">
-              <ShieldAlert className="h-8 w-8 text-red-500" />
+            <div className="rounded-full bg-destructive/10 p-3">
+              <ShieldAlert className="h-8 w-8 text-destructive" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Access Denied</h2>
-              <p className="mt-2 text-sm text-gray-500">{error ?? "Unable to access the portal."}</p>
+              <h2 className="text-xl leading-snug font-semibold text-foreground">Access Denied</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{error ?? "Unable to access the portal."}</p>
             </div>
-            <div className="mt-2 rounded-lg bg-gray-50 px-4 py-3 text-xs text-gray-500">
+            <div className="mt-2 rounded-lg bg-muted px-4 py-3 text-xs text-muted-foreground">
               Please contact your vendor for a new portal link.
             </div>
           </CardContent>
@@ -275,8 +275,12 @@ export function PortalClient() {
     <div>
       {/* Welcome header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Welcome, {portalInfo.customerName}</h1>
-        <p className="mt-1 text-sm text-gray-500">View your documents from {portalInfo.companyName || "your vendor"}</p>
+        <h1 className="text-2xl leading-tight tracking-tight font-display font-semibold text-foreground text-balance">
+          Welcome, {portalInfo.customerName}
+        </h1>
+        <p className="mt-1 text-sm leading-normal text-muted-foreground">
+          View your documents from {portalInfo.companyName || "your vendor"}
+        </p>
       </div>
 
       {/* Tabs */}
@@ -286,7 +290,7 @@ export function PortalClient() {
             <FileText className="h-4 w-4" />
             Invoices
             {invoices.length > 0 && (
-              <span className="ml-1 rounded-full bg-gray-200 px-1.5 py-0.5 text-xs font-medium text-gray-700">
+              <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
                 {invoices.length}
               </span>
             )}
@@ -295,7 +299,7 @@ export function PortalClient() {
             <Clock className="h-4 w-4" />
             Quotations
             {quotations.length > 0 && (
-              <span className="ml-1 rounded-full bg-gray-200 px-1.5 py-0.5 text-xs font-medium text-gray-700">
+              <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
                 {quotations.length}
               </span>
             )}
@@ -304,7 +308,7 @@ export function PortalClient() {
             <Package className="h-4 w-4" />
             Orders
             {orders.length > 0 && (
-              <span className="ml-1 rounded-full bg-gray-200 px-1.5 py-0.5 text-xs font-medium text-gray-700">
+              <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
                 {orders.length}
               </span>
             )}
@@ -315,8 +319,8 @@ export function PortalClient() {
         {loadingDocs && (
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center gap-3">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
-              <p className="text-sm text-gray-500">Loading documents...</p>
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
+              <p className="text-sm text-muted-foreground">Loading documents...</p>
             </div>
           </div>
         )}
@@ -350,8 +354,10 @@ export function PortalClient() {
                           <TableCell className="font-medium">{inv.name}</TableCell>
                           <TableCell>{formatDate(inv.posting_date)}</TableCell>
                           <TableCell>{formatDate(inv.due_date)}</TableCell>
-                          <TableCell className="text-right">{formatCurrency(inv.grand_total, inv.currency)}</TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="text-right tabular-nums">
+                            {formatCurrency(inv.grand_total, inv.currency)}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">
                             {formatCurrency(inv.outstanding_amount, inv.currency)}
                           </TableCell>
                           <TableCell>
@@ -411,7 +417,9 @@ export function PortalClient() {
                             <TableCell className="font-medium">{q.name}</TableCell>
                             <TableCell>{formatDate(q.transaction_date)}</TableCell>
                             <TableCell>{formatDate(q.valid_till)}</TableCell>
-                            <TableCell className="text-right">{formatCurrency(q.grand_total, q.currency)}</TableCell>
+                            <TableCell className="text-right tabular-nums">
+                              {formatCurrency(q.grand_total, q.currency)}
+                            </TableCell>
                             <TableCell>
                               <Badge variant={statusVariant(q.status)}>{q.status ?? "Draft"}</Badge>
                             </TableCell>
@@ -427,7 +435,9 @@ export function PortalClient() {
                                   Accept
                                 </Button>
                               ) : (
-                                <span className="text-xs text-gray-400">{q.docstatus === 1 ? "Accepted" : "--"}</span>
+                                <span className="text-xs text-muted-foreground/70">
+                                  {q.docstatus === 1 ? "Accepted" : "--"}
+                                </span>
                               )}
                             </TableCell>
                           </TableRow>
@@ -470,7 +480,9 @@ export function PortalClient() {
                           <TableCell className="font-medium">{o.name}</TableCell>
                           <TableCell>{formatDate(o.transaction_date)}</TableCell>
                           <TableCell>{formatDate(o.delivery_date)}</TableCell>
-                          <TableCell className="text-right">{formatCurrency(o.grand_total, o.currency)}</TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {formatCurrency(o.grand_total, o.currency)}
+                          </TableCell>
                           <TableCell>
                             <Badge variant={statusVariant(o.status)}>{o.status ?? "Draft"}</Badge>
                           </TableCell>
@@ -498,7 +510,7 @@ export function PortalClient() {
 
 function EmptyDocState({ icon, label }: { icon: ReactNode; label: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 py-12 text-gray-400">
+    <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground/70">
       {icon}
       <p className="text-sm">{label}</p>
     </div>
@@ -509,10 +521,10 @@ function ProgressPill({ value }: { value?: number }) {
   const pct = value ?? 0;
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 w-16 rounded-full bg-gray-100">
-        <div className="h-1.5 rounded-full bg-gray-900 transition-all" style={{ width: `${Math.min(100, pct)}%` }} />
+      <div className="h-1.5 w-16 rounded-full bg-muted">
+        <div className="h-1.5 rounded-full bg-foreground transition-all" style={{ width: `${Math.min(100, pct)}%` }} />
       </div>
-      <span className="text-xs text-gray-500">{Math.round(pct)}%</span>
+      <span className="text-xs tabular-nums text-muted-foreground">{Math.round(pct)}%</span>
     </div>
   );
 }

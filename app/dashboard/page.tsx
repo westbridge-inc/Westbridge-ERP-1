@@ -76,8 +76,12 @@ export default async function DashboardPage() {
   if (error || !data) {
     return (
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{getGreeting()}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening at your account</p>
+        <h1 className="text-2xl leading-tight tracking-tight font-display font-semibold text-foreground text-balance">
+          {getGreeting()}
+        </h1>
+        <p className="mt-1 text-sm leading-normal text-muted-foreground">
+          Here&apos;s what&apos;s happening at your account
+        </p>
         <DashboardError message={error ?? "Failed to load dashboard data."} />
       </div>
     );
@@ -90,8 +94,12 @@ export default async function DashboardPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">{getGreeting()}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Here&apos;s what&apos;s happening at your account</p>
+          <h1 className="text-2xl leading-tight tracking-tight font-display font-semibold text-foreground text-balance">
+            {getGreeting()}
+          </h1>
+          <p className="mt-1 text-sm leading-normal text-muted-foreground">
+            Here&apos;s what&apos;s happening at your account
+          </p>
         </div>
         <ErpStatusBadge />
       </div>
@@ -140,7 +148,7 @@ export default async function DashboardPage() {
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">Recent Activity</CardTitle>
+            <CardTitle className="text-xl leading-snug font-semibold">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {data.activity.length === 0 ? (
@@ -165,7 +173,7 @@ export default async function DashboardPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
+            <CardTitle className="text-xl leading-snug font-semibold">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">

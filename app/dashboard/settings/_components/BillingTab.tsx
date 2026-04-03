@@ -106,12 +106,12 @@ export function BillingTab() {
             <>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Current plan</p>
-                <p className="mt-1 text-xl font-semibold text-foreground">
+                <p className="mt-1 text-xl leading-snug font-semibold text-foreground">
                   {billingPlan?.name ??
                     (billing?.plan ? billing.plan.charAt(0).toUpperCase() + billing.plan.slice(1) : "\u2014")}
                 </p>
                 {billingPlan && (
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 text-sm text-muted-foreground tabular-nums">
                     ${billingPlan.pricePerMonth.toLocaleString()}/mo
                     {nextBilling ? ` \u00b7 Next billing date ${nextBilling}` : ""}
                   </p>
@@ -147,13 +147,13 @@ export function BillingTab() {
             <Table>
               <TableHeader>
                 <TableRow className="border-b border-border bg-muted/50 hover:bg-muted/50">
-                  <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase text-muted-foreground">
+                  <TableHead className="px-4 py-3 text-[11px] leading-tight tracking-widest uppercase font-medium text-muted-foreground">
                     Date
                   </TableHead>
-                  <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase text-muted-foreground">
+                  <TableHead className="px-4 py-3 text-[11px] leading-tight tracking-widest uppercase font-medium text-muted-foreground">
                     Amount
                   </TableHead>
-                  <TableHead className="px-4 py-3 text-[11px] font-semibold uppercase text-muted-foreground">
+                  <TableHead className="px-4 py-3 text-[11px] leading-tight tracking-widest uppercase font-medium text-muted-foreground">
                     Status
                   </TableHead>
                 </TableRow>
@@ -162,7 +162,7 @@ export function BillingTab() {
                 {billing.items.map((row) => (
                   <TableRow key={row.id} className="border-t border-border">
                     <TableCell className="px-4 py-3 text-sm">{row.date}</TableCell>
-                    <TableCell className="px-4 py-3 text-sm">{row.amount}</TableCell>
+                    <TableCell className="px-4 py-3 text-sm tabular-nums">{row.amount}</TableCell>
                     <TableCell className="px-4 py-3">
                       <Badge status={row.status}>{row.status}</Badge>
                     </TableCell>
@@ -204,7 +204,9 @@ export function BillingTab() {
                       {plan.badge && <Badge status="Active">{plan.badge}</Badge>}
                       {isCurrent && <Badge status="Active">Current</Badge>}
                     </div>
-                    <p className="mt-0.5 text-sm text-muted-foreground">${plan.pricePerMonth.toLocaleString()}/mo</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground tabular-nums">
+                      ${plan.pricePerMonth.toLocaleString()}/mo
+                    </p>
                   </div>
                   {!isCurrent && (
                     <Button

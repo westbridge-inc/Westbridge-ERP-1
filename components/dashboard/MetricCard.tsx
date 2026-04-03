@@ -39,7 +39,7 @@ export const MetricCard = React.memo(function MetricCard({
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-muted-foreground tracking-wide truncate">{label}</p>
             <p
-              className="mt-2 text-3xl font-semibold tracking-tight text-foreground font-display"
+              className="mt-2 text-3xl font-semibold tracking-tight text-foreground font-display tabular-nums"
               aria-label={`${label}: ${value}`}
             >
               {value}

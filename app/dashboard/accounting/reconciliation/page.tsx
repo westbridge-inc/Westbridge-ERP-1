@@ -193,7 +193,9 @@ export default function BankReconciliationPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-semibold">Bank Reconciliation</h1>
+            <h1 className="text-2xl leading-tight tracking-tight font-display font-semibold text-balance">
+              Bank Reconciliation
+            </h1>
             <p className="text-sm text-muted-foreground">Match payment entries with journal entries</p>
           </div>
         </div>
@@ -218,25 +220,27 @@ export default function BankReconciliationPage() {
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Total Credits</p>
-            <p className="text-2xl font-semibold text-green-600">{formatCurrency(totalBankCredits, "USD")}</p>
+            <p className="text-2xl font-semibold text-green-600 tabular-nums">
+              {formatCurrency(totalBankCredits, "USD")}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Total Debits</p>
-            <p className="text-2xl font-semibold text-red-600">{formatCurrency(totalBankDebits, "USD")}</p>
+            <p className="text-2xl font-semibold text-red-600 tabular-nums">{formatCurrency(totalBankDebits, "USD")}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Matched</p>
-            <p className="text-2xl font-semibold">{matchedCount}</p>
+            <p className="text-2xl font-semibold tabular-nums">{matchedCount}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Unmatched</p>
-            <p className="text-2xl font-semibold text-amber-600">{unmatchedCount}</p>
+            <p className="text-2xl font-semibold text-amber-600 tabular-nums">{unmatchedCount}</p>
           </CardContent>
         </Card>
       </div>
@@ -321,7 +325,7 @@ export default function BankReconciliationPage() {
                         <TableCell className="text-sm">{entry.date}</TableCell>
                         <TableCell className="max-w-[200px] truncate text-sm">{entry.description}</TableCell>
                         <TableCell
-                          className={`text-right text-sm font-medium ${
+                          className={`text-right text-sm font-medium tabular-nums ${
                             entry.type === "credit" ? "text-green-600" : "text-red-600"
                           }`}
                         >
@@ -382,8 +386,12 @@ export default function BankReconciliationPage() {
                       >
                         <TableCell className="text-sm">{je.posting_date}</TableCell>
                         <TableCell className="max-w-[200px] truncate text-sm">{je.title}</TableCell>
-                        <TableCell className="text-right text-sm">{formatCurrency(je.total_debit, "USD")}</TableCell>
-                        <TableCell className="text-right text-sm">{formatCurrency(je.total_credit, "USD")}</TableCell>
+                        <TableCell className="text-right text-sm tabular-nums">
+                          {formatCurrency(je.total_debit, "USD")}
+                        </TableCell>
+                        <TableCell className="text-right text-sm tabular-nums">
+                          {formatCurrency(je.total_credit, "USD")}
+                        </TableCell>
                       </TableRow>
                     ))
                   )}

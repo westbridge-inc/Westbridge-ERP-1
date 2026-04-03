@@ -66,17 +66,17 @@ export function PricingCards() {
               {/* Plan name + price */}
               <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{plan.name}</p>
               <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-semibold tracking-tight text-foreground">
+                <span className="text-4xl font-semibold tracking-tight text-foreground tabular-nums">
                   {formatCurrency(price, "USD")}
                 </span>
                 <span className="text-sm text-muted-foreground/60">/mo</span>
               </div>
               {annual ? (
-                <p className="mt-1.5 text-xs text-muted-foreground/50">
+                <p className="mt-1.5 text-xs text-muted-foreground/50 tabular-nums">
                   Billed annually — {formatCurrency(price * 12, "USD")}/yr
                 </p>
               ) : (
-                <p className="mt-1.5 text-xs text-muted-foreground/50">
+                <p className="mt-1.5 text-xs text-muted-foreground/50 tabular-nums">
                   {formatCurrency(plan.annualPricePerMonth, "USD")}/mo billed annually
                 </p>
               )}
@@ -182,7 +182,9 @@ export function PricingCards() {
             >
               <Zap className="h-3 w-3 text-primary" />
               {b.name} —{" "}
-              <span className="text-primary font-semibold">{formatCurrency(b.standalonePrice, "USD")}/mo</span>
+              <span className="text-primary font-semibold tabular-nums">
+                {formatCurrency(b.standalonePrice, "USD")}/mo
+              </span>
             </span>
           ))}
         </div>

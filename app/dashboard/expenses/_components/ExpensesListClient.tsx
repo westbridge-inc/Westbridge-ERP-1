@@ -65,7 +65,7 @@ const expenseColumns: Column<ExpenseRow>[] = [
     id: "amount",
     header: "Amount",
     accessor: (row) => (
-      <span className="font-medium text-foreground">
+      <span className="font-medium text-foreground tabular-nums">
         {row.amount > 0 ? formatCurrency(row.amount, "USD") : "\u2014"}
       </span>
     ),
