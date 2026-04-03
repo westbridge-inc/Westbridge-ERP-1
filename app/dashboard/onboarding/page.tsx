@@ -317,34 +317,30 @@ export default function OnboardingPage() {
             {/* Step 4: Done */}
             {step === 4 && (
               <div className="space-y-6 text-center">
-                <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-                  <CheckCircle2 className="size-10 text-green-600 dark:text-green-400" />
-                </div>
+                <CheckCircle2 className="mx-auto size-16 text-success" />
                 <div>
-                  <h3 className="text-xl font-semibold">You&apos;re all set!</h3>
+                  <h3 className="text-xl font-display font-semibold">You&apos;re ready to go!</h3>
                   <p className="mt-2 text-muted-foreground">
-                    Your Westbridge ERP is ready to use. Start managing your business from the dashboard.
+                    Your Westbridge account is set up and ready. Here&apos;s what you can do next:
                   </p>
                 </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Card className="cursor-pointer hover:bg-accent" onClick={() => router.push("/dashboard/invoices")}>
-                    <CardContent className="flex items-center gap-3 p-4">
-                      <FileText className="size-5 text-primary" />
-                      <div className="text-left">
-                        <p className="font-medium">Invoices</p>
-                        <p className="text-xs text-muted-foreground">Create and manage invoices</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card className="cursor-pointer hover:bg-accent" onClick={() => router.push("/dashboard/hr")}>
-                    <CardContent className="flex items-center gap-3 p-4">
-                      <Users className="size-5 text-primary" />
-                      <div className="text-left">
-                        <p className="font-medium">HR & Payroll</p>
-                        <p className="text-xs text-muted-foreground">Manage employees and payroll</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  {[
+                    { icon: FileText, label: "Create Invoice", href: "/dashboard/invoices/new" },
+                    { icon: Users, label: "Add Products", href: "/dashboard/inventory" },
+                    { icon: CreditCard, label: "Explore Reports", href: "/dashboard/analytics" },
+                  ].map((item) => (
+                    <Card
+                      key={item.href}
+                      className="cursor-pointer hover:bg-accent"
+                      onClick={() => router.push(item.href)}
+                    >
+                      <CardContent className="flex flex-col items-center gap-2 p-4 text-center">
+                        <item.icon className="size-5 text-muted-foreground" />
+                        <span className="text-sm font-medium">{item.label}</span>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
                 <Button onClick={handleFinish} size="lg" className="w-full">
                   Go to Dashboard
