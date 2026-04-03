@@ -64,7 +64,7 @@ export function SignupStep3({
           email: signupData.email,
           password: signupData.password,
           companyName: signupData.company || signupData.name,
-          plan: planId,
+          plan: planId.charAt(0).toUpperCase() + planId.slice(1),
           modulesSelected: [],
         }),
       });
