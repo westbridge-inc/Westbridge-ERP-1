@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 
+const API_URL = process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "https://api.westbridgetoday.com";
+
 const SERVICES = [
-  { name: "Web Application", url: "https://app.westbridgetoday.com", description: "Frontend application" },
-  { name: "API & Backend", url: "https://api.westbridgetoday.com/api/v1/health", description: "Core API server" },
-  { name: "Database", url: "https://api.westbridgetoday.com/api/v1/health", description: "Primary database" },
-  { name: "ERP Engine", url: "https://erp.westbridgetoday.com", description: "ERPNext backend" },
-  { name: "Email Delivery", url: "https://api.westbridgetoday.com/api/v1/health", description: "Transactional email" },
-  { name: "Payment Processing", url: "https://api.westbridgetoday.com/api/v1/health", description: "Paddle payments" },
+  { name: "Web Application", url: "https://app.westbridgetoday.com", timeout: 10_000 },
+  { name: "API & Backend", url: `${API_URL}/api/health/ready`, timeout: 10_000 },
+  { name: "ERP Engine", url: "https://westbridge.v.frappe.cloud", timeout: 15_000 },
+  { name: "Payment Processing", url: "https://cdn.paddle.com/paddle/v2/paddle.js", timeout: 10_000 },
 ];
 
 type ServiceStatus = {
   name: string;
   status: "operational" | "degraded" | "down";
+  responseTime: number | null;
 };
 
 async function checkService(service: (typeof SERVICES)[number]): Promise<ServiceStatus> {
@@ -21,16 +22,20 @@ async function checkService(service: (typeof SERVICES)[number]): Promise<Service
     const res = await fetch(service.url, {
       method: "GET",
       cache: "no-store",
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(service.timeout),
       headers: { "User-Agent": "Westbridge-StatusPage/1.0" },
     });
     const responseTime = Date.now() - start;
     if (res.ok) {
-      return { name: service.name, status: responseTime > 3000 ? "degraded" : "operational" };
+      return {
+        name: service.name,
+        status: responseTime > 5000 ? "degraded" : "operational",
+        responseTime,
+      };
     }
-    return { name: service.name, status: "down" };
+    return { name: service.name, status: "down", responseTime };
   } catch {
-    return { name: service.name, status: "down" };
+    return { name: service.name, status: "down", responseTime: null };
   }
 }
 
@@ -99,7 +104,12 @@ export default async function StatusPage() {
       <div className="space-y-0">
         {results.map((svc) => (
           <div key={svc.name} className="flex items-center justify-between border-b border-border py-3">
-            <span className="text-sm font-medium text-foreground">{svc.name}</span>
+            <div>
+              <span className="text-sm font-medium text-foreground">{svc.name}</span>
+              {svc.responseTime !== null && (
+                <span className="ml-2 text-xs tabular-nums text-muted-foreground">{svc.responseTime}ms</span>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <StatusDot status={svc.status} />
               <StatusLabel status={svc.status} />
@@ -108,7 +118,7 @@ export default async function StatusPage() {
         ))}
       </div>
 
-      {/* Uptime bar placeholder */}
+      {/* Uptime bar */}
       <div className="mt-10">
         <h2 className="text-sm font-semibold text-foreground">Uptime (last 90 days)</h2>
         <div className="mt-3 flex gap-px">
