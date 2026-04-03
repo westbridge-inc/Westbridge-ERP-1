@@ -11,6 +11,7 @@ const productLinks = [
   { href: ROUTES.modules, label: "Features" },
   { href: ROUTES.pricing, label: "Pricing" },
   { href: ROUTES.docs, label: "Docs" },
+  { href: ROUTES.changelog, label: "Changelog" },
   { href: ROUTES.about, label: "About" },
 ];
 

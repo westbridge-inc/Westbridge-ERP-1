@@ -29,6 +29,7 @@ export const ROUTES = {
   terms: "/terms",
   privacy: "/privacy",
   docs: "/docs",
+  changelog: "/changelog",
 } as const;
 
 export const TRIAL = {
