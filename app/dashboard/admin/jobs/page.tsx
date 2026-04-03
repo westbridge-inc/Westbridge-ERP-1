@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RefreshCw, Play, AlertCircle, CheckCircle, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { formatDateTime } from "@/lib/locale/date";
 
 interface FailedJob {
   id: string;
@@ -197,7 +198,7 @@ export default function AdminJobsPage() {
                         </TableCell>
                         <TableCell className="text-center font-mono text-sm">{job.attemptsMade}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {new Date(job.timestamp).toLocaleString()}
+                          {formatDateTime(new Date(job.timestamp))}
                         </TableCell>
                         <TableCell className="text-right">
                           <Button

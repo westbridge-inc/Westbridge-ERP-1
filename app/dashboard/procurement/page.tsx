@@ -103,7 +103,9 @@ function getPoColumns(setDeleteTarget: (row: PurchaseOrder) => void): Column<Pur
       id: "amount",
       header: "Amount",
       align: "right",
-      accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>,
+      accessor: (r) => (
+        <span className="font-medium text-foreground tabular-nums">{formatCurrency(r.amount, "USD")}</span>
+      ),
       sortValue: (r) => r.amount,
     },
     {
@@ -157,7 +159,9 @@ function getPiColumns(setDeleteTarget: (row: PurchaseOrder) => void): Column<Pur
       id: "amount",
       header: "Amount",
       align: "right",
-      accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>,
+      accessor: (r) => (
+        <span className="font-medium text-foreground tabular-nums">{formatCurrency(r.amount, "USD")}</span>
+      ),
       sortValue: (r) => r.amount,
     },
     {

@@ -413,7 +413,7 @@ function ChartTooltip({
       {payload.map((entry) => (
         <div key={entry.name} className="flex items-center gap-2">
           <span className="inline-block h-2 w-2 rounded-full" style={{ background: entry.color }} />
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground tabular-nums">
             {entry.name}: {formatCurrency(entry.value, "USD")}
           </span>
         </div>

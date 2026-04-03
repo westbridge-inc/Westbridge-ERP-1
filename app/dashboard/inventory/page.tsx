@@ -106,14 +106,14 @@ function getItemColumns(setDeleteTarget: (row: InventoryItem) => void): Column<I
       id: "qty",
       header: "Qty",
       align: "right",
-      accessor: (row) => <span className="text-muted-foreground">{row.qty.toLocaleString()}</span>,
+      accessor: (row) => <span className="text-muted-foreground tabular-nums">{row.qty.toLocaleString()}</span>,
       sortValue: (row) => row.qty,
     },
     {
       id: "value",
       header: "Value",
       align: "right",
-      accessor: (row) => <span className="font-medium text-foreground">{formatCurrency(row.value)}</span>,
+      accessor: (row) => <span className="font-medium text-foreground tabular-nums">{formatCurrency(row.value)}</span>,
       sortValue: (row) => row.value,
     },
     {

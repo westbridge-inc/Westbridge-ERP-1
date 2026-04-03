@@ -36,3 +36,47 @@ export function formatDateTime(date: Date | string): string {
     timeZone: LOCALE.DEFAULT_TIMEZONE,
   });
 }
+
+/**
+ * Smart date: relative for recent dates, absolute for older.
+ *   - < 1 min  → "Just now"
+ *   - < 1 hour → "12 minutes ago"
+ *   - < 24 hrs → "3 hours ago"
+ *   - yesterday → "Yesterday"
+ *   - < 7 days → "Monday" (weekday name)
+ *   - older    → "03 Apr 2026" (formatDateLong)
+ */
+export function formatRelativeDate(date: Date | string, now?: Date): string {
+  const d = typeof date === "string" ? new Date(date) : date;
+  const ref = now ?? new Date();
+  const diffMs = ref.getTime() - d.getTime();
+
+  // Future dates or invalid — fall back to absolute
+  if (diffMs < 0 || Number.isNaN(diffMs)) return formatDateLong(d);
+
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+
+  if (diffMin < 1) return "Just now";
+  if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? "" : "s"} ago`;
+  if (diffHr < 24) return `${diffHr} hour${diffHr === 1 ? "" : "s"} ago`;
+
+  // Check if it was yesterday (calendar day)
+  const yesterday = new Date(ref);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (
+    d.getDate() === yesterday.getDate() &&
+    d.getMonth() === yesterday.getMonth() &&
+    d.getFullYear() === yesterday.getFullYear()
+  ) {
+    return "Yesterday";
+  }
+
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays < 7) {
+    return d.toLocaleDateString("en-GB", { weekday: "long", timeZone: LOCALE.DEFAULT_TIMEZONE });
+  }
+
+  return formatDateLong(d);
+}

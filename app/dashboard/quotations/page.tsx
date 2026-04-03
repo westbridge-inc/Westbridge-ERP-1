@@ -69,7 +69,9 @@ function getColumns(setDeleteTarget: (row: QuotationRow) => void): Column<Quotat
       id: "amount",
       header: "Amount",
       align: "right",
-      accessor: (r) => <span className="font-medium text-foreground">{formatCurrency(r.amount, "USD")}</span>,
+      accessor: (r) => (
+        <span className="font-medium text-foreground tabular-nums">{formatCurrency(r.amount, "USD")}</span>
+      ),
       sortValue: (r) => r.amount,
     },
     {
