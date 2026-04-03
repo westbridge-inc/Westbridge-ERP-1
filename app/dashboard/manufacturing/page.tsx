@@ -75,7 +75,7 @@ export default async function ManufacturingPage({ searchParams }: { searchParams
     return (
       <ListPageError
         title="Manufacturing"
-        subtitle="Bills of materials and work orders"
+        subtitle="Manage manufacturing orders."
         error={error}
         icon={<Factory className="h-6 w-6" />}
         createHref="/dashboard/manufacturing/new"

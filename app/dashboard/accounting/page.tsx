@@ -588,7 +588,7 @@ function AccountingDashboard() {
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Accounting</h1>
-        <p className="text-sm text-muted-foreground">General ledger and financial overview</p>
+        <p className="text-sm text-muted-foreground">Manual accounting entries.</p>
       </div>
       <Link href="/dashboard/accounting?type=journal">
         <Button variant="primary">+ New Journal Entry</Button>

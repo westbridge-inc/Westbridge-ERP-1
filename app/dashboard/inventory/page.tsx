@@ -272,7 +272,7 @@ function getWarehouseColumns(setDeleteTarget: (row: GenericRow) => void): Column
 }
 
 const TYPE_CONFIG = {
-  default: { doctype: "Item", title: "Inventory", subtitle: "Stock levels and warehouse management" },
+  default: { doctype: "Item", title: "Inventory", subtitle: "Manage your product inventory." },
   entry: { doctype: "Stock Entry", title: "Stock Entries", subtitle: "Track stock movements" },
   warehouse: { doctype: "Warehouse", title: "Warehouses", subtitle: "Manage your warehouses" },
 } as const;

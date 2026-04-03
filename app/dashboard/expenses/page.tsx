@@ -54,7 +54,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
     return (
       <ListPageError
         title="Expenses"
-        subtitle="Expense claims and approvals"
+        subtitle="Track and manage business expenses."
         error={error}
         icon={<Receipt className="h-6 w-6" />}
         createHref="/dashboard/expenses/new"

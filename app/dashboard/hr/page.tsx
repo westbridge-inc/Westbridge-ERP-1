@@ -272,7 +272,7 @@ function HRPageInner() {
   }, [isAttendance, filteredEmployees, filteredAttendance]);
 
   const title = isAttendance ? "Attendance" : "HR";
-  const subtitle = isAttendance ? "Employee attendance records" : "Employee directory and management";
+  const subtitle = isAttendance ? "Employee attendance records" : "Manage your team members.";
 
   const header = (
     <div className="flex items-center justify-between">

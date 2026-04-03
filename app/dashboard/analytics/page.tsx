@@ -535,7 +535,7 @@ function AnalyticsDashboard() {
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Analytics</h1>
-        <p className="text-sm text-muted-foreground">Reports and business intelligence</p>
+        <p className="text-sm text-muted-foreground">Business insights and reports.</p>
       </div>
     </div>
   );

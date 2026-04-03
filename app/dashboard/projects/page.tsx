@@ -59,7 +59,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
     return (
       <ListPageError
         title="Projects"
-        subtitle="Manage projects and track progress"
+        subtitle="Manage and track project progress."
         error={error}
         icon={<FolderKanban className="h-6 w-6" />}
         createHref="/dashboard/projects/new"

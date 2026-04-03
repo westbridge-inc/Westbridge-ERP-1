@@ -147,7 +147,7 @@ export default function PayrollPage() {
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">Payroll</h1>
-        <p className="text-sm text-muted-foreground">Payroll runs, salary slips and deductions</p>
+        <p className="text-sm text-muted-foreground">Process and manage employee salaries.</p>
       </div>
       <Button variant="primary" asChild>
         <Link href="/dashboard/payroll/new">+ Create New</Link>

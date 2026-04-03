@@ -45,7 +45,7 @@ export default async function CRMPage() {
     return (
       <ListPageError
         title="CRM Pipeline"
-        subtitle="Track deals through your sales pipeline"
+        subtitle="Manage your sales pipeline and customer relationships."
         error={error}
         icon={<Briefcase className="h-6 w-6" />}
         createHref="/dashboard/crm/new"

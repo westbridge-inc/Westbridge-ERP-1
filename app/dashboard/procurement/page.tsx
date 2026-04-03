@@ -242,7 +242,7 @@ function getSupplierColumns(setDeleteTarget: (row: SupplierRow) => void): Column
 /* ------------------------------------------------------------------ */
 
 const TYPE_CONFIG = {
-  default: { doctype: "Purchase Order", title: "Purchase Orders", subtitle: "Purchase orders and suppliers" },
+  default: { doctype: "Purchase Order", title: "Purchase Orders", subtitle: "Track purchases from suppliers." },
   invoice: { doctype: "Purchase Invoice", title: "Purchase Invoices", subtitle: "Manage purchase invoices and bills" },
   supplier: { doctype: "Supplier", title: "Suppliers", subtitle: "Manage your suppliers" },
 } as const;
