@@ -8,8 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/Button";
 import { ROUTES, TRIAL } from "@/lib/config/site";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
 export interface SignupStep1Props {
   name: string;
   setName: (v: string) => void;
@@ -74,7 +72,7 @@ export function SignupStep1({
 
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/signup`, {
+      const res = await fetch("/api/signup", {
         method: "POST",
         credentials: "include",
         headers: {

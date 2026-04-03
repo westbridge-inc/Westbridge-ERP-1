@@ -1,6 +1,5 @@
 "use client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useState, useEffect, useCallback } from "react";
@@ -109,7 +108,7 @@ function SignupContent() {
   // Fetch CSRF on mount, refresh every 4 minutes
   useEffect(() => {
     const fetchCsrf = () => {
-      fetch(`${API_BASE}/api/csrf`, { credentials: "include" })
+      fetch("/api/csrf", { credentials: "include" })
         .then((r) => r.json())
         .then((d: { data?: { token?: string }; token?: string }) => setCsrfToken(d.data?.token ?? d.token ?? null))
         .catch(() => setCsrfToken(null));
