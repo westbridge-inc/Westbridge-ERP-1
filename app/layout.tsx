@@ -30,7 +30,7 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   metadataBase: new URL(`https://${SITE.domain}`),
-  title: { default: SITE.name, template: `%s | ${SITE.name}` },
+  title: { default: SITE.name, template: `%s \u2014 ${SITE.name}` },
   description: SITE.tagline,
   openGraph: { type: "website", siteName: SITE.name },
   twitter: {

@@ -12,9 +12,11 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Could not load this page</h1>
+      <h1 className="text-2xl font-display font-semibold tracking-tight text-foreground md:text-3xl">
+        Something went wrong
+      </h1>
       <p className="mt-2 max-w-md text-center text-base text-muted-foreground">
-        This may be a temporary issue. You can try again or return home.
+        Something went wrong on our end. Please try again.
       </p>
       {error.digest && <p className="mt-1 text-xs font-mono text-muted-foreground">Error ID: {error.digest}</p>}
       <div className="mt-8 flex gap-4">
