@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import { Eye, EyeOff, Check, Circle, AlertCircle, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Check, Circle } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/Button";
@@ -15,8 +15,6 @@ export interface SignupStep1Props {
   setEmail: (v: string) => void;
   password: string;
   setPassword: (v: string) => void;
-  csrfToken: string | null;
-  setCsrfToken: (v: string | null) => void;
   onNext: () => void;
 }
 
@@ -35,21 +33,9 @@ function getPasswordChecks(pw: string): PasswordCheck[] {
   ];
 }
 
-export function SignupStep1({
-  name,
-  setName,
-  email,
-  setEmail,
-  password,
-  setPassword,
-  csrfToken,
-  setCsrfToken,
-  onNext,
-}: SignupStep1Props) {
+export function SignupStep1({ name, setName, email, setEmail, password, setPassword, onNext }: SignupStep1Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [signupError, setSignupError] = useState<string | null>(null);
   const [emailTouched, setEmailTouched] = useState(false);
 
   const validateEmail = useCallback((value: string) => {
@@ -61,57 +47,11 @@ export function SignupStep1({
   const emailValid = validateEmail(email);
   const formValid = name.trim().length > 0 && emailValid && allChecksMet && termsAccepted;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSignupError(null);
-
-    if (!csrfToken) {
-      setSignupError("Security token missing. Please refresh the page.");
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/signup", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken,
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          companyName: name.trim(),
-          plan: "starter",
-          modulesSelected: [],
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        if (res.status === 403) {
-          setSignupError("Session expired. Please refresh the page.");
-          setCsrfToken(null);
-          return;
-        }
-        const msg = typeof data?.error === "object" ? data.error?.message : data?.error;
-        if (typeof msg === "string" && msg.toLowerCase().includes("already exists")) {
-          setSignupError("__email_exists__");
-          return;
-        }
-        setSignupError(msg || "Signup failed. Please try again.");
-        return;
-      }
-
-      onNext();
-    } catch {
-      setSignupError("Something went wrong. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    if (!formValid) return;
+    // Just validate locally — actual signup API call happens in Step 3
+    onNext();
   };
 
   return (
@@ -229,38 +169,11 @@ export function SignupStep1({
           </label>
         </div>
 
-        {/* Error display */}
-        {signupError && (
-          <div
-            className="flex items-start gap-3 rounded-md border border-destructive/20 bg-destructive/5 p-3"
-            role="alert"
-          >
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-            <div className="text-sm text-destructive">
-              {signupError === "__email_exists__" ? (
-                <p>
-                  An account with this email already exists.{" "}
-                  <Link href={ROUTES.login} className="font-medium underline underline-offset-4">
-                    Sign in instead
-                  </Link>
-                </p>
-              ) : (
-                <p>{signupError}</p>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Errors will be shown in Step 3 when the API is called */}
 
         {/* Submit */}
-        <Button variant="default" size="lg" type="submit" disabled={!formValid || submitting} className="w-full h-11">
-          {submitting ? (
-            <span className="inline-flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Creating your account...
-            </span>
-          ) : (
-            "Create Account"
-          )}
+        <Button variant="default" size="lg" type="submit" disabled={!formValid} className="w-full h-11">
+          Continue
         </Button>
       </form>
     </div>

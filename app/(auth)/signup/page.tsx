@@ -155,8 +155,6 @@ function SignupContent() {
             setEmail={setEmail}
             password={password}
             setPassword={setPassword}
-            csrfToken={csrfToken}
-            setCsrfToken={setCsrfToken}
             onNext={() => setStep(2)}
           />
         )}
@@ -185,6 +183,8 @@ function SignupContent() {
             planId={planId}
             setPlanId={setPlanId}
             companySize={companySize}
+            signupData={{ name, email, password, company }}
+            csrfToken={csrfToken}
             onBack={() => setStep(2)}
             onNext={() => setStep(4)}
           />
