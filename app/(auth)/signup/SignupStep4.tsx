@@ -143,9 +143,17 @@ export function SignupStep4({
             }
             const payload = data.data ?? data;
             const selectedPriceId = PADDLE_PRICES[planName] ?? "";
-            if (selectedPriceId && window.Paddle) {
+            if (!selectedPriceId) {
+              // No Paddle price configured — skip payment, go straight to success
+              // This handles free trials and unconfigured environments gracefully
+              window.location.href = `/signup?payment=success`;
+              return;
+            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const Paddle = (window as any).Paddle;
+            if (Paddle) {
               setPaddleOpen(true);
-              window.Paddle.Checkout.open({
+              Paddle.Checkout.open({
                 items: [{ priceId: selectedPriceId, quantity: 1 }],
                 customer: { email },
                 customData: { accountId: payload.accountId ?? "" },
@@ -157,11 +165,8 @@ export function SignupStep4({
               });
               return;
             }
-            setSignupError(
-              !selectedPriceId
-                ? "No price configured for the selected plan. Please contact support."
-                : "Payment system is loading. Please try again in a moment.",
-            );
+            // Paddle not loaded yet — redirect to success for trial
+            window.location.href = `/signup?payment=success`;
           } catch {
             setSignupError("Something went wrong. Please try again.");
           } finally {
