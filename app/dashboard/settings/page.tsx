@@ -17,7 +17,7 @@ import { ModulesTab } from "./_components/ModulesTab";
 import { ApiTab } from "./_components/ApiTab";
 
 const TAB_ITEMS = [
-  { id: "general", label: "Profile" },
+  { id: "profile", label: "Profile" },
   { id: "team", label: "Team" },
   { id: "security", label: "Security" },
   { id: "notifications", label: "Notifications" },
@@ -25,7 +25,7 @@ const TAB_ITEMS = [
   { id: "billing", label: "Billing" },
   { id: "integrations", label: "Integrations" },
   { id: "modules", label: "Modules" },
-  { id: "api", label: "API" },
+  { id: "api", label: "API Keys" },
 ];
 const TAB_IDS = TAB_ITEMS.map((t) => t.id);
 
@@ -35,12 +35,12 @@ function SettingsContent() {
   const pathname = usePathname();
   const tabFromUrl = searchParams.get("tab");
   const validUrlTab = tabFromUrl && TAB_IDS.includes(tabFromUrl) ? tabFromUrl : null;
-  const tab = validUrlTab ?? "general";
+  const tab = validUrlTab ?? "profile";
 
   const setTab = useCallback(
     (id: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (id === "general") {
+      if (id === "profile") {
         params.delete("tab");
       } else {
         params.set("tab", id);
@@ -53,7 +53,7 @@ function SettingsContent() {
 
   return (
     <div>
-      <PageHeader title="Settings" description="Manage your account and preferences" />
+      <PageHeader title="Settings" description="Manage your account and preferences." />
       <div className="mt-8">
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="flex h-auto flex-wrap gap-1 bg-transparent p-0">
@@ -66,7 +66,7 @@ function SettingsContent() {
         </Tabs>
       </div>
       <div className="mt-6 space-y-6">
-        {tab === "general" && <ProfileTab />}
+        {tab === "profile" && <ProfileTab />}
         {tab === "team" && <TeamTab />}
         {tab === "security" && <SecurityTab />}
         {tab === "notifications" && <NotificationsTab />}

@@ -21,13 +21,37 @@ const badgeVariants = cva(
   },
 );
 
+/** Global status → variant mapping (Section 130). Consistency is the point. */
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning"> = {
+  // Success (green)
   Paid: "success",
   Active: "success",
-  Submitted: "default",
-  Draft: "outline",
+  Completed: "success",
+  Delivered: "success",
+  Approved: "success",
+  Present: "success",
+  // Destructive (red)
   Overdue: "destructive",
+  Failed: "destructive",
+  Rejected: "destructive",
+  Cancelled: "destructive",
+  Inactive: "destructive",
+  Absent: "destructive",
+  "Out of Stock": "destructive",
+  // Outline (neutral)
+  Draft: "outline",
+  // Warning (amber)
+  Pending: "warning",
+  Processing: "warning",
+  "Due Soon": "warning",
+  "Partially Paid": "warning",
+  "Low Stock": "warning",
   Unpaid: "warning",
+  // Default (neutral dark)
+  Submitted: "default",
+  "In Progress": "default",
+  "On Hold": "default",
+  Sent: "default",
   Error: "destructive",
 };
 

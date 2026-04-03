@@ -68,7 +68,7 @@ export default async function InvoicesPage({
     return (
       <ListPageError
         title={isOrder ? "Sales Orders" : "Invoices"}
-        subtitle={isOrder ? "Manage and track sales orders" : "Manage and track invoices"}
+        subtitle={isOrder ? "Track orders from creation to fulfillment." : "Manage and track all your sales invoices."}
         error={error}
         icon={<FileText className="h-6 w-6" />}
         createHref="/dashboard/invoices/new"
@@ -86,7 +86,7 @@ export default async function InvoicesPage({
         currentPage={currentPage}
         hasMore={hasMore}
         title={isOrder ? "Sales Orders" : "Invoices"}
-        subtitle={isOrder ? "Manage and track sales orders" : "Manage and track invoices"}
+        subtitle={isOrder ? "Track orders from creation to fulfillment." : "Manage and track all your sales invoices."}
         dateLabel={isOrder ? "Order Date" : "Date"}
         dueDateLabel={isOrder ? "Delivery Date" : "Due Date"}
         searchPlaceholder={isOrder ? "Search orders..." : "Search invoices..."}
