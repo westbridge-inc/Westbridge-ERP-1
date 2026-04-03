@@ -3,6 +3,7 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { Mail } from "lucide-react";
 import { ROUTES } from "@/lib/config/site";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
@@ -55,26 +56,34 @@ export default function ForgotPasswordPage() {
 
         {sent ? (
           <div className="rounded-lg border border-border bg-card p-8 text-center shadow-sm">
-            <div className="mb-3 flex justify-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-success/15">
-                <svg className="h-6 w-6 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
+            <div className="mb-4 flex justify-center">
+              <Mail className="h-12 w-12 text-muted-foreground/40" />
             </div>
-            <h1 className="text-lg font-semibold text-foreground font-display">Check your inbox</h1>
+            <h1 className="text-lg font-semibold text-foreground font-display">Check your email</h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              If an account exists for <strong>{email}</strong>, we&apos;ve sent a reset link. Check your spam folder if
-              it doesn&apos;t arrive within a minute.
+              We&apos;ve sent a password reset link to <strong className="text-foreground font-medium">{email}</strong>
             </p>
-            <Link href={ROUTES.login} className="mt-6 block text-sm font-medium text-primary hover:underline">
-              Back to sign in
+            <p className="mt-3 text-sm text-muted-foreground">
+              Didn&apos;t receive it? Check your spam folder or{" "}
+              <button
+                type="button"
+                onClick={() => setSent(false)}
+                className="text-foreground font-medium underline hover:no-underline"
+              >
+                try again
+              </button>
+              .
+            </p>
+            <Link href={ROUTES.login} className="mt-6 inline-block text-sm text-muted-foreground hover:text-foreground">
+              &larr; Back to Login
             </Link>
           </div>
         ) : (
           <div className="rounded-lg border border-border bg-card p-8 shadow-sm">
             <h1 className="text-xl font-semibold text-foreground font-display">Forgot your password?</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Enter your email and we&apos;ll send a reset link.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Enter your email address and we&apos;ll send you a reset link.
+            </p>
 
             <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
@@ -99,16 +108,16 @@ export default function ForgotPasswordPage() {
                 disabled={loading || !email.trim()}
                 className="h-10 w-full"
               >
-                {loading ? "Sending\u2026" : "Send reset link"}
+                {loading ? "Sending\u2026" : "Send Reset Link"}
               </Button>
             </form>
 
-            <p className="mt-4 text-center text-sm text-muted-foreground">
-              Remembered it?{" "}
-              <Link href={ROUTES.login} className="font-medium text-primary hover:underline">
-                Sign in
-              </Link>
-            </p>
+            <Link
+              href={ROUTES.login}
+              className="mt-4 block text-center text-sm text-muted-foreground hover:text-foreground"
+            >
+              &larr; Back to Login
+            </Link>
           </div>
         )}
       </div>

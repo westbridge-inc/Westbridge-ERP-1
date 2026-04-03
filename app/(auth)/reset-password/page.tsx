@@ -9,7 +9,7 @@ import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
-import { validatePassword, TOTAL_PW_REQUIREMENTS } from "@/lib/password-policy";
+import { validatePassword } from "@/lib/password-policy";
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams();
@@ -86,7 +86,7 @@ function ResetPasswordContent() {
         </div>
       ) : (
         <>
-          <h1 className="text-xl font-semibold text-foreground font-display">Set new password</h1>
+          <h1 className="text-xl font-semibold text-foreground font-display">Set a new password</h1>
           <p className="mt-1 text-sm text-muted-foreground">Choose a strong password for your account.</p>
 
           <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -113,25 +113,7 @@ function ResetPasswordContent() {
                       ))
                     )}
                   </ul>
-                  <div className="flex gap-1">
-                    {Array.from({ length: TOTAL_PW_REQUIREMENTS }).map((_, i) => {
-                      const passed = TOTAL_PW_REQUIREMENTS - pwResult.errors.length;
-                      return (
-                        <div
-                          key={i}
-                          className={`h-1.5 flex-1 rounded-full transition-colors ${
-                            i < passed
-                              ? passed === TOTAL_PW_REQUIREMENTS
-                                ? "bg-success"
-                                : passed >= 4
-                                  ? "bg-warning"
-                                  : "bg-destructive"
-                              : "bg-border"
-                          }`}
-                        />
-                      );
-                    })}
-                  </div>
+                  {pwResult.errors.length === 0 && <p className="text-xs text-success font-medium">Strong password</p>}
                 </>
               )}
             </div>
@@ -160,7 +142,7 @@ function ResetPasswordContent() {
               disabled={loading || !pwResult.valid || !passwordsMatch}
               className="h-10 w-full"
             >
-              {loading ? "Updating\u2026" : "Update password"}
+              {loading ? "Resetting\u2026" : "Reset Password"}
             </Button>
           </form>
         </>

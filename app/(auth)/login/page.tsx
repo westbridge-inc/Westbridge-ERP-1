@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { ROUTES } from "@/lib/config/site";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -102,10 +102,10 @@ export default function LoginPage() {
         <div className="relative z-10 flex flex-col items-center text-center px-12">
           <span className="text-white font-semibold text-2xl tracking-[0.25em] font-display mb-4">WESTBRIDGE</span>
           <p className="text-white/50 text-sm leading-relaxed max-w-[280px]">
-            Enterprise intelligence for growing businesses
+            Your complete business management platform.
           </p>
           <div className="mt-12 w-full max-w-[280px] space-y-3">
-            {["Multi-module ERP dashboard", "Real-time financial insights", "Enterprise-grade security"].map((f) => (
+            {["42+ modules", "Enterprise-grade security", "AI-powered insights"].map((f) => (
               <div key={f} className="flex items-center gap-3">
                 <div className="size-1.5 rounded-full bg-white/50 shrink-0" />
                 <span className="text-white/60 text-xs">{f}</span>
@@ -169,27 +169,32 @@ export default function LoginPage() {
                   />
                   <button
                     type="button"
+                    tabIndex={-1}
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? "Hide" : "Show"}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
               <div aria-live="polite">
                 {error && (
-                  <Alert variant="destructive" className="rounded-md">
-                    <AlertDescription>
-                      {error}
+                  <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-destructive">
+                      <p>{error}</p>
                       {failedAttempts >= 3 && (
-                        <span className="mt-1 block text-xs opacity-80">
-                          Too many attempts? Try resetting your password.
-                        </span>
+                        <p className="mt-1 text-xs">
+                          Forgot your password?{" "}
+                          <Link href="/forgot-password" className="underline hover:no-underline">
+                            Reset it here
+                          </Link>
+                        </p>
                       )}
-                    </AlertDescription>
-                  </Alert>
+                    </div>
+                  </div>
                 )}
               </div>
 
