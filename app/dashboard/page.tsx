@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import dynamic_ from "next/dynamic";
-import { FileText, FileBarChart, DollarSign, Users, Receipt, ShoppingCart } from "lucide-react";
+import { DollarSign, Users, Receipt, ShoppingCart, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { Button } from "@/components/ui/Button";
@@ -53,9 +53,9 @@ function activityDotColor(type: ActivityType): string {
 }
 
 const QUICK_ACTIONS = [
-  { label: "New Invoice", href: "/dashboard/invoices", icon: FileText },
-  { label: "Add Expense", href: "/dashboard/expenses", icon: DollarSign },
-  { label: "Create Quote", href: "/dashboard/quotations", icon: FileBarChart },
+  { label: "New Invoice", href: "/dashboard/invoices/new", icon: Plus },
+  { label: "Add Expense", href: "/dashboard/expenses/new", icon: Plus },
+  { label: "Create Quote", href: "/dashboard/quotations/new", icon: Plus },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -80,7 +80,7 @@ export default async function DashboardPage() {
           {getGreeting()}
         </h1>
         <p className="mt-1 text-sm leading-normal text-muted-foreground">
-          Here&apos;s what&apos;s happening at your account
+          Here&apos;s what&apos;s happening with your business today.
         </p>
         <DashboardError message={error ?? "Failed to load dashboard data."} />
       </div>
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
             {getGreeting()}
           </h1>
           <p className="mt-1 text-sm leading-normal text-muted-foreground">
-            Here&apos;s what&apos;s happening at your account
+            Here&apos;s what&apos;s happening with your business today.
           </p>
         </div>
         <ErpStatusBadge />
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           label="Total Revenue"
           value={formatCurrency(data.revenueMTD, "USD")}
@@ -148,26 +148,27 @@ export default async function DashboardPage() {
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-xl leading-snug font-semibold">Recent Activity</CardTitle>
+            <CardTitle>Recent Activity</CardTitle>
+            <p className="text-sm text-muted-foreground">Latest actions across your modules</p>
           </CardHeader>
           <CardContent className="p-0">
             {data.activity.length === 0 ? (
               <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
                 <p className="text-sm font-medium text-foreground">No recent activity</p>
                 <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-                  Activity will appear here as you create invoices, update deals, and process transactions.
+                  Activity will appear here as you use Westbridge.
                 </p>
               </div>
             ) : (
-              <ul className="divide-y divide-border">
+              <div>
                 {data.activity.map((a, i) => (
-                  <li key={i} className="flex items-center gap-3 px-6 py-3">
-                    <span className={cn("h-2 w-2 shrink-0 rounded-full", activityDotColor(a.type))} />
-                    <span className="flex-1 text-sm text-foreground">{a.text}</span>
-                    <span className="text-xs text-muted-foreground">{a.time}</span>
-                  </li>
+                  <div key={i} className="flex items-start gap-3 border-b border-border px-6 py-3 last:border-0">
+                    <span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", activityDotColor(a.type))} />
+                    <span className="flex-1 truncate text-sm text-foreground">{a.text}</span>
+                    <span className="whitespace-nowrap text-xs text-muted-foreground ml-auto">{a.time}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -178,14 +179,9 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="flex flex-wrap gap-2">
               {QUICK_ACTIONS.map((action) => (
-                <Button
-                  key={action.href}
-                  variant="outline"
-                  className="h-9 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
-                  asChild
-                >
+                <Button key={action.href} variant="outline" size="sm" asChild>
                   <Link href={action.href}>
-                    <action.icon className="mr-2 h-4 w-4 shrink-0" />
+                    <Plus className="w-4 h-4 mr-1.5" />
                     {action.label}
                   </Link>
                 </Button>
