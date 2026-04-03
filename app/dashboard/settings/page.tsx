@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useState, useEffect, useCallback } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { PageSkeleton } from "@/components/ui/PageSkeleton";
@@ -31,12 +31,25 @@ const TAB_IDS = TAB_ITEMS.map((t) => t.id);
 
 function SettingsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const tabFromUrl = searchParams.get("tab");
   const validUrlTab = tabFromUrl && TAB_IDS.includes(tabFromUrl) ? tabFromUrl : null;
-  const [localTab, setLocalTab] = useState<string | null>(null);
-  const tab = localTab ?? validUrlTab ?? "general";
+  const tab = validUrlTab ?? "general";
 
-  const setTab = (id: string) => setLocalTab(id);
+  const setTab = useCallback(
+    (id: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (id === "general") {
+        params.delete("tab");
+      } else {
+        params.set("tab", id);
+      }
+      const qs = params.toString();
+      router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+    },
+    [searchParams, router, pathname],
+  );
 
   return (
     <div>

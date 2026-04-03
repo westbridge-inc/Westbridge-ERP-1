@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ErpConnectionBanner } from "@/components/dashboard/ErpConnectionBanner";
 import { ErpConnectionProvider } from "@/components/dashboard/ErpConnectionContext";
+import { OfflineBanner } from "@/components/dashboard/OfflineBanner";
 const PageTransition = dynamic(
   () => import("@/components/dashboard/PageTransition").then((m) => ({ default: m.PageTransition })),
   { ssr: false },
@@ -27,6 +28,7 @@ export function DashboardProviders({ children }: { children: React.ReactNode }) 
             <div className="flex h-screen w-full">
               <AppSidebar />
               <SidebarInset>
+                <OfflineBanner />
                 <DashboardHeader />
                 <ErpConnectionBanner />
                 <WebVitalsReporter />

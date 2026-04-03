@@ -2,7 +2,7 @@
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Zap, X, Send, Loader2, AlertCircle, Sparkles, Plus, Trash2 } from "lucide-react";
+import { Zap, X, Send, AlertCircle, Sparkles, Plus, Trash2 } from "lucide-react";
 
 const AI_NOT_CONFIGURED_MSG = "AI is not configured on this plan yet.";
 import ReactMarkdown from "react-markdown";
@@ -90,7 +90,9 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
   const [convId, setConvId] = useState<string | undefined>();
   const [remaining, setRemaining] = useState<number | null | undefined>(undefined);
   const [aiUnconfigured, setAiUnconfigured] = useState(false);
+  const [lastFailedMsg, setLastFailedMsg] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // ── Load persisted conversation on mount ──────────────────────────────────
   useEffect(() => {
@@ -123,6 +125,15 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
     persistMessages(messages, convId);
   }, [messages, convId, persistMessages]);
 
+  // ── Auto-focus input when panel opens ──────────────────────────────────
+  useEffect(() => {
+    if (open && !aiUnconfigured) {
+      // Small delay to let the panel render
+      const t = setTimeout(() => inputRef.current?.focus(), 50);
+      return () => clearTimeout(t);
+    }
+  }, [open, aiUnconfigured]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -150,6 +161,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
     if (!msg || loading) return;
     setInput("");
     setError(null);
+    setLastFailedMsg(null);
     setMessages((p) => [...p, { role: "user", content: msg }]);
     setLoading(true);
 
@@ -174,6 +186,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
       if (!res.ok) {
         const errMsg = json.error?.message ?? "Something went wrong. Please try again.";
         setError(errMsg);
+        setLastFailedMsg(msg);
         setMessages((p) => p.slice(0, -1));
         return;
       }
@@ -189,6 +202,7 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
       setMessages((p) => [...p, { role: "assistant", content: reply }]);
     } catch {
       setError("Connection error. Please try again.");
+      setLastFailedMsg(msg);
       setMessages((p) => p.slice(0, -1));
     } finally {
       setLoading(false);
@@ -305,9 +319,10 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
 
               {loading && (
                 <div className="flex justify-start">
-                  <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-2.5 text-sm text-muted-foreground">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Thinking…
+                  <div className="flex items-center gap-1.5 rounded-2xl bg-muted px-4 py-3 text-sm text-muted-foreground">
+                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:0ms]" />
+                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:150ms]" />
+                    <span className="inline-block h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:300ms]" />
                   </div>
                 </div>
               )}
@@ -315,7 +330,17 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
               {error && (
                 <div className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
                   <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                  {error}
+                  <div className="flex flex-1 flex-col gap-1.5">
+                    <span>{error}</span>
+                    {lastFailedMsg && (
+                      <button
+                        onClick={() => void send(lastFailedMsg)}
+                        className="self-start rounded-md border border-warning/30 bg-warning/10 px-2.5 py-1 text-xs font-medium text-warning hover:bg-warning/20 transition-colors"
+                      >
+                        Retry
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -325,19 +350,27 @@ export function AIChatPanel({ module = "general" }: AIChatPanelProps) {
 
           {/* Input — hidden when AI is unconfigured */}
           {!aiUnconfigured && (
-            <div className="border-t border-border p-3 flex gap-2">
-              <input
+            <div className="border-t border-border p-3 flex gap-2 items-end">
+              <textarea
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && void send()}
-                placeholder={`Ask about your ${module === "general" ? "business" : module} data…`}
-                className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    void send();
+                  }
+                }}
+                placeholder={`Ask about your ${module === "general" ? "business" : module} data… (Shift+Enter for newline)`}
+                rows={1}
+                className="flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary max-h-[120px] overflow-y-auto"
                 disabled={loading}
+                style={{ fieldSizing: "content" } as React.CSSProperties}
               />
               <button
                 onClick={() => void send()}
                 disabled={loading || !input.trim()}
-                className="rounded-xl bg-primary px-3 py-2 text-primary-foreground disabled:opacity-40"
+                className="rounded-xl bg-primary px-3 py-2 text-primary-foreground disabled:opacity-40 shrink-0"
               >
                 <Send className="h-4 w-4" />
               </button>
