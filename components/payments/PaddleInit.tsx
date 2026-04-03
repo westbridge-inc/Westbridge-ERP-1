@@ -2,6 +2,9 @@
 
 import { useEffect } from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const window: Window & { Paddle?: any };
+
 /**
  * Initializes the Paddle.js SDK after the script loads.
  * Rendered once in the root layout.

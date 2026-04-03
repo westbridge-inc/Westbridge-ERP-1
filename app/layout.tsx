@@ -75,13 +75,17 @@ export default function RootLayout({
             {children}
             <Toaster
               position="bottom-right"
+              visibleToasts={3}
+              duration={4000}
               toastOptions={{
                 classNames: {
                   toast: "rounded-md font-sans text-sm border border-border shadow-lg",
                   success: "border-l-4 border-l-green-500",
                   error: "border-l-4 border-l-destructive",
+                  info: "border-l-4 border-l-primary",
                 },
               }}
+              className="!bottom-4 sm:!right-4 max-sm:!left-1/2 max-sm:!-translate-x-1/2 max-sm:!right-auto"
             />
           </ToastsProvider>
           <CookieConsent />

@@ -1,12 +1,21 @@
+import { Skeleton } from "@/components/ui/Skeleton";
+import { SkeletonTable } from "@/components/ui/SkeletonTable";
+
 export default function Loading() {
   return (
-    <div className="space-y-6">
-      <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-24 animate-pulse rounded-xl bg-muted" />
-        ))}
+    <div className="space-y-6" aria-busy="true" aria-label="Loading accounting">
+      {/* Page header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <Skeleton className="h-8 w-36" />
+          <Skeleton className="mt-2 h-4 w-56" />
+        </div>
+        <Skeleton className="h-9 w-32 rounded-md" />
       </div>
+      {/* Search bar */}
+      <Skeleton className="h-9 w-64 rounded-md" />
+      {/* Table */}
+      <SkeletonTable rows={8} columns={5} />
     </div>
   );
 }

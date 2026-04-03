@@ -1,24 +1,10 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-
-const transition = { duration: 0.2, ease: [0.25, 0.1, 0.25, 1] as const };
-
+/**
+ * Subtle CSS-only opacity fade for page transitions.
+ * No framer-motion — keeps the bundle small and follows reduced-motion preferences
+ * via the global `prefers-reduced-motion` rule in globals.css.
+ */
 export function PageTransition({ children }: { children: React.ReactNode }) {
-  const shouldReduceMotion = useReducedMotion();
-
-  // If reduced motion is preferred, render children without animation wrapper
-  if (shouldReduceMotion) {
-    return <>{children}</>;
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={transition}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className="animate-[pageIn_200ms_ease-out_both]">{children}</div>;
 }

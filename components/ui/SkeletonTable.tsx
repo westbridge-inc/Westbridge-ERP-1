@@ -21,7 +21,7 @@ export function SkeletonTable({ rows = 5, columns = 5, className = "" }: Skeleto
           {Array.from({ length: columns }).map((_, i) => (
             <Skeleton
               key={i}
-              className={`h-3 ${i === 0 ? "w-[100px]" : i === columns - 1 ? "w-[80px]" : "w-[120px]"}`}
+              className={`h-3 rounded-md ${i === 0 ? "w-[100px]" : i === columns - 1 ? "w-[80px]" : "w-[120px]"}`}
             />
           ))}
         </div>
@@ -31,7 +31,7 @@ export function SkeletonTable({ rows = 5, columns = 5, className = "" }: Skeleto
           {Array.from({ length: columns }).map((_, ci) => (
             <Skeleton
               key={ci}
-              className={`h-3.5 ${ci === 0 ? "w-[90px]" : ci === 1 ? "w-[160px]" : ci === columns - 1 ? "w-[70px]" : "w-[100px]"}`}
+              className={`h-4 rounded-md ${ci === 0 ? "w-[90px]" : ci === 1 ? "w-[160px]" : ci === columns - 1 ? "w-[70px]" : "w-3/4"}`}
             />
           ))}
         </div>

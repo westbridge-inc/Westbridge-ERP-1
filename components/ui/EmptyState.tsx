@@ -29,17 +29,17 @@ export function EmptyState({
   supportLine,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center" role="status">
+    <div className="flex flex-col items-center justify-center min-h-[300px] text-center" role="status">
       {icon && (
         <div
-          className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50"
+          className="mb-4 flex size-8 items-center justify-center text-muted-foreground/40 [&_svg]:size-8"
           aria-hidden="true"
         >
           {icon}
         </div>
       )}
-      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-      {description && <p className="mt-2 max-w-sm text-sm text-muted-foreground">{description}</p>}
+      <h3 className="text-base font-semibold text-foreground">{title}</h3>
+      {description && <p className="mt-2 max-w-sm text-center text-sm text-muted-foreground">{description}</p>}
       {actionLabel && (onAction || actionHref) && (
         <div className="mt-6">
           {actionHref ? (
