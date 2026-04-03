@@ -83,7 +83,7 @@ export function SignupStep1({
           name,
           email,
           password,
-          companyName: "",
+          companyName: name.trim(),
           plan: "starter",
           modulesSelected: [],
         }),
