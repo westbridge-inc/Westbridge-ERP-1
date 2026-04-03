@@ -153,19 +153,34 @@ export function SignupStep4({
             const Paddle = (window as any).Paddle;
             if (Paddle) {
               setPaddleOpen(true);
-              Paddle.Checkout.open({
-                items: [{ priceId: selectedPriceId, quantity: 1 }],
-                customer: { email },
-                customData: { accountId: payload.accountId ?? "" },
-                settings: {
-                  successUrl: `${window.location.origin}/signup?payment=success`,
-                  displayMode: "overlay",
-                  theme: "light",
-                },
-              });
+              // Timeout: if Paddle overlay doesn't complete within 10s,
+              // skip to success (free trial — payment can be added later)
+              const paddleTimeout = setTimeout(() => {
+                try {
+                  Paddle.Checkout.close();
+                } catch {
+                  /* ignore */
+                }
+                window.location.href = `/signup?payment=success`;
+              }, 10_000);
+              try {
+                Paddle.Checkout.open({
+                  items: [{ priceId: selectedPriceId, quantity: 1 }],
+                  customer: { email },
+                  customData: { accountId: payload.accountId ?? "" },
+                  settings: {
+                    successUrl: `${window.location.origin}/signup?payment=success`,
+                    displayMode: "overlay",
+                    theme: "light",
+                  },
+                });
+              } catch {
+                clearTimeout(paddleTimeout);
+                window.location.href = `/signup?payment=success`;
+              }
               return;
             }
-            // Paddle not loaded yet — redirect to success for trial
+            // Paddle not loaded — skip to success for free trial
             window.location.href = `/signup?payment=success`;
           } catch {
             setSignupError("Something went wrong. Please try again.");
@@ -256,10 +271,10 @@ export function SignupStep4({
             "Setting up your workspace\u2026"
           ) : paddleOpen ? (
             <span className="inline-flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" /> Waiting for payment...
+              <Loader2 className="h-4 w-4 animate-spin" /> Starting your trial...
             </span>
           ) : (
-            "Continue to payment"
+            "Start Free Trial"
           )}
         </Button>
         <p className="mt-2 text-center text-xs text-muted-foreground/40">
