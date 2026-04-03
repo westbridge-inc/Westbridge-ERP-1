@@ -19,6 +19,8 @@ import dynamic from "next/dynamic";
 const AIChatPanel = dynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
   ssr: false,
 });
+import { Input } from "@/components/ui/Input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/Select";
 import { useErpList } from "@/lib/queries/useErpList";
 
 /* ------------------------------------------------------------------ */
@@ -125,6 +127,9 @@ const columns: Column<PayrollRecord>[] = [
 export default function PayrollPage() {
   const router = useRouter();
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [periodFilter, setPeriodFilter] = useState("All");
   const {
     data: rawList = [],
     hasMore,
@@ -142,6 +147,49 @@ export default function PayrollPage() {
   const records = useMemo(() => (rawList as Record<string, unknown>[]).map(mapErpSalarySlip), [rawList]);
   const error = queryError instanceof Error ? queryError.message : isError ? "Failed to load payroll data." : null;
   const stats = useMemo(() => deriveStats(records), [records]);
+
+  const pendingCount = useMemo(() => records.filter((r) => r.status === "Pending").length, [records]);
+  const processedCount = useMemo(() => records.filter((r) => r.status === "Processed").length, [records]);
+
+  const filteredRecords = useMemo(() => {
+    let result = records;
+
+    if (statusFilter !== "All") {
+      result = result.filter((r) => r.status === statusFilter);
+    }
+
+    if (periodFilter !== "All") {
+      const now = new Date();
+      const thisMonth = now.getMonth();
+      const thisYear = now.getFullYear();
+      result = result.filter((r) => {
+        if (!r.period) return false;
+        const d = new Date(r.period);
+        switch (periodFilter) {
+          case "This Month":
+            return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+          case "Last Month": {
+            const lm = thisMonth === 0 ? 11 : thisMonth - 1;
+            const ly = thisMonth === 0 ? thisYear - 1 : thisYear;
+            return d.getMonth() === lm && d.getFullYear() === ly;
+          }
+          case "This Quarter": {
+            const qStart = Math.floor(thisMonth / 3) * 3;
+            return d.getFullYear() === thisYear && d.getMonth() >= qStart && d.getMonth() <= qStart + 2;
+          }
+          default:
+            return true;
+        }
+      });
+    }
+
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter((r) => Object.values(r).some((v) => String(v).toLowerCase().includes(q)));
+    }
+
+    return result;
+  }, [records, statusFilter, periodFilter, search]);
 
   const header = (
     <div className="flex items-center justify-between">
@@ -204,16 +252,47 @@ export default function PayrollPage() {
     <div className="space-y-6">
       {header}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+        <MetricCard label="Total Payroll This Month" value={formatCurrency(stats.totalNet)} />
+        <MetricCard label="Pending" value={pendingCount} subtextVariant="muted" />
+        <MetricCard label="Processed" value={processedCount} subtextVariant="success" />
         <MetricCard label="Employees" value={stats.headcount} />
-        <MetricCard label="Total Gross" value={formatCurrency(stats.totalGross)} />
-        <MetricCard label="Total Deductions" value={formatCurrency(stats.totalDeductions)} />
-        <MetricCard label="Total Net Pay" value={formatCurrency(stats.totalNet)} />
       </div>
       <Card>
         <CardContent className="p-0">
+          <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
+            <Input
+              type="search"
+              placeholder="Search payroll..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="max-w-sm"
+            />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Statuses</SelectItem>
+                <SelectItem value="Pending">Draft</SelectItem>
+                <SelectItem value="Processed">Submitted</SelectItem>
+                <SelectItem value="Rejected">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={periodFilter} onValueChange={setPeriodFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Period" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Periods</SelectItem>
+                <SelectItem value="This Month">This Month</SelectItem>
+                <SelectItem value="Last Month">Last Month</SelectItem>
+                <SelectItem value="This Quarter">This Quarter</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <DataTable<PayrollRecord>
             columns={columns}
-            data={records}
+            data={filteredRecords}
             keyExtractor={(r) => r.id}
             onRowClick={(r) => router.push(`/dashboard/payroll/${encodeURIComponent(r.id)}`)}
             loading={false}

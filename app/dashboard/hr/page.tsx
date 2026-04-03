@@ -41,6 +41,7 @@ interface HRStats {
   total: number;
   active: number;
   inactive: number;
+  newThisMonth: number;
 }
 
 interface AttendanceRow {
@@ -49,6 +50,8 @@ interface AttendanceRow {
   employeeName: string;
   attendanceDate: string;
   status: string;
+  checkIn: string;
+  checkOut: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -68,7 +71,15 @@ function mapErpEmployee(r: Record<string, unknown>, i: number): Employee {
 
 function deriveStats(employees: Employee[]): HRStats {
   const active = employees.filter((e) => e.status === "Active").length;
-  return { total: employees.length, active, inactive: employees.length - active };
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+  const newThisMonth = employees.filter((e) => {
+    if (!e.dateJoined) return false;
+    const d = new Date(e.dateJoined);
+    return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+  }).length;
+  return { total: employees.length, active, inactive: employees.length - active, newThisMonth };
 }
 
 function mapErpAttendance(r: Record<string, unknown>): AttendanceRow {
@@ -78,7 +89,23 @@ function mapErpAttendance(r: Record<string, unknown>): AttendanceRow {
     employeeName: String(r.employee_name ?? r.employee ?? ""),
     attendanceDate: String(r.attendance_date ?? ""),
     status: String(r.status ?? "Absent"),
+    checkIn: String(r.check_in_time ?? r.attendance_time ?? ""),
+    checkOut: String(r.check_out_time ?? ""),
   };
+}
+
+function fmtTime(t: string): string {
+  if (!t) return "\u2014";
+  try {
+    // Handle both "HH:MM:SS" and full datetime strings
+    if (t.includes(" ")) {
+      const timePart = t.split(" ")[1];
+      return timePart?.slice(0, 5) ?? t;
+    }
+    return t.slice(0, 5);
+  } catch {
+    return t;
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -136,6 +163,18 @@ const attendanceColumns: Column<AttendanceRow>[] = [
     header: "Date",
     accessor: (r) => <span className="text-muted-foreground/60">{r.attendanceDate}</span>,
     sortValue: (r) => r.attendanceDate,
+  },
+  {
+    id: "checkIn",
+    header: "Check In",
+    accessor: (r) => <span className="text-muted-foreground tabular-nums">{fmtTime(r.checkIn)}</span>,
+    sortValue: (r) => r.checkIn,
+  },
+  {
+    id: "checkOut",
+    header: "Check Out",
+    accessor: (r) => <span className="text-muted-foreground tabular-nums">{fmtTime(r.checkOut)}</span>,
+    sortValue: (r) => r.checkOut,
   },
   {
     id: "status",
@@ -325,15 +364,15 @@ function HRPageInner() {
       <div className="space-y-6">
         {header}
         {!isAttendance && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="min-h-[88px] rounded-xl border border-border bg-card p-6 animate-pulse" />
             ))}
           </div>
         )}
         <Card>
           <CardContent className="p-0">
-            <SkeletonTable rows={8} columns={isAttendance ? 4 : 5} />
+            <SkeletonTable rows={8} columns={isAttendance ? 6 : 5} />
           </CardContent>
         </Card>
       </div>
@@ -344,10 +383,11 @@ function HRPageInner() {
     <div className="space-y-6">
       {header}
       {!isAttendance && stats && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           <MetricCard label="Total Employees" value={stats.total} />
           <MetricCard label="Active" value={stats.active} subtextVariant="success" />
           <MetricCard label="Inactive" value={stats.inactive} subtextVariant="muted" />
+          <MetricCard label="New This Month" value={stats.newThisMonth} />
         </div>
       )}
       <Card>

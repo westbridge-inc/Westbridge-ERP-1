@@ -23,6 +23,8 @@ import { useToasts } from "@/components/ui/Toasts";
 import { downloadCsv } from "@/lib/utils/csv";
 import { api } from "@/lib/api/client";
 import { Input } from "@/components/ui/Input";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/Select";
 
 interface QuotationRow {
   id: string;
@@ -33,12 +35,13 @@ interface QuotationRow {
 }
 
 function mapErpQuotation(d: Record<string, unknown>): QuotationRow {
+  const rawStatus = d.status ? String(d.status) : Number(d.docstatus) === 1 ? "Submitted" : "Draft";
   return {
     id: String(d.name ?? ""),
     customer: String(d.party_name ?? d.customer_name ?? "\u2014"),
     amount: Number(d.grand_total ?? d.net_total ?? 0),
     validUntil: String(d.valid_till ?? ""),
-    status: String((d.status ?? d.docstatus === 1) ? "Submitted" : "Draft").trim(),
+    status: rawStatus,
   };
 }
 
@@ -77,7 +80,14 @@ function getColumns(setDeleteTarget: (row: QuotationRow) => void): Column<Quotat
     {
       id: "validUntil",
       header: "Valid Until",
-      accessor: (r) => <span className="text-muted-foreground/60">{fmtDate(r.validUntil)}</span>,
+      accessor: (r) => {
+        const isPast = r.validUntil && new Date(r.validUntil) < new Date();
+        return (
+          <span className={isPast ? "text-destructive font-medium" : "text-muted-foreground/60"}>
+            {fmtDate(r.validUntil)}
+          </span>
+        );
+      },
       sortValue: (r) => r.validUntil,
     },
     { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge> },
@@ -106,6 +116,8 @@ export default function QuotationsPage() {
   const { addToast } = useToasts();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [dateFilter, setDateFilter] = useState("All");
   const [deleteTarget, setDeleteTarget] = useState<QuotationRow | null>(null);
   const [deleting, setDeleting] = useState(false);
   const {
@@ -120,11 +132,50 @@ export default function QuotationsPage() {
   const data = useMemo(() => (rawList as Record<string, unknown>[]).map(mapErpQuotation), [rawList]);
   const error = queryError instanceof Error ? queryError.message : isError ? "Failed to load quotations." : null;
 
+  const metrics = useMemo(() => {
+    const total = data.length;
+    const sent = data.filter((r) => r.status === "Submitted" || r.status === "Open").length;
+    const accepted = data.filter((r) => r.status === "Ordered").length;
+    const expired = data.filter((r) => r.status === "Expired" || r.status === "Lost").length;
+    return { total, sent, accepted, expired };
+  }, [data]);
+
   const filtered = useMemo(() => {
-    if (!search) return data;
-    const q = search.toLowerCase();
-    return data.filter((row) => Object.values(row).some((v) => String(v).toLowerCase().includes(q)));
-  }, [data, search]);
+    let result = data;
+
+    if (statusFilter !== "All") {
+      result = result.filter((row) => row.status === statusFilter);
+    }
+
+    if (dateFilter !== "All") {
+      const now = new Date();
+      let cutoff: Date;
+      switch (dateFilter) {
+        case "7d":
+          cutoff = new Date(now.getTime() - 7 * 86400000);
+          break;
+        case "30d":
+          cutoff = new Date(now.getTime() - 30 * 86400000);
+          break;
+        case "90d":
+          cutoff = new Date(now.getTime() - 90 * 86400000);
+          break;
+        case "year":
+          cutoff = new Date(now.getFullYear(), 0, 1);
+          break;
+        default:
+          cutoff = new Date(0);
+      }
+      result = result.filter((row) => row.validUntil && new Date(row.validUntil) >= cutoff);
+    }
+
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter((row) => Object.values(row).some((v) => String(v).toLowerCase().includes(q)));
+    }
+
+    return result;
+  }, [data, search, statusFilter, dateFilter]);
 
   const columns = useMemo(() => getColumns(setDeleteTarget), []);
 
@@ -209,9 +260,15 @@ export default function QuotationsPage() {
           </Button>
         </div>
       </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+        <MetricCard label="Total Quotes" value={metrics.total} />
+        <MetricCard label="Sent" value={metrics.sent} />
+        <MetricCard label="Accepted" value={metrics.accepted} subtextVariant="success" />
+        <MetricCard label="Expired" value={metrics.expired} subtextVariant="error" />
+      </div>
       <Card>
         <CardContent className="p-0">
-          <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+          <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
             <Input
               type="search"
               placeholder="Search quotations..."
@@ -219,6 +276,31 @@ export default function QuotationsPage() {
               onChange={(e) => setSearch(e.target.value)}
               className="max-w-sm"
             />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Statuses</SelectItem>
+                <SelectItem value="Draft">Draft</SelectItem>
+                <SelectItem value="Submitted">Submitted</SelectItem>
+                <SelectItem value="Open">Open</SelectItem>
+                <SelectItem value="Ordered">Ordered</SelectItem>
+                <SelectItem value="Lost">Lost</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Date range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="All">All Dates</SelectItem>
+                <SelectItem value="7d">Last 7 Days</SelectItem>
+                <SelectItem value="30d">Last 30 Days</SelectItem>
+                <SelectItem value="90d">Last 90 Days</SelectItem>
+                <SelectItem value="year">This Year</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           {loading ? (
             <SkeletonTable rows={6} columns={5} />
