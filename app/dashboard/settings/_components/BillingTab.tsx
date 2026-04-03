@@ -10,7 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PLANS, getPlan, type PlanId } from "@/lib/modules";
+import { TRIAL } from "@/lib/config/site";
 import { api, type BillingData } from "@/lib/api/client";
+import { useSubscription } from "@/components/dashboard/SubscriptionGate";
 import { useToasts } from "@/components/ui/Toasts";
 
 function nextBillingDate(createdAt: string | null): string {
@@ -52,9 +54,11 @@ export function BillingTab() {
     };
   }, []);
 
+  const sub = useSubscription();
   const billingPlanId = (billing?.plan as string | null)?.toLowerCase() as PlanId | null;
   const billingPlan = billingPlanId ? getPlan(billingPlanId) : null;
   const nextBilling = nextBillingDate(billing?.accountCreatedAt ?? null);
+  const onTrial = sub.status === "trial" || sub.status === "expired";
 
   const handleChangePlan = useCallback(
     async (planId: string) => {
@@ -90,6 +94,35 @@ export function BillingTab() {
 
   return (
     <div className="space-y-6">
+      {/* Trial status banner */}
+      {onTrial && !billingLoading && (
+        <Card
+          className={
+            sub.status === "expired" ? "border-destructive/30 bg-destructive/5" : "border-warning/30 bg-warning/5"
+          }
+        >
+          <CardContent className="flex items-center justify-between gap-4 p-4">
+            <div>
+              <p
+                className={`text-sm font-semibold ${sub.status === "expired" ? "text-destructive" : "text-foreground"}`}
+              >
+                {sub.status === "expired"
+                  ? "Your free trial has ended"
+                  : `${sub.trialDaysLeft} day${sub.trialDaysLeft !== 1 ? "s" : ""} left in your free trial`}
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {sub.status === "expired"
+                  ? "Choose a plan to continue using Westbridge. Your data is safe for 30 days."
+                  : `Your ${TRIAL.days}-day trial ends ${sub.trialEndsAt?.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) ?? "soon"}. Add a payment method to avoid interruption.`}
+              </p>
+            </div>
+            <Button size="sm" onClick={() => setManageOpen(true)} className="shrink-0">
+              {sub.status === "expired" ? "Choose a Plan" : "Upgrade Now"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Billing</CardTitle>
@@ -108,7 +141,11 @@ export function BillingTab() {
                 <p className="text-sm font-medium text-muted-foreground">Current plan</p>
                 <p className="mt-1 text-xl leading-snug font-semibold text-foreground">
                   {billingPlan?.name ??
-                    (billing?.plan ? billing.plan.charAt(0).toUpperCase() + billing.plan.slice(1) : "\u2014")}
+                    (onTrial
+                      ? `Free Trial`
+                      : billing?.plan
+                        ? billing.plan.charAt(0).toUpperCase() + billing.plan.slice(1)
+                        : "\u2014")}
                 </p>
                 {billingPlan && (
                   <p className="mt-1 text-sm text-muted-foreground tabular-nums">
@@ -116,7 +153,14 @@ export function BillingTab() {
                     {nextBilling ? ` \u00b7 Next billing date ${nextBilling}` : ""}
                   </p>
                 )}
-                {!billingPlan && (
+                {!billingPlan && onTrial && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {sub.trialDaysLeft > 0
+                      ? `${sub.trialDaysLeft} day${sub.trialDaysLeft !== 1 ? "s" : ""} remaining`
+                      : "Trial expired \u2014 choose a plan to continue"}
+                  </p>
+                )}
+                {!billingPlan && !onTrial && (
                   <p className="mt-1 text-sm text-muted-foreground">
                     <a href="mailto:support@westbridgetoday.com" className="text-primary hover:underline">
                       Contact support to manage billing
@@ -130,7 +174,7 @@ export function BillingTab() {
                 className="rounded-md border border-input bg-background hover:bg-accent"
                 onClick={() => setManageOpen(true)}
               >
-                Manage subscription
+                {onTrial ? "Choose a plan" : "Manage subscription"}
               </Button>
             </>
           )}

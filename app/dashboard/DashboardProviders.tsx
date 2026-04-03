@@ -11,6 +11,8 @@ const PageTransition = dynamic(
   { ssr: false },
 );
 import { ShortcutsProvider } from "@/components/dashboard/ShortcutsContext";
+import { SubscriptionGate } from "@/components/dashboard/SubscriptionGate";
+import { TrialBanner } from "@/components/dashboard/TrialBanner";
 import { QueryProvider } from "@/components/dashboard/QueryProvider";
 import { WebVitalsReporter } from "@/lib/web-vitals";
 
@@ -25,18 +27,21 @@ export function DashboardProviders({ children }: { children: React.ReactNode }) 
       <SidebarProvider>
         <ShortcutsProvider>
           <ErpConnectionProvider>
-            <div className="flex h-screen w-full">
-              <AppSidebar />
-              <SidebarInset>
-                <OfflineBanner />
-                <DashboardHeader />
-                <ErpConnectionBanner />
-                <WebVitalsReporter />
-                <main id="main-content" className="flex-1 overflow-y-auto bg-muted/30 p-6">
-                  <PageTransition>{children}</PageTransition>
-                </main>
-              </SidebarInset>
-            </div>
+            <SubscriptionGate>
+              <div className="flex h-screen w-full">
+                <AppSidebar />
+                <SidebarInset>
+                  <TrialBanner />
+                  <OfflineBanner />
+                  <DashboardHeader />
+                  <ErpConnectionBanner />
+                  <WebVitalsReporter />
+                  <main id="main-content" className="flex-1 overflow-y-auto bg-muted/30 p-6">
+                    <PageTransition>{children}</PageTransition>
+                  </main>
+                </SidebarInset>
+              </div>
+            </SubscriptionGate>
           </ErpConnectionProvider>
         </ShortcutsProvider>
       </SidebarProvider>
