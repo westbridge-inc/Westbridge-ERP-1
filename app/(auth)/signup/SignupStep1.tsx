@@ -254,13 +254,7 @@ export function SignupStep1({
         )}
 
         {/* Submit */}
-        <Button
-          variant="default"
-          size="lg"
-          type="submit"
-          disabled={!formValid || submitting || !csrfToken}
-          className="w-full h-11"
-        >
+        <Button variant="default" size="lg" type="submit" disabled={!formValid || submitting} className="w-full h-11">
           {submitting ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
