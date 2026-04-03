@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 export function PageSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn("flex h-screen w-full", className)}>
-      <div className="hidden w-[260px] shrink-0 border-r border-border bg-card md:block">
+      <div className="hidden w-64 shrink-0 border-r border-border bg-card md:block">
         <div className="flex h-16 items-center justify-center border-b border-border p-4">
           <Skeleton className="h-6 w-12" />
         </div>

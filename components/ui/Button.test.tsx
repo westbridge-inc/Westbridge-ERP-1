@@ -37,6 +37,6 @@ describe("Button", () => {
   it("applies variant class for primary", () => {
     render(<Button variant="primary">Primary</Button>);
     const btn = screen.getByRole("button");
-    expect(btn.className).toMatch(/primary|bg-\[var\(--color-primary\)\]/);
+    expect(btn.className).toMatch(/foreground|bg-\[var\(--color-foreground\)\]/);
   });
 });

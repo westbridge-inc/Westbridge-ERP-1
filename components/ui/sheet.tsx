@@ -11,16 +11,12 @@ const SheetTrigger = SheetPrimitive.Trigger;
 const SheetClose = SheetPrimitive.Close;
 const SheetPortal = SheetPrimitive.Portal;
 
-function SheetOverlay({
-  className,
-  ref,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
+function SheetOverlay({ className, ref, ...props }: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
   return (
     <SheetPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        className
+        "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        className,
       )}
       ref={ref}
       {...props}
@@ -44,7 +40,7 @@ const sheetVariants = cva(
     defaultVariants: {
       side: "right",
     },
-  }
+  },
 );
 
 function SheetContent({
@@ -53,8 +49,7 @@ function SheetContent({
   children,
   ref,
   ...props
-}: React.ComponentProps<typeof SheetPrimitive.Content> &
-  VariantProps<typeof sheetVariants>) {
+}: React.ComponentProps<typeof SheetPrimitive.Content> & VariantProps<typeof sheetVariants>) {
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -64,7 +59,7 @@ function SheetContent({
         className={cn(sheetVariants({ side }), className)}
         {...props}
       >
-        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-foreground focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
@@ -74,10 +69,7 @@ function SheetContent({
   );
 }
 
-function SheetHeader({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       data-slot="sheet-header"
@@ -87,27 +79,17 @@ function SheetHeader({
   );
 }
 
-function SheetFooter({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+function SheetFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-2",
-        className
-      )}
+      className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-2", className)}
       {...props}
     />
   );
 }
 
-function SheetTitle({
-  className,
-  ref,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Title>) {
+function SheetTitle({ className, ref, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
   return (
     <SheetPrimitive.Title
       ref={ref}
@@ -118,11 +100,7 @@ function SheetTitle({
   );
 }
 
-function SheetDescription({
-  className,
-  ref,
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Description>) {
+function SheetDescription({ className, ref, ...props }: React.ComponentProps<typeof SheetPrimitive.Description>) {
   return (
     <SheetPrimitive.Description
       ref={ref}

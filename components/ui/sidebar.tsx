@@ -89,7 +89,7 @@ const Sidebar = React.forwardRef<
   React.ComponentProps<"div"> & { side?: "left" | "right"; variant?: "sidebar" | "floating" }
 >(({ side = "left", variant: _variant = "sidebar", className, style, children, ...props }, ref) => {
   const { state, isMobile, openMobile, setOpenMobile } = useSidebar();
-  const width = state === "expanded" ? 260 : 60;
+  const width = state === "expanded" ? 256 : 64;
 
   return (
     <>
@@ -116,7 +116,7 @@ const Sidebar = React.forwardRef<
         )}
         style={{
           ...style,
-          width: isMobile ? (openMobile ? 260 : 0) : width,
+          width: isMobile ? (openMobile ? 256 : 0) : width,
           minWidth: isMobile ? undefined : width,
           overflow: isMobile && !openMobile ? "hidden" : undefined,
         }}
@@ -198,8 +198,8 @@ const SidebarMenuButton = React.forwardRef<
       data-sidebar="menu-button"
       data-active={isActive}
       className={cn(
-        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[13px] font-medium outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring min-h-[44px] sm:min-h-0",
-        isActive && "bg-accent text-accent-foreground",
+        "flex w-full items-center gap-3 rounded-md px-2 text-[13px] outline-none transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring h-9",
+        isActive && "bg-accent text-foreground font-medium",
         className,
       )}
       {...(props as React.ComponentProps<"button">)}

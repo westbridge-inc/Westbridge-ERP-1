@@ -33,7 +33,7 @@ export const MetricCard = React.memo(function MetricCard({
     trend != null ? (trend > 0 ? "text-success" : trend < 0 ? "text-destructive" : "text-muted-foreground") : "";
 
   return (
-    <Card className="hover:shadow-md" role="region" aria-label={label}>
+    <Card className="hover:shadow-sm" role="region" aria-label={label}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">

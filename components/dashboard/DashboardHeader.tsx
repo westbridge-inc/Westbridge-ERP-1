@@ -70,7 +70,7 @@ export function DashboardHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-[9] flex h-14 shrink-0 items-center gap-4 border-b bg-card px-4 backdrop-blur supports-[backdrop-filter]:bg-card/95">
+      <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-4 border-b border-border bg-background/80 backdrop-blur-md px-4">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {isMobile && (
             <Button

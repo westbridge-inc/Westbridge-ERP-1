@@ -245,7 +245,7 @@ export function AppSidebar() {
   const initials = userLoading ? "…" : getInitials(user?.name || "?");
 
   return (
-    <Sidebar className="w-[260px] min-w-[260px] data-[state=collapsed]:w-[60px] data-[state=collapsed]:min-w-[60px]">
+    <Sidebar className="w-64 min-w-[256px] data-[state=collapsed]:w-16 data-[state=collapsed]:min-w-16">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex h-14 items-center justify-between gap-2 px-2">
           <LogoLink variant="mark" size="sm" className="text-foreground" />
@@ -268,12 +268,12 @@ export function AppSidebar() {
                 <SidebarGroupLabel className="flex cursor-pointer items-center gap-2 py-1.5">
                   {!collapsed && (
                     <>
-                      <section.icon className="size-4 shrink-0" />
+                      <section.icon className="size-[18px] shrink-0" />
                       <span className="flex-1 text-left">{section.title}</span>
                       <ChevronDown className="size-4 shrink-0 transition-transform group-data-[state=open]:rotate-180" />
                     </>
                   )}
-                  {collapsed && <section.icon className="size-4 shrink-0" />}
+                  {collapsed && <section.icon className="size-[18px] shrink-0" />}
                 </SidebarGroupLabel>
               </CollapsibleTrigger>
               <CollapsibleContent>

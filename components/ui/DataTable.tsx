@@ -215,7 +215,7 @@ export function DataTable<T>({
                 return (
                   <th
                     key={col.id}
-                    className={`px-4 py-3 text-xs font-medium uppercase text-muted-foreground ${
+                    className={`px-4 py-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground ${
                       sortable ? "cursor-pointer select-none" : ""
                     }`}
                     style={{
@@ -253,7 +253,7 @@ export function DataTable<T>({
               return (
                 <tr
                   key={key}
-                  className={`border-b border-border transition-colors duration-100 hover:bg-muted/50 ${isSelected ? "bg-primary/10" : isFocused ? "bg-muted/50" : ""} ${onRowClick ? "cursor-pointer" : ""}`}
+                  className={`h-12 border-b border-border/50 transition-colors duration-100 hover:bg-muted/30 ${isSelected ? "bg-accent" : isFocused ? "bg-muted/30" : ""} ${onRowClick ? "cursor-pointer" : ""}`}
                   style={{ cursor: onRowClick ? "pointer" : undefined }}
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
                   onMouseEnter={() => setFocusedRow(ri)}

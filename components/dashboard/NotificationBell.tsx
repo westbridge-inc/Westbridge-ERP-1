@@ -99,7 +99,7 @@ export function NotificationBell() {
       {open && (
         <div
           ref={dropdownRef}
-          className="absolute right-0 top-full z-50 mt-2 w-80 rounded-lg border bg-card shadow-lg sm:w-96"
+          className="absolute right-0 top-full z-50 mt-2 w-80 rounded-md border border-border bg-card shadow-md sm:w-96"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-3">
