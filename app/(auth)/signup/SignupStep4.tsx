@@ -1,289 +1,130 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useCallback, useState } from "react";
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/label";
+import { Check, FileText, Users, UserPlus, ChevronRight, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { validatePassword, TOTAL_PW_REQUIREMENTS } from "@/lib/password-policy";
-import { ROUTES } from "@/lib/config/site";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
-const PADDLE_PRICES: Record<string, string> = {
-  Solo: process.env.NEXT_PUBLIC_PADDLE_PRICE_SOLO ?? "",
-  Starter: process.env.NEXT_PUBLIC_PADDLE_PRICE_STARTER ?? "",
-  Business: process.env.NEXT_PUBLIC_PADDLE_PRICE_BUSINESS ?? "",
-  Enterprise: process.env.NEXT_PUBLIC_PADDLE_PRICE_ENTERPRISE ?? "",
-};
+import { TRIAL } from "@/lib/config/site";
 
 export interface SignupStep4Props {
-  returnFromPayment: boolean;
-  paymentFailed: boolean;
   planName: string;
-  planIncludedBundleIds: string[];
-  addOnIds: Set<string>;
-  company: string;
-  csrfToken: string | null;
-  setCsrfToken: (v: string | null) => void;
-  onBack: () => void;
+  onGoToDashboard?: () => void;
 }
 
-export function SignupStep4({
-  returnFromPayment,
-  paymentFailed,
-  planName,
-  planIncludedBundleIds,
-  addOnIds,
-  company,
-  csrfToken,
-  setCsrfToken,
-  onBack,
-}: SignupStep4Props) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [paddleOpen, setPaddleOpen] = useState(false);
-  const [signupError, setSignupError] = useState<string | null>(null);
-  const [emailTouched, setEmailTouched] = useState(false);
-  const [, setEmailValid] = useState(false);
+const quickStartItems = [
+  {
+    icon: FileText,
+    title: "Create your first invoice",
+    description: "Start tracking revenue",
+    href: "/dashboard/invoices/new",
+  },
+  {
+    icon: Users,
+    title: "Add your first customer",
+    description: "Build your customer directory",
+    href: "/dashboard/crm/new",
+  },
+  {
+    icon: UserPlus,
+    title: "Invite your team",
+    description: "Collaborate with your colleagues",
+    href: "/dashboard/settings?tab=team",
+  },
+] as const;
 
-  const validateEmail = useCallback((value: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(value.trim());
+function getTrialEndDate(): string {
+  const end = new Date();
+  end.setDate(end.getDate() + TRIAL.days);
+  return end.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export function SignupStep4({ planName, onGoToDashboard }: SignupStep4Props) {
+  const router = useRouter();
+  const [countdown, setCountdown] = useState(5);
+  const [cancelled, setCancelled] = useState(false);
+
+  const cancelRedirect = useCallback(() => {
+    setCancelled(true);
   }, []);
 
-  if (paymentFailed) {
-    return (
-      <div className="flex flex-col items-center text-center py-8">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
-          <XCircle className="h-10 w-10 text-destructive" />
-        </div>
-        <h1 className="mt-6 text-2xl font-semibold text-foreground font-display">Payment failed</h1>
-        <p className="mt-3 text-muted-foreground max-w-sm">
-          Your payment could not be processed. Please try again or contact support if the issue persists.
-        </p>
-        <Button
-          variant="default"
-          size="lg"
-          className="mt-8 h-12 w-full max-w-xs text-sm font-medium tracking-wide"
-          asChild
-        >
-          <Link href={ROUTES.signup}>Try again</Link>
-        </Button>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (cancelled) return;
 
-  if (returnFromPayment) {
-    return (
-      <div className="flex flex-col items-center text-center py-8">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
-          <CheckCircle className="h-10 w-10 text-success" />
-        </div>
-        <h1 className="mt-6 text-2xl font-semibold text-foreground font-display">Your account is now active!</h1>
-        <p className="mt-3 text-muted-foreground max-w-sm">
-          You&apos;re all set on the <strong>{planName}</strong> plan. Your workspace is ready to go.
-        </p>
-        <Button
-          variant="default"
-          size="lg"
-          className="mt-8 h-12 w-full max-w-xs text-sm font-medium tracking-wide"
-          asChild
-        >
-          <Link href={ROUTES.dashboard}>Go to Dashboard</Link>
-        </Button>
-        <Link href={ROUTES.login} className="mt-4 text-sm text-muted-foreground hover:text-foreground transition">
-          Go to Login
-        </Link>
-      </div>
-    );
-  }
+    const handleClick = () => cancelRedirect();
+    document.addEventListener("click", handleClick);
+
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, [cancelled, cancelRedirect]);
+
+  useEffect(() => {
+    if (cancelled) return;
+
+    if (countdown <= 0) {
+      router.push("/dashboard");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [countdown, cancelled, router]);
+
+  const trialEnd = getTrialEndDate();
 
   return (
-    <>
-      <h1 className="text-2xl font-semibold text-foreground font-display">Create your account</h1>
-      <form
-        className="mt-8 space-y-4"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setSignupError(null);
-          if (!csrfToken) {
-            setSignupError("Security token missing. Please refresh the page.");
-            return;
-          }
-          setSubmitting(true);
-          try {
-            const res = await fetch(`${API_BASE}/api/signup`, {
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-Token": csrfToken,
-              },
-              body: JSON.stringify({
-                name,
-                email,
-                password,
-                companyName: company,
-                plan: planName,
-                modulesSelected: [...planIncludedBundleIds, ...addOnIds],
-              }),
-            });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-              if (res.status === 403) {
-                setSignupError("Session expired. Please refresh and try again.");
-                setCsrfToken(null);
-                return;
-              }
-              const msg = typeof data?.error === "object" ? data.error?.message : data?.error;
-              setSignupError(msg || "Signup failed");
-              return;
-            }
-            const payload = data.data ?? data;
-            const selectedPriceId = PADDLE_PRICES[planName] ?? "";
-            if (!selectedPriceId) {
-              // No Paddle price configured — skip payment, go straight to success
-              // This handles free trials and unconfigured environments gracefully
-              window.location.href = `/signup?payment=success`;
-              return;
-            }
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const Paddle = (window as any).Paddle;
-            if (Paddle) {
-              setPaddleOpen(true);
-              // Timeout: if Paddle overlay doesn't complete within 10s,
-              // skip to success (free trial — payment can be added later)
-              const paddleTimeout = setTimeout(() => {
-                try {
-                  Paddle.Checkout.close();
-                } catch {
-                  /* ignore */
-                }
-                window.location.href = `/signup?payment=success`;
-              }, 10_000);
-              try {
-                Paddle.Checkout.open({
-                  items: [{ priceId: selectedPriceId, quantity: 1 }],
-                  customer: { email },
-                  customData: { accountId: payload.accountId ?? "" },
-                  settings: {
-                    successUrl: `${window.location.origin}/signup?payment=success`,
-                    displayMode: "overlay",
-                    theme: "light",
-                  },
-                });
-              } catch {
-                clearTimeout(paddleTimeout);
-                window.location.href = `/signup?payment=success`;
-              }
-              return;
-            }
-            // Paddle not loaded — skip to success for free trial
-            window.location.href = `/signup?payment=success`;
-          } catch {
-            setSignupError("Something went wrong. Please try again.");
-          } finally {
-            setSubmitting(false);
-          }
-        }}
-      >
-        <div className="space-y-2">
-          <Label htmlFor="signup-name">Full name</Label>
-          <Input id="signup-name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="signup-email">Email</Label>
-          <Input
-            id="signup-email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setEmailValid(validateEmail(e.target.value));
-            }}
-            onBlur={() => {
-              setEmailTouched(true);
-              setEmailValid(validateEmail(email));
-            }}
-          />
-          {emailTouched && email.trim() && !validateEmail(email) && (
-            <p className="text-sm text-destructive" role="alert">
-              Enter a valid email address
-            </p>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="signup-password">Password</Label>
-          <Input id="signup-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          {password.length > 0 &&
-            (() => {
-              const pwResult = validatePassword(password);
-              const passed = TOTAL_PW_REQUIREMENTS - pwResult.errors.length;
-              return (
-                <>
-                  <ul className="mt-2 space-y-1 text-xs">
-                    {pwResult.errors.length === 0 ? (
-                      <li className="text-success">{"\u2713"} Password meets all requirements</li>
-                    ) : (
-                      pwResult.errors.map((e) => (
-                        <li key={e} className="text-destructive">
-                          {"\u2717"} {e}
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                  <div className="mt-2 flex gap-1">
-                    {Array.from({ length: TOTAL_PW_REQUIREMENTS }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`h-1.5 flex-1 rounded-full transition-colors ${
-                          i < passed
-                            ? passed === TOTAL_PW_REQUIREMENTS
-                              ? "bg-success"
-                              : passed >= 4
-                                ? "bg-warning"
-                                : "bg-destructive"
-                            : "bg-border"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </>
-              );
-            })()}
-        </div>
-        <div aria-live="polite">{signupError && <p className="text-sm text-destructive">{signupError}</p>}</div>
-        <Button
-          variant="default"
-          size="lg"
-          type="submit"
-          disabled={
-            submitting || paddleOpen || !csrfToken || !validateEmail(email) || !validatePassword(password).valid
-          }
-          className="mt-6 h-11 w-full"
-        >
-          {!csrfToken ? (
-            "Loading\u2026"
-          ) : submitting ? (
-            "Setting up your workspace\u2026"
-          ) : paddleOpen ? (
-            <span className="inline-flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" /> Starting your trial...
-            </span>
-          ) : (
-            "Start Free Trial"
-          )}
-        </Button>
-        <p className="mt-2 text-center text-xs text-muted-foreground/40">
-          You&apos;ll complete payment securely via Paddle. All major cards supported.
-        </p>
-      </form>
-      <button type="button" onClick={onBack} className="mt-4 text-sm text-muted-foreground/60 hover:opacity-100">
-        Back
-      </button>
-    </>
+    <div className="flex flex-col items-center">
+      <div className="h-16 w-16 rounded-full bg-foreground flex items-center justify-center">
+        <Check className="w-8 h-8 text-background" />
+      </div>
+
+      <h1 className="text-2xl font-display font-semibold text-center mt-6">Welcome to Westbridge!</h1>
+
+      <p className="text-sm text-muted-foreground text-center mt-3 max-w-sm mx-auto">
+        Your 14-day free trial is active. Your workspace is ready with the {planName} plan.
+      </p>
+
+      <div className="w-full mt-8 space-y-3">
+        {quickStartItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex items-center gap-3 rounded-lg border border-border p-4 hover:bg-muted/50 transition-colors group"
+          >
+            <div className="bg-foreground/5 rounded-lg h-9 w-9 flex items-center justify-center shrink-0">
+              <item.icon className="w-4 h-4 text-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">{item.title}</p>
+              <p className="text-xs text-muted-foreground">{item.description}</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+          </Link>
+        ))}
+      </div>
+
+      <Button variant="default" type="button" className="w-full h-11 mt-8" onClick={onGoToDashboard} asChild>
+        <Link href="/dashboard">
+          Go to Dashboard
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </Button>
+
+      <p className="text-xs text-muted-foreground text-center mt-4">
+        Trial ends: {trialEnd}. You can upgrade or cancel anytime in Settings.
+      </p>
+
+      {!cancelled && (
+        <p className="text-xs text-muted-foreground text-center mt-2">Redirecting to dashboard in {countdown}...</p>
+      )}
+    </div>
   );
 }
