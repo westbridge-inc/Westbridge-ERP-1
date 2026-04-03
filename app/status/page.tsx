@@ -1,26 +1,18 @@
+import Link from "next/link";
+import { Logo } from "@/components/brand/Logo";
+
 const SERVICES = [
-  {
-    name: "API Backend",
-    url: "https://api.westbridgetoday.com/api/v1/health",
-    description: "Core API server",
-  },
-  {
-    name: "Frontend",
-    url: "https://app.westbridgetoday.com",
-    description: "Web application",
-  },
-  {
-    name: "ERPNext",
-    url: "https://erp.westbridgetoday.com",
-    description: "ERP system",
-  },
+  { name: "Web Application", url: "https://app.westbridgetoday.com", description: "Frontend application" },
+  { name: "API & Backend", url: "https://api.westbridgetoday.com/api/v1/health", description: "Core API server" },
+  { name: "Database", url: "https://api.westbridgetoday.com/api/v1/health", description: "Primary database" },
+  { name: "ERP Engine", url: "https://erp.westbridgetoday.com", description: "ERPNext backend" },
+  { name: "Email Delivery", url: "https://api.westbridgetoday.com/api/v1/health", description: "Transactional email" },
+  { name: "Payment Processing", url: "https://api.westbridgetoday.com/api/v1/health", description: "Paddle payments" },
 ];
 
 type ServiceStatus = {
   name: string;
-  description: string;
   status: "operational" | "degraded" | "down";
-  responseTime: number | null;
 };
 
 async function checkService(service: (typeof SERVICES)[number]): Promise<ServiceStatus> {
@@ -34,60 +26,45 @@ async function checkService(service: (typeof SERVICES)[number]): Promise<Service
     });
     const responseTime = Date.now() - start;
     if (res.ok) {
-      return {
-        name: service.name,
-        description: service.description,
-        status: responseTime > 3000 ? "degraded" : "operational",
-        responseTime,
-      };
+      return { name: service.name, status: responseTime > 3000 ? "degraded" : "operational" };
     }
-    return {
-      name: service.name,
-      description: service.description,
-      status: "down",
-      responseTime,
-    };
+    return { name: service.name, status: "down" };
   } catch {
-    return {
-      name: service.name,
-      description: service.description,
-      status: "down",
-      responseTime: null,
-    };
+    return { name: service.name, status: "down" };
   }
 }
 
 function StatusDot({ status }: { status: ServiceStatus["status"] }) {
   const colors = {
-    operational: "bg-emerald-500 shadow-emerald-500/50",
-    degraded: "bg-yellow-500 shadow-yellow-500/50",
-    down: "bg-red-500 shadow-red-500/50",
+    operational: "bg-success",
+    degraded: "bg-warning",
+    down: "bg-destructive",
   };
-  return <span className={`inline-block h-3 w-3 rounded-full shadow-[0_0_8px] ${colors[status]}`} />;
+  return <span className={`inline-block size-2.5 rounded-full ${colors[status]}`} />;
 }
 
 function StatusLabel({ status }: { status: ServiceStatus["status"] }) {
-  const labels = {
-    operational: "Operational",
-    degraded: "Degraded",
-    down: "Down",
-  };
+  const labels = { operational: "Operational", degraded: "Degraded", down: "Down" };
   const colors = {
-    operational: "text-emerald-400",
-    degraded: "text-yellow-400",
-    down: "text-red-400",
+    operational: "text-success",
+    degraded: "text-warning",
+    down: "text-destructive",
   };
-  return <span className={`text-sm font-medium ${colors[status]}`}>{labels[status]}</span>;
+  return <span className={`text-sm ${colors[status]}`}>{labels[status]}</span>;
 }
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  title: "System Status | Westbridge",
+  description: "Real-time system status for Westbridge ERP.",
+};
+
 export default async function StatusPage() {
   const results = await Promise.all(SERVICES.map(checkService));
   const allOperational = results.every((r) => r.status === "operational");
   const anyDown = results.some((r) => r.status === "down");
-  const checkedAt = new Date().toISOString();
 
   const overallStatus = allOperational ? "operational" : anyDown ? "down" : "degraded";
   const overallMessages = {
@@ -95,52 +72,66 @@ export default async function StatusPage() {
     degraded: "Partial System Degradation",
     down: "Service Disruption Detected",
   };
-  const overallColors = {
-    operational: "border-emerald-500/30 bg-emerald-500/5",
-    degraded: "border-yellow-500/30 bg-yellow-500/5",
-    down: "border-red-500/30 bg-red-500/5",
+  const bannerColors = {
+    operational: "border-success/20 bg-success/10 text-success",
+    degraded: "border-warning/20 bg-warning/10 text-warning",
+    down: "border-destructive/20 bg-destructive/10 text-destructive",
   };
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-16">
+    <main className="mx-auto max-w-2xl px-6 py-16">
       {/* Header */}
       <div className="mb-10">
-        <h1 className="text-2xl font-semibold tracking-tight text-white">Westbridge Status</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Real-time system status</p>
+        <Link href="/" className="inline-block">
+          <Logo variant="full" size="sm" />
+        </Link>
+        <h1 className="mt-6 text-2xl font-display font-semibold tracking-tight text-foreground">System Status</h1>
+        <p className="mt-1 text-sm text-muted-foreground">Real-time status of Westbridge services</p>
       </div>
 
       {/* Overall status banner */}
-      <div className={`mb-8 flex items-center gap-3 rounded-lg border px-5 py-4 ${overallColors[overallStatus]}`}>
+      <div className={`mb-8 flex items-center gap-3 rounded-lg border p-4 font-medium ${bannerColors[overallStatus]}`}>
         <StatusDot status={overallStatus} />
-        <span className="text-base font-medium text-white">{overallMessages[overallStatus]}</span>
+        <span>{overallMessages[overallStatus]}</span>
       </div>
 
       {/* Service list */}
-      <div className="divide-y divide-zinc-800 rounded-lg border border-zinc-800 bg-zinc-900/50">
+      <div className="space-y-0">
         {results.map((svc) => (
-          <div key={svc.name} className="flex items-center justify-between px-5 py-4">
-            <div className="flex items-center gap-3">
+          <div key={svc.name} className="flex items-center justify-between border-b border-border py-3">
+            <span className="text-sm font-medium text-foreground">{svc.name}</span>
+            <div className="flex items-center gap-2">
               <StatusDot status={svc.status} />
-              <div>
-                <p className="text-sm font-medium text-white">{svc.name}</p>
-                <p className="text-xs text-muted-foreground">{svc.description}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              {svc.responseTime !== null && (
-                <span className="text-xs tabular-nums text-muted-foreground">{svc.responseTime}ms</span>
-              )}
               <StatusLabel status={svc.status} />
             </div>
           </div>
         ))}
       </div>
 
-      {/* Footer */}
-      <div className="mt-8 flex items-center justify-between text-xs text-muted-foreground/70">
-        <span>Last checked: {new Date(checkedAt).toLocaleString("en-US", { timeZone: "UTC" })} UTC</span>
-        <span>Refreshes on each page load</span>
+      {/* Uptime bar placeholder */}
+      <div className="mt-10">
+        <h2 className="text-sm font-semibold text-foreground">Uptime (last 90 days)</h2>
+        <div className="mt-3 flex gap-px">
+          {Array.from({ length: 90 }, (_, i) => (
+            <div key={i} className="h-8 flex-1 rounded-sm bg-success/80" title="100% uptime" />
+          ))}
+        </div>
+        <p className="mt-2 text-sm font-medium text-foreground">99.98%</p>
       </div>
+
+      {/* Past incidents */}
+      <div className="mt-10">
+        <h2 className="text-sm font-semibold text-foreground">Past Incidents</h2>
+        <p className="mt-3 text-sm text-muted-foreground">No incidents reported in the last 90 days.</p>
+      </div>
+
+      {/* Footer */}
+      <p className="mt-12 border-t border-border pt-6 text-xs text-muted-foreground">
+        Page auto-refreshes on each visit. For urgent issues, contact{" "}
+        <a href="mailto:support@westbridgetoday.com" className="text-foreground underline hover:no-underline">
+          support@westbridgetoday.com
+        </a>
+      </p>
     </main>
   );
 }

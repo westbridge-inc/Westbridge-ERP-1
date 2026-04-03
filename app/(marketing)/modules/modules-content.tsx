@@ -57,8 +57,8 @@ export default function ModulesContent() {
       {/* Header */}
       <div className="text-center">
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">Modules</p>
-        <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-          7 module bundles. 38 modules. One platform.
+        <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          7 module bundles. 42+ modules. One platform.
         </h1>
         <p className="mx-auto mt-4 max-w-lg text-base text-muted-foreground/60">
           Every bundle includes AI-powered insights. Pick the bundles you need, or get them all with Enterprise.

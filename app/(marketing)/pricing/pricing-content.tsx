@@ -46,11 +46,11 @@ export function PricingContent() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-20">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <h1 className="text-center font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+      <h1 className="text-center font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
         Simple, transparent pricing
       </h1>
-      <p className="mx-auto mt-3 max-w-md text-center text-base leading-relaxed text-muted-foreground">
-        Pick the plan that fits your business. Start with a {TRIAL.days}-day free trial -- no credit card required.
+      <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
+        Choose the plan that grows with your business.
       </p>
 
       {/* ── Billing toggle ─────────────────────────────────────────────────── */}
@@ -88,13 +88,13 @@ export function PricingContent() {
           return (
             <div
               key={plan.id}
-              className={`relative flex flex-col rounded-xl p-7 transition-shadow ${
-                isPopular ? "border-2 border-blue-600/20 shadow-sm" : "border border-border"
+              className={`relative flex flex-col overflow-hidden rounded-xl p-6 md:p-8 ${
+                isPopular ? "border-2 border-foreground shadow-lg" : "border border-border"
               }`}
             >
               {/* Popular badge */}
               {isPopular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-blue-50 px-4 py-1 text-[11px] font-semibold uppercase tracking-wide text-blue-600 dark:bg-blue-950 dark:text-blue-400">
+                <span className="absolute -top-px left-1/2 -translate-x-1/2 whitespace-nowrap rounded-b-lg bg-foreground px-4 py-1 text-xs font-semibold text-background">
                   Most Popular
                 </span>
               )}
@@ -170,38 +170,49 @@ export function PricingContent() {
 
       {/* ── FAQ ────────────────────────────────────────────────────────────── */}
       <div className="mx-auto mt-24 max-w-2xl">
-        <h2 className="text-center font-display text-2xl font-semibold tracking-tight text-foreground">
-          Frequently asked questions
+        <h2 className="text-center font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+          Frequently Asked Questions
         </h2>
 
-        <div className="mt-10 divide-y divide-border">
-          {FAQ_ITEMS.map((item, i) => (
-            <div key={item.q} className="py-5">
-              <button
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="flex w-full items-center justify-between text-left"
-              >
-                <span className="text-sm font-medium text-foreground">{item.q}</span>
-                <ChevronDown
-                  className={`ml-4 h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${
-                    openFaq === i ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {openFaq === i && <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.a}</p>}
-            </div>
-          ))}
+        <div className="mt-10 space-y-3">
+          {FAQ_ITEMS.map((item, i) => {
+            const isOpen = openFaq === i;
+            return (
+              <div key={item.q} className="rounded-lg border border-border">
+                <button
+                  onClick={() => setOpenFaq(isOpen ? null : i)}
+                  className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-muted/30"
+                >
+                  <span className="text-sm font-medium text-foreground">{item.q}</span>
+                  <ChevronDown
+                    className={`ml-4 h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {isOpen && (
+                  <div className="px-4 pb-4">
+                    <p className="text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* ── Bottom CTA ─────────────────────────────────────────────────────── */}
-      <div className="mt-24 rounded-xl border border-border bg-foreground px-8 py-16 text-center text-background">
-        <h2 className="font-display text-2xl font-semibold tracking-tight md:text-3xl">Ready to get started?</h2>
-        <p className="mt-3 text-sm text-background/60">
-          Start your {TRIAL.days}-day free trial today. No credit card required.
-        </p>
-        <Button asChild size="lg" className="mt-8 rounded-lg bg-background px-8 text-foreground hover:bg-background/90">
-          <Link href={ROUTES.signup}>Start Free Trial</Link>
+      <div className="mt-24 bg-foreground px-8 py-20 text-center text-background md:py-28 -mx-6 md:rounded-xl md:mx-0">
+        <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
+          Still not sure? Start your free trial.
+        </h2>
+        <p className="mt-4 text-lg text-background/70">No credit card. No commitment. Cancel anytime.</p>
+        <Button
+          asChild
+          size="lg"
+          className="mt-8 h-12 rounded-lg bg-background px-8 text-base text-foreground hover:bg-background/90"
+        >
+          <Link href={ROUTES.signup}>Start {TRIAL.days}-Day Free Trial</Link>
         </Button>
       </div>
     </div>

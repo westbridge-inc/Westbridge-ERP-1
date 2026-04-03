@@ -6,9 +6,9 @@ import { ROUTES, TRIAL } from "@/lib/config/site";
 import { Button } from "@/components/ui/Button";
 
 const STATS = [
-  { value: "38", label: "Modules" },
-  { value: "7", label: "Module bundles" },
-  { value: "AI", label: "Powered insights" },
+  { value: "42+", label: "Modules" },
+  { value: "7", label: "Module Bundles" },
+  { value: "AI", label: "Powered Insights" },
   { value: "256-bit", label: "Encryption" },
 ];
 

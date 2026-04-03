@@ -17,137 +17,130 @@ import {
 import { ROUTES, TRIAL } from "@/lib/config/site";
 import { Button } from "@/components/ui/Button";
 
+/* ── Section 23: Features Grid ─────────────────────── */
 const FEATURES = [
   {
     icon: Calculator,
     title: "Finance & Accounting",
-    desc: "Double-entry ledger, invoicing, bank reconciliation, and multi-currency tax management.",
+    desc: "Track every dollar in and out. Automate invoicing, reconcile accounts, and generate financial reports with one click.",
   },
   {
     icon: Users,
-    title: "Sales & CRM",
-    desc: "Pipeline tracking, deal scoring, automated quotations, and a self-serve customer portal.",
+    title: "CRM & Sales",
+    desc: "Track leads, manage your pipeline, and close deals faster with built-in quotation workflows and a customer portal.",
   },
   {
     icon: Package,
     title: "Inventory & Supply Chain",
-    desc: "Multi-warehouse stock, purchase orders, serial tracking, and demand forecasting.",
+    desc: "Real-time stock levels across warehouses. Purchase orders, serial tracking, and demand forecasting included.",
   },
   {
     icon: UserCog,
     title: "HR & Payroll",
-    desc: "Employee lifecycle management, payroll processing, leave tracking, and compliance.",
+    desc: "Employee lifecycle from onboarding to payroll. Leave tracking, attendance, and compliance built in.",
   },
   {
     icon: BrainCircuit,
-    title: "Built-in AI",
-    desc: "Revenue trends, overdue invoice alerts, stock predictions, and payroll anomaly detection.",
+    title: "AI Powered",
+    desc: "Ask questions about your business in plain English. Revenue trends, overdue alerts, and anomaly detection — powered by AI.",
   },
   {
     icon: ShieldCheck,
-    title: "Enterprise Security",
-    desc: "OIDC single sign-on, TOTP two-factor auth, audit logging, and role-based access control.",
+    title: "Security & Compliance",
+    desc: "256-bit encryption, SSO, two-factor authentication, audit logging, and role-based access control. Enterprise-grade from day one.",
   },
 ];
 
+/* ── Section 24: How It Works ──────────────────────── */
 const STEPS = [
   {
-    num: "01",
-    title: "Create your account",
-    desc: "Sign up in under a minute. No credit card, no sales call.",
+    num: 1,
+    title: "Sign up & choose a plan",
+    desc: "Create your account in under 2 minutes. No credit card, no sales call.",
   },
   {
-    num: "02",
-    title: "Activate your modules",
-    desc: "Turn on finance, CRM, inventory, HR, or the full suite.",
+    num: 2,
+    title: "Connect your business data",
+    desc: "Import customers, items, and employees. Or start fresh — we'll guide you.",
   },
   {
-    num: "03",
-    title: "Run your business",
-    desc: "Send invoices, close deals, and manage payroll from one place.",
+    num: 3,
+    title: "Start managing everything",
+    desc: "Invoices, payroll, inventory — all in one place. Send your first invoice today.",
   },
 ];
 
+/* ── Section 22: Stats Strip ───────────────────────── */
 const STATS = [
-  { icon: Layers, value: "38", label: "Modules" },
+  { icon: Layers, value: "42+", label: "Modules" },
   { icon: BarChart3, value: "7", label: "Bundles" },
   { icon: Lock, value: "256-bit", label: "Encryption" },
-  { icon: Clock, value: `${TRIAL.days}-day`, label: "Free Trial" },
+  { icon: Clock, value: `${TRIAL.days}-Day`, label: "Free Trial" },
 ];
 
 export function HomeContent() {
   return (
     <>
-      {/* ── Hero ───────────────────────────────────── */}
-      <section className="relative flex min-h-[90vh] flex-col items-center justify-center px-6 pb-32 pt-32">
-        <div className="mx-auto max-w-4xl text-center fade-in">
-          <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/60">
-            Enterprise Resource Planning
-          </p>
-
-          <h1 className="mt-6 font-display text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[1.05] tracking-tight text-foreground">
-            One platform to run
+      {/* ── Section 21: Hero ─────────────────────────── */}
+      <section className="relative flex flex-col items-center justify-center px-6 py-24 md:py-32 lg:py-40">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="fade-in font-display text-4xl font-bold leading-[1.1] tracking-tight text-foreground text-balance md:text-5xl lg:text-6xl">
+            The Enterprise ERP
             <br />
-            your entire business
+            for Growing Businesses
           </h1>
 
-          <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Accounting, CRM, inventory, HR, and manufacturing — unified with AI intelligence. Set up in minutes, not
-            months.
+          <p className="fade-in-delay-1 mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+            Manage invoicing, CRM, inventory, HR, payroll, and accounting — all in one platform built for modern teams.
           </p>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
-            <Button asChild size="lg" className="h-12 rounded-lg px-8 text-sm">
-              <Link href={ROUTES.signup}>
-                Start Free Trial
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+          <div className="fade-in-delay-2 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Button asChild size="lg" className="h-12 rounded-lg px-8 text-base">
+              <Link href={ROUTES.signup}>Get Started</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="h-12 rounded-lg px-8 text-sm">
-              <Link href={ROUTES.pricing}>See Pricing</Link>
+            <Button asChild variant="outline" size="lg" className="h-12 rounded-lg px-8 text-base">
+              <Link href={ROUTES.pricing}>
+                See Pricing <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
 
-          <p className="mt-5 text-xs text-muted-foreground/50">No credit card required</p>
+          <p className="mt-5 text-sm text-muted-foreground/50">No credit card required.</p>
         </div>
       </section>
 
-      {/* ── Stats Strip ────────────────────────────── */}
-      <section className="border-y border-border bg-foreground px-6 py-14">
-        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-y-10 md:grid-cols-4">
+      {/* ── Section 22: Stats Strip ────────────────────── */}
+      <section className="bg-foreground px-6 py-8 md:py-10">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-8 md:gap-16">
           {STATS.map((stat) => (
             <div key={stat.label} className="flex flex-col items-center text-center">
-              <stat.icon className="mb-3 h-5 w-5 text-background/40" strokeWidth={1.5} />
-              <p className="text-2xl font-semibold tracking-tight text-background">{stat.value}</p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-[0.15em] text-background/50">{stat.label}</p>
+              <p className="font-display text-2xl font-bold text-background md:text-3xl">{stat.value}</p>
+              <p className="mt-1 text-sm text-background/60">{stat.label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Features ───────────────────────────────── */}
-      <section className="px-6 py-32">
-        <div className="mx-auto max-w-5xl fade-in">
-          <p className="text-center text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/50">
-            Platform
-          </p>
-          <h2 className="mt-4 text-center font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-            Everything you need to operate
+      {/* ── Section 23: Features Grid ─────────────────── */}
+      <section className="px-6 py-16 md:py-24">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-center font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            Everything your business needs, unified
           </h2>
-          <p className="mx-auto mt-5 max-w-md text-center text-sm leading-relaxed text-muted-foreground">
-            Replace disconnected tools with one unified system. Every module works together out of the box.
+          <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
+            One platform to replace your scattered spreadsheets, legacy tools, and disconnected workflows.
           </p>
 
-          <div className="mt-20 grid grid-cols-1 gap-x-1 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
             {FEATURES.map((f) => (
-              <div key={f.title} className="group rounded-2xl p-8 transition-colors duration-200 hover:bg-muted/40">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/[0.04]">
-                  <f.icon
-                    className="h-5 w-5 text-foreground/50 transition-colors duration-200 group-hover:text-foreground"
-                    strokeWidth={1.5}
-                  />
+              <div
+                key={f.title}
+                className="rounded-xl border border-border p-6 transition-colors duration-150 hover:bg-muted/40 md:p-8"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/5">
+                  <f.icon className="h-6 w-6 text-foreground" strokeWidth={1.5} />
                 </div>
-                <h3 className="mt-5 text-[15px] font-semibold text-foreground">{f.title}</h3>
+                <h3 className="mt-4 text-lg font-semibold text-foreground">{f.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
               </div>
             ))}
@@ -155,51 +148,42 @@ export function HomeContent() {
         </div>
       </section>
 
-      {/* ── How It Works ───────────────────────────── */}
-      <section className="border-t border-border px-6 py-32">
-        <div className="mx-auto max-w-3xl fade-in">
-          <p className="text-center text-[11px] font-medium uppercase tracking-[0.25em] text-muted-foreground/50">
-            Getting started
-          </p>
-          <h2 className="mt-4 text-center font-display text-3xl font-semibold tracking-tight text-foreground">
-            Up and running in minutes
+      {/* ── Section 24: How It Works ───────────────────── */}
+      <section className="border-t border-border px-6 py-16 md:py-24">
+        <div className="mx-auto max-w-7xl">
+          <h2 className="text-center font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            Get started in minutes
           </h2>
 
-          <div className="mt-20 space-y-16">
+          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
             {STEPS.map((s) => (
-              <div key={s.num} className="flex items-start gap-8">
-                <span className="shrink-0 font-display text-4xl font-extralight tracking-tight text-foreground/10">
+              <div key={s.num} className="text-center md:text-left">
+                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-sm font-bold text-background md:mx-0">
                   {s.num}
-                </span>
-                <div className="pt-1">
-                  <h3 className="text-base font-semibold text-foreground">{s.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
                 </div>
+                <h3 className="mt-4 text-xl font-semibold text-foreground">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Final CTA ──────────────────────────────── */}
-      <section className="bg-foreground px-6 py-32 text-background">
-        <div className="mx-auto max-w-2xl text-center fade-in">
-          <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">
-            Ready to streamline your operations?
+      {/* ── Section 25: Final CTA ──────────────────────── */}
+      <section className="bg-foreground px-6 py-20 text-background md:py-28">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
+            Ready to streamline your business?
           </h2>
-          <p className="mt-5 text-base text-background/50">
-            Start your {TRIAL.days}-day free trial today. No credit card required, no commitments.
-          </p>
+          <p className="mt-4 text-lg text-background/70">Start your {TRIAL.days}-day free trial today.</p>
           <Button
             asChild
             size="lg"
-            className="mt-10 h-12 rounded-lg bg-background px-8 text-sm text-foreground hover:bg-background/90"
+            className="mt-8 h-12 rounded-lg bg-background px-8 text-base text-foreground hover:bg-background/90"
           >
-            <Link href={ROUTES.signup}>
-              Start Free Trial
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            <Link href={ROUTES.signup}>Get Started Free</Link>
           </Button>
+          <p className="mt-4 text-sm text-background/50">No credit card required.</p>
         </div>
       </section>
     </>
