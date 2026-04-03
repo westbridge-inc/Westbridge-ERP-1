@@ -39,9 +39,13 @@ export function IntegrationsTab() {
   }, []);
 
   const copyToClipboard = useCallback(
-    (text: string, label: string) => {
-      navigator.clipboard.writeText(text);
-      addToast(`${label} copied to clipboard`, "success");
+    async (text: string, label: string) => {
+      try {
+        await navigator.clipboard.writeText(text);
+        addToast(`${label} copied to clipboard`, "success");
+      } catch {
+        addToast("Failed to copy to clipboard", "error");
+      }
     },
     [addToast],
   );

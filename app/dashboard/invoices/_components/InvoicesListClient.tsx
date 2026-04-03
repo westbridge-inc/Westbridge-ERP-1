@@ -119,7 +119,8 @@ export function InvoicesListClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { addToast } = useToasts();
-  const [filter, setFilter] = useState("All");
+  const initialFilter = searchParams.get("status") ?? "All";
+  const [filter, setFilter] = useState(initialFilter);
   const initialSearch = searchParams.get("search") ?? "";
   const [search, setSearch] = useState(initialSearch);
   const debouncedSearch = useDebounce(search, 400);
@@ -158,20 +159,40 @@ export function InvoicesListClient({
     return () => document.removeEventListener("mousedown", handler);
   }, [columnsMenuOpen]);
 
+  // Build URL params consistently (preserves filter, search, page, type)
+  const buildParams = useCallback(
+    (overrides: { page?: number; search?: string; status?: string } = {}) => {
+      const p = new URLSearchParams();
+      p.set("type", type);
+      p.set("page", String(overrides.page ?? 0));
+      const s = overrides.search ?? debouncedSearch;
+      if (s) p.set("search", s);
+      const f = overrides.status ?? filter;
+      if (f && f !== "All") p.set("status", f);
+      return p;
+    },
+    [type, debouncedSearch, filter],
+  );
+
+  // When the status filter changes, update the URL and reset to page 0
+  const handleFilterChange = useCallback(
+    (newFilter: string) => {
+      setFilter(newFilter);
+      const p = buildParams({ status: newFilter, page: 0 });
+      router.push(`?${p.toString()}`);
+    },
+    [buildParams, router],
+  );
+
   // Server-side search: update URL when debounced search changes (Item #19)
   const prevDebouncedRef = useRef(initialSearch);
   useEffect(() => {
     if (debouncedSearch === prevDebouncedRef.current) return;
     prevDebouncedRef.current = debouncedSearch;
 
-    const params = new URLSearchParams();
-    params.set("type", type);
-    params.set("page", "0");
-    if (debouncedSearch) {
-      params.set("search", debouncedSearch);
-    }
-    router.push(`?${params.toString()}`);
-  }, [debouncedSearch, type, router]);
+    const p = buildParams({ search: debouncedSearch, page: 0 });
+    router.push(`?${p.toString()}`);
+  }, [debouncedSearch, buildParams, router]);
 
   const toggleColumn = useCallback(
     (colId: string) => {
@@ -418,7 +439,7 @@ export function InvoicesListClient({
                 return (
                   <button
                     key={f}
-                    onClick={() => setFilter(f)}
+                    onClick={() => handleFilterChange(f)}
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                       isActive
                         ? "bg-primary text-primary-foreground"
@@ -488,8 +509,7 @@ export function InvoicesListClient({
                 size="sm"
                 disabled={currentPage === 0}
                 onClick={() => {
-                  const p = new URLSearchParams({ type, page: String(currentPage - 1) });
-                  if (search) p.set("search", search);
+                  const p = buildParams({ page: currentPage - 1 });
                   router.push(`?${p.toString()}`);
                 }}
               >
@@ -500,8 +520,7 @@ export function InvoicesListClient({
                 size="sm"
                 disabled={!hasMore}
                 onClick={() => {
-                  const p = new URLSearchParams({ type, page: String(currentPage + 1) });
-                  if (search) p.set("search", search);
+                  const p = buildParams({ page: currentPage + 1 });
                   router.push(`?${p.toString()}`);
                 }}
               >
