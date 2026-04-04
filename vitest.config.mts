@@ -1,5 +1,8 @@
 import { defineConfig } from "vitest/config";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
@@ -8,7 +11,7 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.ts", "**/*.test.tsx"],
     exclude: ["**/node_modules/**", "**/e2e/**", "**/.next/**"],
-    environmentMatchGlobs: [["**/*.test.tsx", "happy-dom"]] as [string, string][],
+    environmentMatchGlobs: [["**/*.test.tsx", "happy-dom"]],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
@@ -24,12 +27,9 @@ export default defineConfig({
         "**/*.test.tsx",
         "**/*.spec.ts",
         "**/types/**/*.d.ts",
-        // shadcn/ui component wrappers — thin Radix primitives, not business logic
         "components/ui/**",
       ],
       thresholds: {
-        // Coverage measured against lib/, types/, and components/ (UI excluded).
-        // Dashboard page components are tested via E2E (Playwright), not unit coverage.
         statements: 50,
         branches: 40,
         functions: 50,
