@@ -12,22 +12,10 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { SkeletonTable } from "@/components/ui/SkeletonTable";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/Select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/Select";
 import { api } from "@/lib/api/client";
 import { useToasts } from "@/components/ui/Toasts";
-import {
-  mapErpTask,
-  TASK_STATUS_VARIANT,
-  PRIORITY_VARIANT,
-  TASK_STATUSES,
-  TASK_PRIORITIES,
-} from "./utils";
+import { mapErpTask, TASK_STATUS_VARIANT, PRIORITY_VARIANT, TASK_STATUSES, TASK_PRIORITIES } from "./utils";
 import type { TaskRow } from "./types";
 
 export function TasksTab() {
@@ -36,18 +24,9 @@ export function TasksTab() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
 
   const { data, isLoading, error, refetch } = useErpList("Task", {
-    fields: [
-      "name",
-      "subject",
-      "project",
-      "_assign",
-      "priority",
-      "exp_end_date",
-      "status",
-    ],
+    fields: ["name", "subject", "project", "_assign", "priority", "exp_end_date", "status"],
     orderBy: "creation desc",
     limit: 20,
   });
@@ -68,7 +47,6 @@ export function TasksTab() {
 
   const handleDelete = useCallback(async () => {
     if (!deleteId) return;
-    setDeleting(true);
     try {
       await api.erp.delete("Task", deleteId);
       addToast("Task deleted", "success");
@@ -77,7 +55,6 @@ export function TasksTab() {
     } catch {
       addToast("Failed to delete task", "error");
     } finally {
-      setDeleting(false);
     }
   }, [deleteId, addToast, refetch]);
 
@@ -115,11 +92,7 @@ export function TasksTab() {
     {
       id: "priority",
       header: "Priority",
-      accessor: (r) => (
-        <Badge variant={PRIORITY_VARIANT[r.priority] ?? "outline"}>
-          {r.priority}
-        </Badge>
-      ),
+      accessor: (r) => <Badge variant={PRIORITY_VARIANT[r.priority] ?? "outline"}>{r.priority}</Badge>,
     },
     {
       id: "dueDate",
@@ -140,23 +113,14 @@ export function TasksTab() {
     {
       id: "status",
       header: "Status",
-      accessor: (r) => (
-        <Badge variant={TASK_STATUS_VARIANT[r.status] ?? "outline"}>
-          {r.status}
-        </Badge>
-      ),
+      accessor: (r) => <Badge variant={TASK_STATUS_VARIANT[r.status] ?? "outline"}>{r.status}</Badge>,
     },
     {
       id: "actions",
       header: "",
       accessor: (r) => (
         <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setDeleteId(r.id)}
-            aria-label="Delete"
-          >
+          <Button variant="ghost" size="icon" onClick={() => setDeleteId(r.id)} aria-label="Delete">
             <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
           </Button>
         </div>
@@ -217,11 +181,7 @@ export function TasksTab() {
           actionHref="/dashboard/projects/new?type=task"
         />
       ) : (
-        <DataTable
-          data={filtered}
-          columns={columns}
-          keyExtractor={(r) => r.id}
-        />
+        <DataTable data={filtered} columns={columns} keyExtractor={(r) => r.id} />
       )}
 
       <ConfirmDialog
