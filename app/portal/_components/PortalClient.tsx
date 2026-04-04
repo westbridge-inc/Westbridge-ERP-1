@@ -1,93 +1,16 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { FileText, Download, CheckCircle2, Clock, Package, ShieldAlert } from "lucide-react";
+import { FileText, Clock, Package } from "lucide-react";
+
+import type { PortalInfo, Invoice, Quotation, Order } from "./types";
+import { PortalHeader } from "./PortalHeader";
+import { PortalLoading, PortalError, DocsLoading } from "./InvoiceDetail";
+import { InvoiceTable, QuotationTable, OrderTable } from "./InvoiceList";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
-// ─── Types ──────────────────────────────────────────────────────────────────
-
-interface PortalInfo {
-  customerName: string;
-  customerEmail: string;
-  accountId: string;
-  companyName: string;
-}
-
-interface Invoice {
-  name: string;
-  posting_date?: string;
-  due_date?: string;
-  grand_total?: number;
-  outstanding_amount?: number;
-  currency?: string;
-  status?: string;
-}
-
-interface Quotation {
-  name: string;
-  transaction_date?: string;
-  valid_till?: string;
-  grand_total?: number;
-  currency?: string;
-  status?: string;
-  docstatus?: number;
-}
-
-interface Order {
-  name: string;
-  transaction_date?: string;
-  delivery_date?: string;
-  grand_total?: number;
-  currency?: string;
-  status?: string;
-  per_delivered?: number;
-  per_billed?: number;
-}
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function formatCurrency(amount: number | undefined, currency?: string): string {
-  if (amount == null) return "--";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency ?? "USD",
-    minimumFractionDigits: 2,
-  }).format(amount);
-}
-
-function formatDate(date: string | undefined): string {
-  if (!date) return "--";
-  try {
-    return new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(new Date(date));
-  } catch {
-    return date;
-  }
-}
-
-function statusVariant(
-  status: string | undefined,
-): "default" | "success" | "warning" | "destructive" | "outline" | "secondary" {
-  const s = (status ?? "").toLowerCase();
-  if (["paid", "completed", "delivered", "submitted", "accepted"].includes(s)) return "success";
-  if (["overdue", "cancelled", "expired", "lost"].includes(s)) return "destructive";
-  if (["unpaid", "partly paid", "partially delivered", "to deliver and bill"].includes(s)) return "warning";
-  if (["draft", "open"].includes(s)) return "outline";
-  return "secondary";
-}
-
-// ─── Component ──────────────────────────────────────────────────────────────
 
 export function PortalClient() {
   const searchParams = useSearchParams();
@@ -188,7 +111,6 @@ export function PortalClient() {
       });
 
       if (res.ok) {
-        // Refresh quotations
         const quotRes = await fetch(`${API_BASE}/api/portal/quotations?token=${encodeURIComponent(token)}`, {
           credentials: "include",
         });
@@ -233,57 +155,13 @@ export function PortalClient() {
     }
   }
 
-  // ─── Loading state ─────────────────────────────────────────────────────────
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
-          <p className="text-sm text-muted-foreground">Verifying your access...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // ─── Error state ──────────────────────────────────────────────────────────
-
-  if (error || !portalInfo) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Card className="w-full max-w-md">
-          <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
-            <div className="rounded-full bg-destructive/10 p-3">
-              <ShieldAlert className="h-8 w-8 text-destructive" />
-            </div>
-            <div>
-              <h2 className="text-xl leading-snug font-semibold text-foreground">Access Denied</h2>
-              <p className="mt-2 text-sm text-muted-foreground">{error ?? "Unable to access the portal."}</p>
-            </div>
-            <div className="mt-2 rounded-lg bg-muted px-4 py-3 text-xs text-muted-foreground">
-              Please contact your vendor for a new portal link.
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // ─── Main portal ──────────────────────────────────────────────────────────
+  if (loading) return <PortalLoading />;
+  if (error || !portalInfo) return <PortalError error={error} />;
 
   return (
     <div>
-      {/* Welcome header */}
-      <div className="mb-8">
-        <h1 className="text-2xl leading-tight tracking-tight font-display font-semibold text-foreground text-balance">
-          Welcome, {portalInfo.customerName}
-        </h1>
-        <p className="mt-1 text-sm leading-normal text-muted-foreground">
-          View your documents from {portalInfo.companyName || "your vendor"}
-        </p>
-      </div>
+      <PortalHeader portalInfo={portalInfo} />
 
-      {/* Tabs */}
       <Tabs defaultValue="invoices">
         <TabsList className="mb-6">
           <TabsTrigger value="invoices" className="gap-1.5">
@@ -315,216 +193,30 @@ export function PortalClient() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Loading overlay for docs */}
-        {loadingDocs && (
-          <div className="flex items-center justify-center py-12">
-            <div className="flex flex-col items-center gap-3">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
-              <p className="text-sm text-muted-foreground">Loading documents...</p>
-            </div>
-          </div>
-        )}
+        {loadingDocs && <DocsLoading />}
 
-        {/* ─── Invoices tab ───────────────────────────────────────────── */}
         {!loadingDocs && (
           <TabsContent value="invoices">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Invoices</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {invoices.length === 0 ? (
-                  <EmptyDocState icon={<FileText className="h-8 w-8" />} label="No invoices yet" />
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Invoice #</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Due Date</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                        <TableHead className="text-right">Outstanding</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">PDF</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {invoices.map((inv) => (
-                        <TableRow key={inv.name}>
-                          <TableCell className="font-medium">{inv.name}</TableCell>
-                          <TableCell>{formatDate(inv.posting_date)}</TableCell>
-                          <TableCell>{formatDate(inv.due_date)}</TableCell>
-                          <TableCell className="text-right tabular-nums">
-                            {formatCurrency(inv.grand_total, inv.currency)}
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums">
-                            {formatCurrency(inv.outstanding_amount, inv.currency)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={statusVariant(inv.status)}>{inv.status ?? "Draft"}</Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDownloadPdf(inv.name)}
-                              loading={downloadingPdf === inv.name}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
+            <InvoiceTable invoices={invoices} downloadingPdf={downloadingPdf} onDownloadPdf={handleDownloadPdf} />
           </TabsContent>
         )}
 
-        {/* ─── Quotations tab ─────────────────────────────────────────── */}
         {!loadingDocs && (
           <TabsContent value="quotations">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Quotations</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {quotations.length === 0 ? (
-                  <EmptyDocState icon={<Clock className="h-8 w-8" />} label="No quotations yet" />
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Quotation #</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Valid Until</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {quotations.map((q) => {
-                        const canAccept =
-                          (q.docstatus === 0 || q.docstatus == null) &&
-                          (q.status ?? "").toLowerCase() !== "ordered" &&
-                          (q.status ?? "").toLowerCase() !== "cancelled" &&
-                          (q.status ?? "").toLowerCase() !== "lost";
-                        return (
-                          <TableRow key={q.name}>
-                            <TableCell className="font-medium">{q.name}</TableCell>
-                            <TableCell>{formatDate(q.transaction_date)}</TableCell>
-                            <TableCell>{formatDate(q.valid_till)}</TableCell>
-                            <TableCell className="text-right tabular-nums">
-                              {formatCurrency(q.grand_total, q.currency)}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={statusVariant(q.status)}>{q.status ?? "Draft"}</Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {canAccept ? (
-                                <Button
-                                  variant="default"
-                                  size="sm"
-                                  onClick={() => handleAcceptQuotation(q.name)}
-                                  loading={acceptingQuote === q.name}
-                                >
-                                  <CheckCircle2 className="h-4 w-4" />
-                                  Accept
-                                </Button>
-                              ) : (
-                                <span className="text-xs text-muted-foreground/70">
-                                  {q.docstatus === 1 ? "Accepted" : "--"}
-                                </span>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
+            <QuotationTable
+              quotations={quotations}
+              acceptingQuote={acceptingQuote}
+              onAcceptQuotation={handleAcceptQuotation}
+            />
           </TabsContent>
         )}
 
-        {/* ─── Orders tab ─────────────────────────────────────────────── */}
         {!loadingDocs && (
           <TabsContent value="orders">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Sales Orders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {orders.length === 0 ? (
-                  <EmptyDocState icon={<Package className="h-8 w-8" />} label="No orders yet" />
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Order #</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Delivery Date</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Delivered</TableHead>
-                        <TableHead>Billed</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {orders.map((o) => (
-                        <TableRow key={o.name}>
-                          <TableCell className="font-medium">{o.name}</TableCell>
-                          <TableCell>{formatDate(o.transaction_date)}</TableCell>
-                          <TableCell>{formatDate(o.delivery_date)}</TableCell>
-                          <TableCell className="text-right tabular-nums">
-                            {formatCurrency(o.grand_total, o.currency)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={statusVariant(o.status)}>{o.status ?? "Draft"}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <ProgressPill value={o.per_delivered} />
-                          </TableCell>
-                          <TableCell>
-                            <ProgressPill value={o.per_billed} />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
+            <OrderTable orders={orders} />
           </TabsContent>
         )}
       </Tabs>
-    </div>
-  );
-}
-
-// ─── Sub-components ─────────────────────────────────────────────────────────
-
-function EmptyDocState({ icon, label }: { icon: ReactNode; label: string }) {
-  return (
-    <div className="flex flex-col items-center gap-3 py-12 text-muted-foreground/70">
-      {icon}
-      <p className="text-sm">{label}</p>
-    </div>
-  );
-}
-
-function ProgressPill({ value }: { value?: number }) {
-  const pct = value ?? 0;
-  return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-16 rounded-full bg-muted">
-        <div className="h-1.5 rounded-full bg-foreground transition-all" style={{ width: `${Math.min(100, pct)}%` }} />
-      </div>
-      <span className="text-xs tabular-nums text-muted-foreground">{Math.round(pct)}%</span>
     </div>
   );
 }
