@@ -25,7 +25,7 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
       - name: Build
         run: npm run build
         env:
@@ -58,7 +58,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
 
       - name: Type check
         run: npx tsc --noEmit
@@ -92,12 +92,43 @@ jobs:
         if: env.FLY_API_TOKEN != '' && env.RAILWAY_TOKEN == ''
         uses: superfly/flyctl-actions/setup-flyctl@1.5
 
-      - name: Deploy to Fly.io
+      - name: Deploy canary (1 machine)
+        id: fly_canary
         if: env.FLY_API_TOKEN != '' && env.RAILWAY_TOKEN == ''
-        run: flyctl deploy --remote-only
+        run: |
+          flyctl deploy --strategy canary --wait-timeout 120
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      - name: Verify deployment
-        if: env.RAILWAY_TOKEN != '' || env.FLY_API_TOKEN != ''
+      - name: Verify canary health
+        id: fly_canary_health
+        if: env.FLY_API_TOKEN != '' && env.RAILWAY_TOKEN == ''
+        run: |
+          DEPLOY_URL="${{ vars.DEPLOY_URL || 'https://westbridge-frontend.fly.dev' }}"
+          echo "Checking canary health at $DEPLOY_URL..."
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -so /dev/null -w "%{http_code}" "$DEPLOY_URL" || echo "000")
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "307" ]; then
+              echo "Canary is healthy"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Canary health check failed after 5 attempts"
+          exit 1
+
+      - name: Rollback canary on failure (Fly.io)
+        if: failure() && (steps.fly_canary.outcome == 'failure' || steps.fly_canary_health.outcome == 'failure') && env.FLY_API_TOKEN != '' && env.RAILWAY_TOKEN == ''
+        run: |
+          echo "Rolling back to previous release..."
+          flyctl releases --json | head -1
+          flyctl deploy --image $(flyctl releases --json | python3 -c "import sys,json; releases=json.load(sys.stdin); print(releases[1]['ImageRef'])" 2>/dev/null || echo "registry.fly.io/westbridge-frontend:latest")
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Verify deployment (Railway)
+        if: env.RAILWAY_TOKEN != ''
         run: |
           sleep 15
           DEPLOY_URL="${{ vars.DEPLOY_URL || 'https://westbridge-frontend.fly.dev' }}"
@@ -121,7 +152,7 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
       - name: Build
         run: npm run build
         env:

@@ -1,0 +1,84 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  NODE_VERSION: "20"
+  NEXT_PUBLIC_API_URL: http://localhost:4000
+  NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+jobs:
+  lighthouse:
+    name: Performance Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ env.NEXT_PUBLIC_API_URL }}
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.js
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Format Lighthouse results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const resultsPath = '.lighthouseci';
+            if (!fs.existsSync(resultsPath)) return;
+
+            const files = fs.readdirSync(resultsPath).filter(f => f.endsWith('.json') && !f.startsWith('manifest'));
+            if (files.length === 0) return;
+
+            const results = JSON.parse(fs.readFileSync(`${resultsPath}/${files[0]}`, 'utf8'));
+            const categories = results.categories;
+
+            const score = (cat) => cat ? Math.round(cat.score * 100) : 'N/A';
+            const emoji = (s) => s >= 90 ? '🟢' : s >= 50 ? '🟡' : '🔴';
+
+            const perf = score(categories.performance);
+            const a11y = score(categories.accessibility);
+            const bp = score(categories['best-practices']);
+            const seo = score(categories.seo);
+
+            const body = `## Lighthouse Results
+
+            | Category | Score | Status |
+            |----------|-------|--------|
+            | Performance | ${perf} | ${emoji(perf)} |
+            | Accessibility | ${a11y} | ${emoji(a11y)} |
+            | Best Practices | ${bp} | ${emoji(bp)} |
+            | SEO | ${seo} | ${emoji(seo)} |
+
+            _Lighthouse CI ran on 3 URLs: /, /login, /pricing_`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body.split('\n').map(l => l.trim()).join('\n'),
+            });
