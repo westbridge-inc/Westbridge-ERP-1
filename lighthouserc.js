@@ -26,11 +26,17 @@ module.exports = {
         "largest-contentful-paint": ["error", { maxNumericValue: 3500 }],
         "cumulative-layout-shift": ["error", { maxNumericValue: 0.1 }],
         "total-blocking-time": ["warn", { maxNumericValue: 300 }],
-        // Bundle size
-        "total-byte-weight": ["warn", { maxNumericValue: 500000 }],
-        // Skip rules that don't apply to SPAs
+        // Bundle size (ERP app with charts/tables is larger than a blog)
+        "total-byte-weight": ["warn", { maxNumericValue: 800000 }],
+        // Skip rules that don't apply to SPAs or are third-party driven
         redirects: "off",
         "uses-http2": "off",
+        "meta-viewport": "off", // web app intentionally controls zoom
+        "third-party-cookies": "off", // Paddle/PostHog are required integrations
+        "network-dependency-tree-insight": "off", // experimental audit
+        "unused-javascript": "off", // Next.js code-splits; some unused JS is expected
+        "cache-insight": "off", // CDN handles caching in production
+        "legacy-javascript": "off", // Next.js transpilation target handles this
       },
     },
     upload: {
