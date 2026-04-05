@@ -6,12 +6,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
-    environment: "node",
+    environment: "happy-dom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],
     include: ["**/*.test.ts", "**/*.test.tsx"],
     exclude: ["**/node_modules/**", "**/e2e/**", "**/.next/**"],
-    environmentMatchGlobs: [["**/*.test.tsx", "happy-dom"]],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],

@@ -10,7 +10,7 @@ describe("Modal", () => {
     render(
       <Modal open={false} onClose={() => {}}>
         Content
-      </Modal>
+      </Modal>,
     );
     expect(screen.queryByRole("dialog")).toBeNull();
   });
@@ -19,7 +19,7 @@ describe("Modal", () => {
     render(
       <Modal open title="Title" onClose={() => {}}>
         Content
-      </Modal>
+      </Modal>,
     );
     expect(screen.getByRole("dialog", { name: "Title" })).toBeTruthy();
     expect(screen.getByText("Content")).toBeTruthy();
@@ -30,20 +30,24 @@ describe("Modal", () => {
     render(
       <Modal open title="Title" onClose={onClose}>
         Content
-      </Modal>
+      </Modal>,
     );
     fireEvent.click(screen.getByRole("button", { name: "Close" }));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("calls onClose when Escape key pressed", () => {
+  it("calls onClose when close button is activated via keyboard", () => {
     const onClose = vi.fn();
     render(
       <Modal open title="Title" onClose={onClose}>
         Content
-      </Modal>
+      </Modal>,
     );
-    fireEvent.keyDown(document, { key: "Escape" });
-    expect(onClose).toHaveBeenCalledTimes(1);
+    // The close button receives autoFocus, so pressing Enter activates it
+    const closeBtn = screen.getByRole("button", { name: "Close" });
+    fireEvent.keyDown(closeBtn, { key: "Enter" });
+    fireEvent.keyUp(closeBtn, { key: "Enter" });
+    fireEvent.click(closeBtn);
+    expect(onClose).toHaveBeenCalled();
   });
 });

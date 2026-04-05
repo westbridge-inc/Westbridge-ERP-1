@@ -12,13 +12,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { SkeletonTable } from "@/components/ui/SkeletonTable";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/Select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/Select";
 import { api } from "@/lib/api/client";
 import { useToasts } from "@/components/ui/Toasts";
 import { mapErpProject, PROJECT_STATUS_VARIANT, PROJECT_STATUSES } from "./utils";
@@ -29,7 +23,6 @@ export function ProjectsTab() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
 
   const { data, isLoading, error, refetch } = useErpList("Project", {
     fields: [
@@ -60,7 +53,6 @@ export function ProjectsTab() {
 
   const handleDelete = useCallback(async () => {
     if (!deleteId) return;
-    setDeleting(true);
     try {
       await api.erp.delete("Project", deleteId);
       addToast("Project deleted", "success");
@@ -69,7 +61,6 @@ export function ProjectsTab() {
     } catch {
       addToast("Failed to delete project", "error");
     } finally {
-      setDeleting(false);
     }
   }, [deleteId, addToast, refetch]);
 
@@ -90,11 +81,7 @@ export function ProjectsTab() {
     {
       id: "status",
       header: "Status",
-      accessor: (r) => (
-        <Badge variant={PROJECT_STATUS_VARIANT[r.status] ?? "outline"}>
-          {r.status}
-        </Badge>
-      ),
+      accessor: (r) => <Badge variant={PROJECT_STATUS_VARIANT[r.status] ?? "outline"}>{r.status}</Badge>,
     },
     {
       id: "progress",
@@ -107,9 +94,7 @@ export function ProjectsTab() {
               style={{ width: `${Math.min(r.percentComplete, 100)}%` }}
             />
           </div>
-          <span className="tabular-nums text-xs text-muted-foreground">
-            {Math.round(r.percentComplete)}%
-          </span>
+          <span className="tabular-nums text-xs text-muted-foreground">{Math.round(r.percentComplete)}%</span>
         </div>
       ),
       sortValue: (r) => r.percentComplete,
@@ -117,21 +102,13 @@ export function ProjectsTab() {
     {
       id: "startDate",
       header: "Start Date",
-      accessor: (r) => (
-        <span className="tabular-nums text-muted-foreground">
-          {r.expectedStartDate || "\u2014"}
-        </span>
-      ),
+      accessor: (r) => <span className="tabular-nums text-muted-foreground">{r.expectedStartDate || "\u2014"}</span>,
       sortValue: (r) => r.expectedStartDate,
     },
     {
       id: "endDate",
       header: "End Date",
-      accessor: (r) => (
-        <span className="tabular-nums text-muted-foreground">
-          {r.expectedEndDate || "\u2014"}
-        </span>
-      ),
+      accessor: (r) => <span className="tabular-nums text-muted-foreground">{r.expectedEndDate || "\u2014"}</span>,
       sortValue: (r) => r.expectedEndDate,
     },
     {
@@ -145,12 +122,7 @@ export function ProjectsTab() {
       header: "",
       accessor: (r) => (
         <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setDeleteId(r.id)}
-            aria-label="Delete"
-          >
+          <Button variant="ghost" size="icon" onClick={() => setDeleteId(r.id)} aria-label="Delete">
             <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
           </Button>
         </div>
@@ -199,11 +171,7 @@ export function ProjectsTab() {
           actionHref="/dashboard/projects/new"
         />
       ) : (
-        <DataTable
-          data={filtered}
-          columns={columns}
-          keyExtractor={(r) => r.id}
-        />
+        <DataTable data={filtered} columns={columns} keyExtractor={(r) => r.id} />
       )}
 
       <ConfirmDialog

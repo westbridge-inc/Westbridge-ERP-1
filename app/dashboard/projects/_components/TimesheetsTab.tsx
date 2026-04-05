@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import { Plus, Download, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useErpList } from "@/lib/queries/useErpList";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -31,7 +31,7 @@ function mapErpTimesheet(d: Record<string, unknown>): TimesheetRow {
     project: String(d.parent_project ?? d.project ?? ""),
     totalHours: Number(d.total_hours ?? 0),
     date: String(d.start_date ?? d.creation ?? "").slice(0, 10),
-    status: String(d.status ?? d.docstatus === 1 ? "Submitted" : "Draft"),
+    status: String((d.status ?? d.docstatus === 1) ? "Submitted" : "Draft"),
   };
 }
 
@@ -39,22 +39,34 @@ export function TimesheetsTab() {
   const { addToast } = useToasts();
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
 
   const { data, isLoading, error, refetch } = useErpList("Timesheet", {
-    fields: ["name", "employee_name", "employee", "parent_project", "project", "total_hours", "start_date", "status", "docstatus", "creation"],
+    fields: [
+      "name",
+      "employee_name",
+      "employee",
+      "parent_project",
+      "project",
+      "total_hours",
+      "start_date",
+      "status",
+      "docstatus",
+      "creation",
+    ],
     orderBy: "creation desc",
     limit: 20,
   });
 
   const timesheets = (data as Record<string, unknown>[]).map(mapErpTimesheet);
-  const filtered = timesheets.filter((t: TimesheetRow) =>
-    !search || t.employee.toLowerCase().includes(search.toLowerCase()) || t.project.toLowerCase().includes(search.toLowerCase()),
+  const filtered = timesheets.filter(
+    (t: TimesheetRow) =>
+      !search ||
+      t.employee.toLowerCase().includes(search.toLowerCase()) ||
+      t.project.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleDelete = useCallback(async () => {
     if (!deleteId) return;
-    setDeleting(true);
     try {
       await api.erp.delete("Timesheet", deleteId);
       addToast("Timesheet deleted", "success");
@@ -63,7 +75,6 @@ export function TimesheetsTab() {
     } catch {
       addToast("Failed to delete timesheet", "error");
     } finally {
-      setDeleting(false);
     }
   }, [deleteId, addToast, refetch]);
 
@@ -77,7 +88,12 @@ export function TimesheetsTab() {
       sortValue: (r) => r.totalHours,
       align: "right",
     },
-    { id: "date", header: "Date", accessor: (r) => <span className="tabular-nums text-muted-foreground">{r.date}</span>, sortValue: (r) => r.date },
+    {
+      id: "date",
+      header: "Date",
+      accessor: (r) => <span className="tabular-nums text-muted-foreground">{r.date}</span>,
+      sortValue: (r) => r.date,
+    },
     { id: "status", header: "Status", accessor: (r) => <Badge status={r.status}>{r.status}</Badge> },
     {
       id: "actions",
