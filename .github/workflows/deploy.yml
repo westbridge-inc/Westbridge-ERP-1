@@ -90,7 +90,7 @@ jobs:
 
       - name: Setup Fly.io CLI
         if: env.FLY_API_TOKEN != '' && env.RAILWAY_TOKEN == ''
-        uses: superfly/flyctl-actions/setup-flyctl@v2
+        uses: superfly/flyctl-actions/setup-flyctl@1.5
 
       - name: Deploy to Fly.io
         if: env.FLY_API_TOKEN != '' && env.RAILWAY_TOKEN == ''
