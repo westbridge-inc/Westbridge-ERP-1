@@ -14,7 +14,7 @@ module.exports = {
       },
     },
     assert: {
-      preset: "lighthouse:recommended",
+      // No preset — only enforce our explicit budgets below
       assertions: {
         // Performance budgets
         "categories:performance": ["error", { minScore: 0.8 }],
