@@ -110,12 +110,15 @@ export function HomeContent() {
       </section>
 
       {/* ── Section 22: Stats Strip ────────────────────── */}
-      <section className="bg-foreground px-6 py-8 md:py-10">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-8 md:gap-16">
+      <section className="border-y border-border bg-muted/30 px-6 py-12 md:py-16">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
           {STATS.map((stat) => (
             <div key={stat.label} className="flex flex-col items-center text-center">
-              <p className="font-display text-2xl font-bold text-background md:text-3xl">{stat.value}</p>
-              <p className="mt-1 text-sm text-background/60">{stat.label}</p>
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-foreground/5">
+                <stat.icon className="h-5 w-5 text-foreground" strokeWidth={1.5} />
+              </div>
+              <p className="font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">{stat.value}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
             </div>
           ))}
         </div>
