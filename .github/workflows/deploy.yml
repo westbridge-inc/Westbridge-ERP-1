@@ -96,7 +96,7 @@ jobs:
         id: fly_canary
         if: env.FLY_API_TOKEN != '' && env.RAILWAY_TOKEN == ''
         run: |
-          flyctl deploy --strategy canary --wait-timeout 120
+          flyctl deploy --strategy canary --wait-timeout 600
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
