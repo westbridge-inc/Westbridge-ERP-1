@@ -14,7 +14,6 @@ export const G_KEYS: Record<string, string> = {
   n: "/dashboard/inventory",
   p: "/dashboard/procurement",
   h: "/dashboard/hr",
-  r: "/dashboard/payroll",
   y: "/dashboard/analytics",
   j: "/dashboard/projects",
   m: "/dashboard/manufacturing",

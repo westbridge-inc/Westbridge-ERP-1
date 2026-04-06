@@ -6,7 +6,7 @@ import { ROUTES, TRIAL } from "@/lib/config/site";
 import { Button } from "@/components/ui/Button";
 
 const STATS = [
-  { value: "42+", label: "Modules" },
+  { value: "38", label: "Modules" },
   { value: "7", label: "Module Bundles" },
   { value: "AI", label: "Powered Insights" },
   { value: "256-bit", label: "Encryption" },
@@ -45,12 +45,12 @@ export default function AboutContent() {
         <div>
           <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">What we do</h2>
           <p className="mt-4 text-lg leading-relaxed text-foreground/80">
-            Westbridge is a unified business operations platform. We bring accounting, CRM, inventory, HR, payroll,
+            Westbridge is a unified business operations platform. We bring accounting, CRM, inventory, HR,
             manufacturing, and project management into a single system — with AI built into every module.
           </p>
           <p className="mt-4 text-lg leading-relaxed text-foreground/80">
             Instead of stitching together a dozen disconnected tools, businesses use Westbridge as their single source
-            of truth. Every transaction, customer interaction, stock movement, and payroll run lives in one place,
+            of truth. Every transaction, customer interaction, stock movement, and expense claim lives in one place,
             accessible to everyone who needs it.
           </p>
         </div>

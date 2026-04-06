@@ -14,7 +14,6 @@ const ROWS: { keys: string; label: string }[] = [
   { keys: "G then N", label: "Inventory" },
   { keys: "G then P", label: "Procurement" },
   { keys: "G then H", label: "HR" },
-  { keys: "G then R", label: "Payroll" },
   { keys: "G then Y", label: "Analytics" },
   { keys: "G then S", label: "Settings" },
   { keys: "N", label: "Notifications" },
@@ -25,16 +24,9 @@ export function ShortcutsModal({ open, onClose }: { open: boolean; onClose: () =
     <Modal open={open} onClose={onClose} title="Keyboard shortcuts">
       <div className="space-y-1">
         {ROWS.map((row) => (
-          <div
-            key={row.keys}
-            className="flex items-center justify-between gap-4 border-b border-border py-2"
-          >
-            <span className="text-base text-muted-foreground">
-              {row.label}
-            </span>
-            <kbd
-              className="rounded border border-border px-2 py-1 text-[0.8125rem] font-medium text-muted-foreground/60"
-            >
+          <div key={row.keys} className="flex items-center justify-between gap-4 border-b border-border py-2">
+            <span className="text-base text-muted-foreground">{row.label}</span>
+            <kbd className="rounded border border-border px-2 py-1 text-[0.8125rem] font-medium text-muted-foreground/60">
               {row.keys}
             </kbd>
           </div>

@@ -13,7 +13,7 @@ vi.mock("next/navigation", () => ({
 
 describe("useKeyboardShortcuts G_KEYS", () => {
   it("defines href for each expected shortcut key", () => {
-    const EXPECTED_KEYS = ["d", "i", "a", "e", "c", "q", "n", "p", "h", "r", "y", "j", "m", "s"];
+    const EXPECTED_KEYS = ["d", "i", "a", "e", "c", "q", "n", "p", "h", "y", "j", "m", "s"];
     for (const key of EXPECTED_KEYS) {
       expect(G_KEYS[key]).toBeDefined();
       expect(typeof G_KEYS[key]).toBe("string");

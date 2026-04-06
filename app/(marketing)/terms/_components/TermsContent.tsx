@@ -55,8 +55,8 @@ export function TermsContent() {
       <p className={p}>
         Westbridge ERP is a cloud-based enterprise resource planning platform that provides integrated business
         management capabilities, including but not limited to: invoicing and billing, customer relationship management
-        (CRM), inventory and warehouse management, human resources and payroll, accounting and financial reporting,
-        project management, manufacturing and production planning, and AI-powered business intelligence.
+        (CRM), inventory and warehouse management, human resources, accounting and financial reporting, project
+        management, manufacturing and production planning, and AI-powered business intelligence.
       </p>
       <p className={p}>
         The Service is provided on a subscription basis as described in Section 4. We continuously improve the Service

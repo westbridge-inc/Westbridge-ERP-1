@@ -107,7 +107,7 @@ export default function DocsPage() {
               <li>
                 <span className="font-medium text-foreground">Bridge AI</span> — An AI chat panel (powered by
                 Anthropic&apos;s Claude) available on every page. Ask questions in natural language — revenue trends,
-                overdue invoices, stock alerts, payroll anomalies — and get answers drawn from your live data.
+                overdue invoices, stock alerts, expense anomalies — and get answers drawn from your live data.
               </li>
             </ul>
             <p>
@@ -134,8 +134,8 @@ export default function DocsPage() {
               {[
                 {
                   name: "Finance & Accounting",
-                  desc: "General Ledger, AP/AR, fixed assets, bank reconciliation, multi-currency, tax management, budgeting, and financial reporting (P&L, balance sheet, cash flow).",
-                  count: 9,
+                  desc: "General Ledger, AP/AR, fixed assets, bank reconciliation, multi-currency, budgeting, and financial reporting (P&L, balance sheet, cash flow).",
+                  count: 8,
                 },
                 {
                   name: "Sales & CRM",
@@ -148,9 +148,9 @@ export default function DocsPage() {
                   count: 7,
                 },
                 {
-                  name: "HR & Payroll",
-                  desc: "Employee records, attendance and leave, payroll processing, expense claims, recruitment, training, and performance reviews.",
-                  count: 7,
+                  name: "Human Resources",
+                  desc: "Employee records, attendance and leave, expense claims, recruitment, training, and performance reviews.",
+                  count: 6,
                 },
                 {
                   name: "Manufacturing",
@@ -164,8 +164,8 @@ export default function DocsPage() {
                 },
                 {
                   name: "Business Tools",
-                  desc: "Website builder, e-commerce storefront, point of sale terminals, and custom report builder.",
-                  count: 4,
+                  desc: "Website builder and custom report builder for dashboards and data exports.",
+                  count: 2,
                 },
               ].map((bundle) => (
                 <div key={bundle.name} className="bg-card p-6">

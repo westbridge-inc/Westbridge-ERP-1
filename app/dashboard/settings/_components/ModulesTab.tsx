@@ -15,7 +15,7 @@ const CATEGORY_TO_BUNDLE: Record<string, string> = {
   "Finance & Accounting": "finance",
   "Sales & CRM": "crm",
   "Inventory & Supply Chain": "inventory",
-  "HR & Payroll": "hr",
+  "Human Resources": "hr",
   Manufacturing: "manufacturing",
   "Project Management": "projects",
   "Business Tools": "biztools",

@@ -4,10 +4,10 @@ import { HomeContent } from "./home-content";
 
 export const metadata = {
   title: SITE.name,
-  description: "The ERP built for growing businesses. Invoicing, inventory, HR, payroll, CRM — with AI built in.",
+  description: "The ERP built for growing businesses. Invoicing, inventory, HR, CRM — with AI built in.",
   openGraph: {
     title: SITE.name,
-    description: "The ERP built for growing businesses. Invoicing, inventory, HR, payroll, CRM — with AI built in.",
+    description: "The ERP built for growing businesses. Invoicing, inventory, HR, CRM — with AI built in.",
     type: "website",
   },
 };

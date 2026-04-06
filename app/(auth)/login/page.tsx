@@ -105,7 +105,7 @@ export default function LoginPage() {
             Your complete business management platform.
           </p>
           <div className="mt-12 w-full max-w-[280px] space-y-3">
-            {["42+ modules", "Enterprise-grade security", "AI-powered insights"].map((f) => (
+            {["38 modules", "Enterprise-grade security", "AI-powered insights"].map((f) => (
               <div key={f} className="flex items-center gap-3">
                 <div className="size-1.5 rounded-full bg-white/50 shrink-0" />
                 <span className="text-white/60 text-xs">{f}</span>

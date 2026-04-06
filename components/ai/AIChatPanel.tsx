@@ -72,12 +72,16 @@ const SUGGESTIONS: Record<string, string[]> = {
   inventory: ["What items are low on stock?", "Show top 10 selling products", "Forecast reorder needs"],
   hr: [
     "Show employees with pending leave",
-    "Any payroll anomalies this month?",
+    "Show me top 5 customers by revenue this month?",
     "Draft a job description for a Sales Manager",
   ],
   manufacturing: ["Show open work orders", "Which workstations are at capacity?", "Any material shortages?"],
   projects: ["Show projects at risk of delay", "Which tasks are overdue?", "Summarise this week's timesheet hours"],
-  biztools: ["Show today's POS sales summary", "Which products need restocking?", "Generate a sales trend report"],
+  biztools: [
+    "Generate a sales trend report",
+    "Which products need restocking?",
+    "Show top performing reports this week",
+  ],
   general: ["How is the business doing?", "Show my most important tasks today", "What needs my attention?"],
 };
 

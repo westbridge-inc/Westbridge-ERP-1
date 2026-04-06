@@ -36,8 +36,8 @@ const FEATURES = [
   },
   {
     icon: UserCog,
-    title: "HR & Payroll",
-    desc: "Employee lifecycle from onboarding to payroll. Leave tracking, attendance, and compliance built in.",
+    title: "Human Resources",
+    desc: "Employee lifecycle from onboarding to performance reviews. Leave tracking, attendance, and expense claims built in.",
   },
   {
     icon: BrainCircuit,
@@ -66,13 +66,13 @@ const STEPS = [
   {
     num: 3,
     title: "Start managing everything",
-    desc: "Invoices, payroll, inventory — all in one place. Send your first invoice today.",
+    desc: "Invoices, inventory, CRM — all in one place. Send your first invoice today.",
   },
 ];
 
 /* ── Section 22: Stats Strip ───────────────────────── */
 const STATS = [
-  { icon: Layers, value: "42+", label: "Modules" },
+  { icon: Layers, value: "38", label: "Modules" },
   { icon: BarChart3, value: "7", label: "Bundles" },
   { icon: Lock, value: "256-bit", label: "Encryption" },
   { icon: Clock, value: `${TRIAL.days}-Day`, label: "Free Trial" },
@@ -91,7 +91,7 @@ export function HomeContent() {
           </h1>
 
           <p className="fade-in-delay-1 mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-            Manage invoicing, CRM, inventory, HR, payroll, and accounting — all in one platform built for modern teams.
+            Manage invoicing, CRM, inventory, HR, and accounting — all in one platform built for modern teams.
           </p>
 
           <div className="fade-in-delay-2 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">

@@ -1,22 +1,6 @@
 import { describe, it, expect } from "vitest";
-import {
-  calculateVat,
-  extractVat,
-  calculateNis,
-  calculatePaye,
-  calculatePayeFromMonthly,
-  calculateNetPay,
-} from "../calculations";
-import {
-  VAT_RATE,
-  NIS_EMPLOYER_RATE,
-  NIS_EMPLOYEE_RATE,
-  NIS_CEILING,
-  PAYE_THRESHOLD,
-  CARICOM_ORIGIN_COUNTRIES,
-  SUPPORTED_CURRENCIES,
-  DEFAULT_CURRENCY,
-} from "../constants";
+import { calculateVat, extractVat, validateGraTin } from "../calculations";
+import { VAT_RATE, CARICOM_ORIGIN_COUNTRIES, SUPPORTED_CURRENCIES, DEFAULT_CURRENCY } from "../constants";
 
 describe("Caribbean Constants", () => {
   it("has correct default currency", () => {
@@ -32,12 +16,8 @@ describe("Caribbean Constants", () => {
     expect(SUPPORTED_CURRENCIES).toContain("USD");
   });
 
-  it("has correct tax rates", () => {
+  it("has correct VAT rate", () => {
     expect(VAT_RATE).toBe(0.14);
-    expect(NIS_EMPLOYER_RATE).toBe(0.088);
-    expect(NIS_EMPLOYEE_RATE).toBe(0.056);
-    expect(NIS_CEILING).toBe(280_000);
-    expect(PAYE_THRESHOLD).toBe(780_000);
   });
 
   it("lists all CARICOM member states", () => {
@@ -72,68 +52,21 @@ describe("VAT Calculations (Frontend)", () => {
   });
 });
 
-describe("NIS Calculations (Frontend)", () => {
-  it("calculates NIS below ceiling", () => {
-    const result = calculateNis(200_000);
-    expect(result.employeeContribution).toBe(11_200);
-    expect(result.employerContribution).toBe(17_600);
-    expect(result.ceilingApplied).toBe(false);
+describe("GRA TIN Validation", () => {
+  it("validates a 10-digit TIN", () => {
+    const result = validateGraTin("1234567890");
+    expect(result.valid).toBe(true);
+    expect(result.normalized).toBe("1234567890");
   });
 
-  it("caps at NIS ceiling", () => {
-    const result = calculateNis(500_000);
-    expect(result.insurableEarnings).toBe(280_000);
-    expect(result.ceilingApplied).toBe(true);
+  it("strips hyphens and spaces", () => {
+    const result = validateGraTin("123-456-7890");
+    expect(result.valid).toBe(true);
+    expect(result.normalized).toBe("1234567890");
   });
 
-  it("handles zero salary", () => {
-    const result = calculateNis(0);
-    expect(result.totalContribution).toBe(0);
-  });
-});
-
-describe("PAYE Calculations (Frontend)", () => {
-  it("returns zero below threshold", () => {
-    const result = calculatePaye(700_000);
-    expect(result.annualTax).toBe(0);
-    expect(result.monthlyTax).toBe(0);
-  });
-
-  it("calculates first band (28%)", () => {
-    const result = calculatePaye(1_000_000);
-    expect(result.taxableIncome).toBe(220_000);
-    expect(result.annualTax).toBe(61_600);
-    expect(result.marginalRate).toBe(0.28);
-  });
-
-  it("calculates second band (40%)", () => {
-    const result = calculatePaye(3_000_000);
-    expect(result.annualTax).toBe(700_800);
-    expect(result.marginalRate).toBe(0.40);
-  });
-
-  it("calculates from monthly gross", () => {
-    const result = calculatePayeFromMonthly(250_000);
-    expect(result.annualGross).toBe(3_000_000);
-  });
-});
-
-describe("Net Pay Calculation (Frontend)", () => {
-  it("computes full salary breakdown", () => {
-    const result = calculateNetPay(250_000);
-    expect(result.grossMonthly).toBe(250_000);
-    expect(result.nisEmployee).toBeGreaterThan(0);
-    expect(result.payeMonthly).toBeGreaterThan(0);
-    expect(result.netTakeHome).toBeLessThan(250_000);
-    expect(result.netTakeHome).toBe(
-      result.grossMonthly - result.totalDeductions
-    );
-  });
-
-  it("low-income has zero PAYE", () => {
-    const result = calculateNetPay(50_000);
-    expect(result.payeMonthly).toBe(0);
-    expect(result.nisEmployee).toBe(2_800);
-    expect(result.netTakeHome).toBe(47_200);
+  it("rejects non-10-digit TINs", () => {
+    expect(validateGraTin("123").valid).toBe(false);
+    expect(validateGraTin("12345678901").valid).toBe(false);
   });
 });

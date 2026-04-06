@@ -101,7 +101,6 @@ const SECTIONS = [
     items: [
       { label: "Employees", href: "/dashboard/hr" },
       { label: "Attendance", href: "/dashboard/hr?type=attendance" },
-      { label: "Payroll", href: "/dashboard/payroll" },
     ],
   },
   {
