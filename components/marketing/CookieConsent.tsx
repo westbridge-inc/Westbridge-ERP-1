@@ -13,8 +13,13 @@ function setCookie(name: string, value: string, days: number) {
 }
 
 function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? match[1] : null;
+  // Plain string parse — avoids RegExp construction entirely
+  const prefix = `${name}=`;
+  const parts = document.cookie.split("; ");
+  for (const part of parts) {
+    if (part.startsWith(prefix)) return part.slice(prefix.length);
+  }
+  return null;
 }
 
 export function CookieConsent() {
