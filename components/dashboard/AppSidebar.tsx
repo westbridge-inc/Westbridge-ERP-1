@@ -51,7 +51,10 @@ const SECTIONS = [
     title: "Overview",
     icon: LayoutDashboard,
     bundleId: null, // always visible
-    items: [{ label: "Dashboard", href: "/dashboard" }],
+    items: [
+      { label: "Dashboard", href: "/dashboard" },
+      { label: "Dashboards", href: "/dashboard/dashboards" },
+    ],
   },
   {
     title: "Sales",
