@@ -145,8 +145,8 @@ function SignupContent() {
       {/* Progress bar */}
       <ProgressBar currentStep={step} />
 
-      {/* Content area */}
-      <div className="mx-auto max-w-md px-6">
+      {/* Content area — step 3 (pricing) needs more width for 4-column grid */}
+      <div className={`mx-auto px-6 ${step === 3 ? "max-w-6xl" : "max-w-md"}`}>
         {step === 1 && (
           <SignupStep1
             name={name}

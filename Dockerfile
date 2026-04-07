@@ -19,8 +19,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build-time env vars — Railway injects service variables as Docker build args
-ARG NEXT_PUBLIC_API_URL=http://localhost:4000
+# Build-time env vars — NEXT_PUBLIC_* must be baked in at build time
+# Default to production API URL; override with --build-arg for other envs
+ARG NEXT_PUBLIC_API_URL=https://api.westbridgetoday.com
 ARG NEXT_PUBLIC_PADDLE_CLIENT_TOKEN=
 ARG NEXT_PUBLIC_PADDLE_SANDBOX=true
 ARG NEXT_PUBLIC_PADDLE_PRICE_SOLO=
