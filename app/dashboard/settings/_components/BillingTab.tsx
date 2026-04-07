@@ -44,7 +44,7 @@ export function BillingTab() {
         if (!cancelled) setBilling(data);
       })
       .catch(() => {
-        if (!cancelled) setBilling({ items: [], plan: null, accountCreatedAt: null });
+        if (!cancelled) setBilling({ items: [], plan: null, accountCreatedAt: null, trialEndsAt: null });
       })
       .finally(() => {
         if (!cancelled) setBillingLoading(false);
