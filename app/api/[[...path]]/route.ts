@@ -14,6 +14,10 @@ const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:4000";
  * Any request whose pathname does not start with one of these is rejected.
  */
 const ALLOWED_PATH_PREFIXES = [
+  "/api/auth/forgot-password",
+  "/api/auth/reset-password",
+  "/api/auth/change-password",
+  "/api/auth/2fa/",
   "/api/erp/",
   "/api/invite",
   "/api/admin/",
@@ -31,6 +35,9 @@ const ALLOWED_PATH_PREFIXES = [
   "/api/signup",
   "/api/modules",
   "/api/flags",
+  "/api/settings/",
+  "/api/document/",
+  "/api/sso/",
 ] as const;
 
 function isAllowedPath(pathname: string): boolean {
