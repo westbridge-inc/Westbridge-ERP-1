@@ -221,6 +221,7 @@ export interface BillingData {
   items: BillingHistoryItem[];
   plan: string | null;
   accountCreatedAt: string | null;
+  trialEndsAt: string | null;
 }
 
 async function getBillingHistory(): Promise<BillingData> {

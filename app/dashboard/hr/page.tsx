@@ -340,14 +340,14 @@ function HRPageInner() {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               {isAttendance ? <ClipboardCheck className="h-6 w-6" /> : <UserCog className="h-6 w-6" />}
             </div>
-            <p className="text-sm font-medium text-foreground">Could not load data right now</p>
+            <p className="text-sm font-medium text-foreground">Nothing here yet</p>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
               Your ERP backend may be starting up. You can retry or add your first{" "}
               {isAttendance ? "attendance record" : "employee"}.
             </p>
             <div className="flex gap-3">
               <Button variant="outline" size="sm" onClick={() => refetch()}>
-                Retry
+                Refresh
               </Button>
               <Button variant="primary" size="sm" onClick={() => router.push("/dashboard/hr/new")}>
                 + Create New

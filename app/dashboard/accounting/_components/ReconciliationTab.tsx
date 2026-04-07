@@ -14,10 +14,9 @@ import { formatCurrency } from "@/lib/locale/currency";
 import { useErpList } from "@/lib/queries/useErpList";
 import nextDynamic from "next/dynamic";
 
-const AIChatPanel = nextDynamic(
-  () => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })),
-  { ssr: false },
-);
+const AIChatPanel = nextDynamic(() => import("@/components/ai/AIChatPanel").then((m) => ({ default: m.AIChatPanel })), {
+  ssr: false,
+});
 
 import type { GenericRow } from "./types";
 import { mapReconciliation } from "./utils";
@@ -109,13 +108,13 @@ export function ReconciliationTab() {
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
               <Calculator className="h-6 w-6" />
             </div>
-            <p className="text-sm font-medium text-foreground">Could not load data right now</p>
+            <p className="text-sm font-medium text-foreground">Nothing here yet</p>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Your ERP backend may be starting up. You can retry or create a new entry.
+              You haven&apos;t added anything yet. Click below to create your first one — it only takes a moment.
             </p>
             <div className="mt-4 flex gap-3">
               <Button variant="outline" size="sm" onClick={() => refetch()}>
-                Retry
+                Refresh
               </Button>
               <Button variant="primary" size="sm" onClick={() => router.push("/dashboard/accounting/new")}>
                 + Create New

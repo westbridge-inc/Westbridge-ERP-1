@@ -21,17 +21,25 @@ export function deriveSubscriptionState(
   accountCreatedAt: string | null,
   subscriptionStatus: string | null,
   planId: string | null,
+  trialEndsAtIso: string | null = null,
 ): SubscriptionState {
   const now = new Date();
 
-  // Calculate trial end date
+  // Calculate trial end date — prefer the backend's stored trialEndsAt
+  // (set at signup as createdAt + 14 days). Fall back to computing it
+  // from accountCreatedAt for older accounts that don't have the field.
   let trialEndsAt: Date | null = null;
   let trialDaysLeft = 0;
   let isTrialExpired = false;
 
-  if (accountCreatedAt) {
+  if (trialEndsAtIso) {
+    trialEndsAt = new Date(trialEndsAtIso);
+  } else if (accountCreatedAt) {
     trialEndsAt = new Date(accountCreatedAt);
     trialEndsAt.setDate(trialEndsAt.getDate() + TRIAL.days);
+  }
+
+  if (trialEndsAt) {
     const msLeft = trialEndsAt.getTime() - now.getTime();
     trialDaysLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
     isTrialExpired = msLeft <= 0;

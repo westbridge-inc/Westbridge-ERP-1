@@ -12,6 +12,9 @@ interface ListPageErrorProps {
   icon: ReactNode;
   createHref?: string;
   createLabel?: string;
+  /** Friendlier copy for the empty state — defaults are generic */
+  emptyTitle?: string;
+  emptyMessage?: string;
 }
 
 /**
@@ -38,6 +41,8 @@ export function ListPageError({
   icon,
   createHref,
   createLabel = "+ Create New",
+  emptyTitle,
+  emptyMessage,
 }: ListPageErrorProps) {
   const router = useRouter();
   const authIssue = isAuthError(error);
@@ -70,23 +75,23 @@ export function ListPageError({
             </>
           ) : (
             <>
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl text-muted-foreground/50">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-foreground/5 text-foreground">
                 {icon}
               </div>
-              <p className="text-sm font-medium text-foreground">Could not load data right now</p>
-              <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                This may be because your ERP backend is starting up or there are no records yet. You can retry or create
-                your first record.
+              <p className="text-base font-semibold text-foreground">{emptyTitle ?? `Welcome to ${title}`}</p>
+              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                {emptyMessage ??
+                  `You haven't added any ${title.toLowerCase()} yet. Get started by creating your first one — it only takes a minute.`}
               </p>
-              <div className="mt-4 flex gap-3">
-                <Button variant="outline" size="sm" onClick={() => router.refresh()}>
-                  Retry
-                </Button>
+              <div className="mt-6 flex gap-3">
                 {createHref && (
                   <Button variant="primary" size="sm" onClick={() => router.push(createHref)}>
                     {createLabel}
                   </Button>
                 )}
+                <Button variant="outline" size="sm" onClick={() => router.refresh()}>
+                  Refresh
+                </Button>
               </div>
             </>
           )}

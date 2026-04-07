@@ -40,11 +40,12 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
         ]);
 
         const accountCreatedAt = billing.status === "fulfilled" ? billing.value.accountCreatedAt : null;
+        const trialEndsAt = billing.status === "fulfilled" ? billing.value.trialEndsAt : null;
         const subStatus = subscription.status === "fulfilled" ? subscription.value.status : null;
         const planId = subscription.status === "fulfilled" ? subscription.value.planId : null;
 
         if (!cancelled) {
-          setState(deriveSubscriptionState(accountCreatedAt, subStatus, planId));
+          setState(deriveSubscriptionState(accountCreatedAt, subStatus, planId, trialEndsAt));
         }
       } catch {
         // If APIs fail, assume trial (don't block user)

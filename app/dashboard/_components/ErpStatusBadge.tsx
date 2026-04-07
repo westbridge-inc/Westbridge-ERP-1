@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
 type ErpStatus = "connected" | "syncing" | "error";
 
 export function ErpStatusBadge() {
@@ -12,7 +10,8 @@ export function ErpStatusBadge() {
 
   useEffect(() => {
     function checkErp() {
-      fetch(`${API_BASE}/api/health/ready`, { cache: "no-store", credentials: "include" })
+      // Use relative URL — Next.js proxy forwards to backend
+      fetch("/api/health/ready", { cache: "no-store", credentials: "include" })
         .then((r) => setErpStatus(r.ok ? "connected" : "error"))
         .catch(() => setErpStatus("error"));
     }
