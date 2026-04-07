@@ -17,6 +17,7 @@ const companyLinks = [
 const legalLinks = [
   { href: ROUTES.privacy, label: "Privacy" },
   { href: ROUTES.terms, label: "Terms" },
+  { href: ROUTES.refundPolicy, label: "Refund Policy" },
 ];
 
 export function Footer() {

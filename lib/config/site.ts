@@ -28,6 +28,7 @@ export const ROUTES = {
   invite: "/invite",
   terms: "/terms",
   privacy: "/privacy",
+  refundPolicy: "/refund-policy",
   docs: "/docs",
   changelog: "/changelog",
   status: "/status",
