@@ -54,116 +54,118 @@
   --color-warning-foreground: var(--warning-foreground);
 }
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Westbridge palette — Satin Dark Blue
+   Inspired by Paddle.com dark UI + dimoremilano Satin Dark Blue.
+   Deep navy base, white CTAs, subtle blue accents.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 :root {
-  --radius: 0.5rem;
-  /* Pure white background — premium, clean */
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.09 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.09 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.09 0 0);
-  /* Brand primary: Pure black — premium, authoritative */
-  --primary: oklch(0.09 0 0);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.965 0 0);
-  --secondary-foreground: oklch(0.09 0 0);
-  --muted: oklch(0.955 0 0);
-  --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.955 0 0);
-  --accent-foreground: oklch(0.09 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.97 0.01 17);
-  --border: oklch(0.92 0 0);
-  --input: oklch(0.92 0 0);
-  --ring: oklch(0.09 0 0);
-  /* Chart palette — monochrome with subtle variation */
-  --chart-1: oklch(0.09 0 0);
-  --chart-2: oklch(0.35 0 0);
-  --chart-3: oklch(0.55 0 0);
-  --chart-4: oklch(0.7 0 0);
-  --chart-5: oklch(0.85 0 0);
-  --success: oklch(0.548 0.16 160);
-  --success-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.72 0.16 55.934);
-  --warning-foreground: oklch(0.15 0 0);
-  /* Sidebar — clean white with black accents */
-  --sidebar: oklch(0.98 0 0);
-  --sidebar-foreground: oklch(0.15 0 0);
-  --sidebar-primary: oklch(0.09 0 0);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.955 0 0);
-  --sidebar-accent-foreground: oklch(0.09 0 0);
-  --sidebar-border: oklch(0.92 0 0);
-  --sidebar-ring: oklch(0.09 0 0);
-  /* Shadow tokens — subtle, refined */
-  --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.04);
-  --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.03);
-  --shadow-md: 0 4px 6px oklch(0 0 0 / 0.05), 0 2px 4px oklch(0 0 0 / 0.03);
-  --shadow-lg: 0 10px 15px oklch(0 0 0 / 0.06), 0 4px 6px oklch(0 0 0 / 0.03);
+  --radius: 0.625rem;
+  /* Deep satin navy — slightly desaturated, premium */
+  --background: oklch(0.155 0.018 250);
+  --foreground: oklch(0.97 0.005 250);
+  --card: oklch(0.19 0.022 250);
+  --card-foreground: oklch(0.97 0.005 250);
+  --popover: oklch(0.19 0.022 250);
+  --popover-foreground: oklch(0.97 0.005 250);
+  /* Brand primary: white CTAs (Paddle-style) */
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.155 0.018 250);
+  --secondary: oklch(0.225 0.022 250);
+  --secondary-foreground: oklch(0.97 0.005 250);
+  --muted: oklch(0.225 0.022 250);
+  --muted-foreground: oklch(0.66 0.015 250);
+  /* Satin Dark Blue accent — saturated, used for highlights & glows */
+  --accent: oklch(0.36 0.085 245);
+  --accent-foreground: oklch(0.985 0.005 250);
+  --destructive: oklch(0.66 0.215 22);
+  --destructive-foreground: oklch(0.985 0.005 250);
+  --border: oklch(0.27 0.022 250);
+  --input: oklch(0.245 0.022 250);
+  --ring: oklch(0.58 0.12 245);
+  /* Chart palette — blue-led, with mint/amber/coral counterpoints */
+  --chart-1: oklch(0.7 0.15 245);
+  --chart-2: oklch(0.66 0.18 200);
+  --chart-3: oklch(0.72 0.17 165);
+  --chart-4: oklch(0.78 0.15 85);
+  --chart-5: oklch(0.7 0.2 25);
+  --success: oklch(0.72 0.17 165);
+  --success-foreground: oklch(0.155 0.018 250);
+  --warning: oklch(0.78 0.16 85);
+  --warning-foreground: oklch(0.155 0.018 250);
+  /* Sidebar — slightly deeper than canvas, separates nav */
+  --sidebar: oklch(0.13 0.018 250);
+  --sidebar-foreground: oklch(0.92 0.008 250);
+  --sidebar-primary: oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(0.155 0.018 250);
+  --sidebar-accent: oklch(0.225 0.022 250);
+  --sidebar-accent-foreground: oklch(0.97 0.005 250);
+  --sidebar-border: oklch(0.25 0.022 250);
+  --sidebar-ring: oklch(0.58 0.12 245);
+  /* Shadow tokens — deeper, layered for dark surfaces */
+  --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.35);
+  --shadow-sm: 0 1px 3px oklch(0 0 0 / 0.4), 0 1px 2px oklch(0 0 0 / 0.25);
+  --shadow-md: 0 6px 12px oklch(0 0 0 / 0.45), 0 2px 4px oklch(0 0 0 / 0.3);
+  --shadow-lg: 0 16px 32px oklch(0 0 0 / 0.5), 0 4px 12px oklch(0 0 0 / 0.3);
+  --shadow-xl: 0 24px 48px oklch(0 0 0 / 0.55), 0 8px 16px oklch(0 0 0 / 0.35);
+  /* Glow tokens for hero/marketing surfaces */
+  --glow-accent: oklch(0.55 0.18 245 / 0.35);
+  --glow-accent-soft: oklch(0.55 0.18 245 / 0.18);
 }
 
+/* `.dark` mirrors `:root` since the app is forced-dark — keeps any
+   `dark:` Tailwind variants resolving to the same satin navy palette. */
 .dark {
-  --background: oklch(0.1 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.13 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.13 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  /* Brand primary: white on black — inverted premium */
-  --primary: oklch(0.95 0 0);
-  --primary-foreground: oklch(0.09 0 0);
-  --secondary: oklch(0.18 0 0);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.18 0 0);
-  --accent-foreground: oklch(0.95 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.97 0.01 17);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.95 0 0);
-  /* Chart palette — monochrome dark */
-  --chart-1: oklch(0.95 0 0);
-  --chart-2: oklch(0.75 0 0);
-  --chart-3: oklch(0.55 0 0);
-  --chart-4: oklch(0.4 0 0);
-  --chart-5: oklch(0.25 0 0);
-  --success: oklch(0.696 0.17 162.48);
-  --success-foreground: oklch(0.985 0 0);
-  --warning: oklch(0.828 0.189 84.429);
-  --warning-foreground: oklch(0.145 0 0);
-  /* Sidebar dark — pure black */
-  --sidebar: oklch(0.1 0 0);
-  --sidebar-foreground: oklch(0.9 0 0);
-  --sidebar-primary: oklch(0.95 0 0);
-  --sidebar-primary-foreground: oklch(0.09 0 0);
-  --sidebar-accent: oklch(0.16 0 0);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.95 0 0);
+  --background: oklch(0.155 0.018 250);
+  --foreground: oklch(0.97 0.005 250);
+  --card: oklch(0.19 0.022 250);
+  --card-foreground: oklch(0.97 0.005 250);
+  --popover: oklch(0.19 0.022 250);
+  --popover-foreground: oklch(0.97 0.005 250);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.155 0.018 250);
+  --secondary: oklch(0.225 0.022 250);
+  --secondary-foreground: oklch(0.97 0.005 250);
+  --muted: oklch(0.225 0.022 250);
+  --muted-foreground: oklch(0.66 0.015 250);
+  --accent: oklch(0.36 0.085 245);
+  --accent-foreground: oklch(0.985 0.005 250);
+  --destructive: oklch(0.66 0.215 22);
+  --destructive-foreground: oklch(0.985 0.005 250);
+  --border: oklch(0.27 0.022 250);
+  --input: oklch(0.245 0.022 250);
+  --ring: oklch(0.58 0.12 245);
+  --chart-1: oklch(0.7 0.15 245);
+  --chart-2: oklch(0.66 0.18 200);
+  --chart-3: oklch(0.72 0.17 165);
+  --chart-4: oklch(0.78 0.15 85);
+  --chart-5: oklch(0.7 0.2 25);
+  --success: oklch(0.72 0.17 165);
+  --success-foreground: oklch(0.155 0.018 250);
+  --warning: oklch(0.78 0.16 85);
+  --warning-foreground: oklch(0.155 0.018 250);
+  --sidebar: oklch(0.13 0.018 250);
+  --sidebar-foreground: oklch(0.92 0.008 250);
+  --sidebar-primary: oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(0.155 0.018 250);
+  --sidebar-accent: oklch(0.225 0.022 250);
+  --sidebar-accent-foreground: oklch(0.97 0.005 250);
+  --sidebar-border: oklch(0.25 0.022 250);
+  --sidebar-ring: oklch(0.58 0.12 245);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Autofill background override
+   Autofill background override — paint over UA yellow with the
+   surface token so inputs stay on-brand in both states.
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px var(--background) inset !important;
+  -webkit-box-shadow: 0 0 0 30px var(--input) inset !important;
   -webkit-text-fill-color: var(--foreground) !important;
   caret-color: var(--foreground) !important;
   transition: background-color 5000s ease-in-out 0s;
-}
-.dark input:-webkit-autofill,
-.dark input:-webkit-autofill:hover,
-.dark input:-webkit-autofill:focus,
-.dark input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px oklch(0.1 0 0) inset !important;
-  -webkit-text-fill-color: oklch(0.95 0 0) !important;
-  caret-color: oklch(0.95 0 0) !important;
 }
 
 @layer base {
@@ -257,6 +259,63 @@ input:-webkit-autofill:active {
   .fade-in-delay-2 {
     animation: fadeInUp 0.6s ease-out 0.3s both;
   }
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     Paddle-style hero glows & gradients
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+  /* Top-of-page glow — soft satin-blue ellipse bleeding into the canvas */
+  .hero-glow {
+    background:
+      radial-gradient(ellipse 70% 50% at 50% -10%, var(--glow-accent), transparent 65%),
+      radial-gradient(ellipse 50% 40% at 80% 10%, var(--glow-accent-soft), transparent 70%);
+  }
+
+  /* Vertical satin gradient — surfaces that need depth without a hard edge */
+  .satin-gradient {
+    background: linear-gradient(180deg, oklch(0.18 0.022 250) 0%, oklch(0.155 0.018 250) 100%);
+  }
+
+  /* Card with soft inner highlight — Paddle's pricing/feature cards */
+  .satin-card {
+    background: linear-gradient(180deg, oklch(0.21 0.025 250) 0%, oklch(0.18 0.022 250) 100%);
+    border: 1px solid oklch(0.3 0.025 250);
+    box-shadow:
+      inset 0 1px 0 oklch(1 0 0 / 0.05),
+      0 1px 2px oklch(0 0 0 / 0.4);
+  }
+
+  /* Subtle pinstripe / dot grid for hero backgrounds */
+  .grid-pattern {
+    background-image:
+      linear-gradient(oklch(1 0 0 / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(1 0 0 / 0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 30%, transparent 75%);
+  }
+
+  /* Headline gradient — white → faintly cool slate, premium look */
+  .text-gradient {
+    background: linear-gradient(180deg, oklch(0.99 0.005 250) 0%, oklch(0.78 0.015 250) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Accent gradient text — for emphasis words inside headlines */
+  .text-gradient-accent {
+    background: linear-gradient(120deg, oklch(0.85 0.12 245) 0%, oklch(0.75 0.16 200) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Soft ring focus state for inputs/buttons on dark surfaces */
+  .focus-ring-satin {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
 }
 
 @keyframes fadeInUp {
@@ -300,7 +359,7 @@ input:-webkit-autofill:active {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   Custom thin scrollbar
+   Custom thin scrollbar — light thumb for dark satin canvas
    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 ::-webkit-scrollbar {
   width: 6px;
@@ -310,17 +369,15 @@ input:-webkit-autofill:active {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0 0 0 / 0.15);
+  background: oklch(1 0 0 / 0.14);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0 0 0 / 0.25);
+  background: oklch(1 0 0 / 0.22);
 }
-.dark ::-webkit-scrollbar-thumb {
-  background: oklch(1 0 0 / 0.15);
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: oklch(1 0 0 / 0.25);
+* {
+  scrollbar-width: thin;
+  scrollbar-color: oklch(1 0 0 / 0.14) transparent;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

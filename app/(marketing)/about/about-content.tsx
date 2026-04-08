@@ -29,21 +29,22 @@ const PRINCIPLES = [
 
 export default function AboutContent() {
   return (
-    <div className="mx-auto max-w-5xl bg-background px-6 py-24">
+    <div className="relative isolate mx-auto max-w-5xl px-6 py-24">
+      <div className="hero-glow pointer-events-none absolute inset-x-0 top-0 h-[500px] -z-10" aria-hidden />
       {/* Headline */}
       <div className="max-w-3xl">
-        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">About Westbridge</p>
-        <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.15] tracking-tight text-foreground md:text-5xl">
-          Every business deserves enterprise-grade tools
+        <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">About Westbridge</p>
+        <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.15] tracking-tight md:text-5xl">
+          <span className="text-gradient">Every business deserves enterprise-grade tools</span>
           <br />
-          <span className="text-muted-foreground/40">without the enterprise price tag.</span>
+          <span className="text-gradient-accent">without the enterprise price tag.</span>
         </h1>
       </div>
 
       {/* Mission */}
       <div className="mt-16 grid grid-cols-1 gap-16 lg:grid-cols-2">
         <div>
-          <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">What we do</h2>
+          <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">What we do</h2>
           <p className="mt-4 text-lg leading-relaxed text-foreground/80">
             Westbridge is a unified business operations platform. We bring accounting, CRM, inventory, HR,
             manufacturing, and project management into a single system — with AI built into every module.
@@ -55,7 +56,7 @@ export default function AboutContent() {
           </p>
         </div>
         <div>
-          <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">Why we built it</h2>
+          <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">Why we built it</h2>
           <p className="mt-4 text-lg leading-relaxed text-foreground/80">
             Growing businesses run critical operations on spreadsheets, WhatsApp threads, and disconnected apps. Finance
             in one tool, HR in another, inventory in a third. Data never connects, decisions are made on incomplete
@@ -74,7 +75,7 @@ export default function AboutContent() {
           {STATS.map((stat) => (
             <div key={stat.label} className="px-6 py-8 text-center">
               <p className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">{stat.value}</p>
-              <p className="mt-1 text-xs text-muted-foreground/60">{stat.label}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -82,14 +83,14 @@ export default function AboutContent() {
 
       {/* Principles */}
       <div>
-        <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">Principles</h2>
+        <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">Principles</h2>
         <h3 className="mt-4 font-display text-3xl font-semibold tracking-tight text-foreground">What we believe</h3>
 
         <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-border/60 bg-border/60 md:grid-cols-3">
           {PRINCIPLES.map((belief) => (
             <div key={belief.title} className="bg-card p-10">
               <p className="text-base font-semibold text-foreground">{belief.title}</p>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground/60">{belief.desc}</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{belief.desc}</p>
             </div>
           ))}
         </div>
@@ -101,7 +102,7 @@ export default function AboutContent() {
       {/* Contact */}
       <div className="text-center">
         <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground">Get in touch</h2>
-        <p className="mt-3 text-sm text-muted-foreground/60">
+        <p className="mt-3 text-sm text-muted-foreground">
           Questions, partnerships, or enterprise inquiries — we would love to hear from you.
         </p>
         <a
@@ -116,14 +117,13 @@ export default function AboutContent() {
       <div className="my-24 h-px bg-border/60" />
 
       {/* CTA */}
-      <div className="rounded-2xl bg-foreground px-8 py-20 text-center text-background">
-        <h2 className="font-display text-3xl font-semibold tracking-tight md:text-4xl">Ready to get started?</h2>
-        <p className="mt-4 text-background/40">No credit card required. {TRIAL.days}-day free trial.</p>
-        <Button
-          asChild
-          size="lg"
-          className="mt-8 h-12 rounded-lg bg-background px-8 text-foreground hover:bg-background/90"
-        >
+      <div className="satin-card relative isolate overflow-hidden rounded-2xl px-8 py-20 text-center">
+        <div className="hero-glow pointer-events-none absolute inset-0 -z-10" aria-hidden />
+        <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+          Ready to <span className="text-gradient-accent">get started?</span>
+        </h2>
+        <p className="mt-4 text-muted-foreground">No credit card required. {TRIAL.days}-day free trial.</p>
+        <Button asChild size="lg" className="mt-8 h-12 rounded-lg px-8 shadow-lg">
           <Link href={ROUTES.signup}>
             Start Free Trial <ArrowRight className="ml-2 h-4 w-4" />
           </Link>

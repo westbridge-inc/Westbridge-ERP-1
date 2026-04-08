@@ -94,36 +94,27 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      {/* Left: brand panel — hidden on mobile */}
-      <div
-        className="hidden min-h-screen w-[50%] flex-col items-center justify-center md:flex relative overflow-hidden"
-        style={{ background: "linear-gradient(135deg, oklch(0.09 0 0) 0%, oklch(0.15 0 0) 100%)" }}
-      >
-        {/* Decorative dot grid */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
-        />
+      {/* Left: brand panel — satin navy with accent glow, hidden on mobile */}
+      <div className="relative isolate hidden min-h-screen w-[50%] flex-col items-center justify-center overflow-hidden border-r border-border bg-sidebar md:flex">
+        <div className="hero-glow pointer-events-none absolute inset-0" aria-hidden />
+        <div className="grid-pattern pointer-events-none absolute inset-0" aria-hidden />
         <div className="relative z-10 flex flex-col items-center text-center px-12">
-          <span className="text-white font-semibold text-2xl tracking-[0.25em] font-display mb-4">WESTBRIDGE</span>
-          <p className="text-white/50 text-sm leading-relaxed max-w-[280px]">
+          <span className="text-foreground font-semibold text-2xl tracking-[0.25em] font-display mb-4">WESTBRIDGE</span>
+          <p className="text-muted-foreground text-sm leading-relaxed max-w-[280px]">
             Your complete business management platform.
           </p>
           <div className="mt-12 w-full max-w-[280px] space-y-3">
             {["38 modules", "Enterprise-grade security", "AI-powered insights"].map((f) => (
               <div key={f} className="flex items-center gap-3">
-                <div className="size-1.5 rounded-full bg-white/50 shrink-0" />
-                <span className="text-white/60 text-xs">{f}</span>
+                <div className="size-1.5 rounded-full bg-accent shrink-0" />
+                <span className="text-muted-foreground text-xs">{f}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Right: white panel, form */}
+      {/* Right: form panel */}
       <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background md:w-[50%]">
         <div className="w-full max-w-[400px] px-6 md:px-8">
           {/* Mobile: show small logo */}

@@ -59,7 +59,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakarta.variable} ${playfair.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${plusJakarta.variable} ${playfair.variable} dark`} suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
         <a
           href="#main-content"
@@ -70,7 +70,13 @@ export default function RootLayout({
         <Script src="https://cdn.paddle.com/paddle/v2/paddle.js" strategy="lazyOnload" />
         <PaddleInit />
         <PHProvider />
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+          forcedTheme="dark"
+        >
           <ToastsProvider>
             {children}
             <Toaster

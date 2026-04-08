@@ -33,7 +33,6 @@ const CommandPalette = dynamic(
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { ShortcutsModal } from "@/components/dashboard/ShortcutsModal";
 import { useShortcuts } from "@/components/dashboard/ShortcutsContext";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useKeyboardShortcuts } from "@/lib/hooks/useKeyboardShortcuts";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
@@ -194,16 +193,6 @@ export function DashboardHeader() {
 
             {/* Notifications */}
             <NotificationBell />
-
-            {/* Theme */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span>
-                  <ThemeToggle />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>Toggle theme</TooltipContent>
-            </Tooltip>
 
             {/* User Menu */}
             <DropdownMenu>

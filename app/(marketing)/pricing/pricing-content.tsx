@@ -44,176 +44,181 @@ export function PricingContent() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-20">
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <h1 className="text-center font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-        Simple, transparent pricing
-      </h1>
-      <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
-        Choose the plan that grows with your business.
-      </p>
+    <div className="relative isolate overflow-hidden">
+      {/* Top of page glow */}
+      <div className="hero-glow pointer-events-none absolute inset-x-0 top-0 h-[600px] -z-10" aria-hidden />
 
-      {/* ── Billing toggle ─────────────────────────────────────────────────── */}
-      <div className="mt-10 flex items-center justify-center gap-3">
-        <span className={`text-sm font-medium ${!annual ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
-        <button
-          role="switch"
-          aria-checked={annual}
-          onClick={() => setAnnual((v) => !v)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            annual ? "bg-foreground" : "bg-muted"
-          }`}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-background shadow-sm transition-transform ${
-              annual ? "translate-x-6" : "translate-x-1"
-            }`}
-          />
-        </button>
-        <span className={`text-sm font-medium ${annual ? "text-foreground" : "text-muted-foreground"}`}>
-          Annual
-          <span className="ml-1.5 rounded-full bg-foreground/5 px-2 py-0.5 text-[11px] font-semibold text-foreground/70">
-            Save 2 months
+      <div className="mx-auto max-w-6xl px-6 py-20">
+        {/* ── Header ─────────────────────────────────────────────────────────── */}
+        <h1 className="text-center font-display text-3xl font-bold tracking-tight md:text-4xl">
+          <span className="text-gradient">Simple, transparent</span>{" "}
+          <span className="text-gradient-accent">pricing</span>
+        </h1>
+        <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
+          Choose the plan that grows with your business.
+        </p>
+
+        {/* ── Billing toggle ─────────────────────────────────────────────────── */}
+        <div className="mt-10 flex items-center justify-center gap-3">
+          <span className={`text-sm font-medium ${!annual ? "text-foreground" : "text-muted-foreground"}`}>
+            Monthly
           </span>
-        </span>
-      </div>
-
-      {/* ── Plan cards ─────────────────────────────────────────────────────── */}
-      <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {PLANS.map((plan) => {
-          const price = annual ? plan.annualPricePerMonth : plan.pricePerMonth;
-          const isPopular = plan.id === "starter";
-          const isEnterprise = plan.id === "enterprise";
-
-          return (
-            <div
-              key={plan.id}
-              className={`relative flex flex-col overflow-hidden rounded-xl p-6 md:p-8 ${
-                isPopular ? "border-2 border-foreground shadow-lg" : "border border-border"
+          <button
+            role="switch"
+            aria-checked={annual}
+            onClick={() => setAnnual((v) => !v)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full border border-border transition-colors ${
+              annual ? "bg-accent" : "bg-muted"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-foreground shadow-sm transition-transform ${
+                annual ? "translate-x-6" : "translate-x-1"
               }`}
-            >
-              {/* Popular badge */}
-              {isPopular && (
-                <span className="absolute -top-px left-1/2 -translate-x-1/2 whitespace-nowrap rounded-b-lg bg-foreground px-4 py-1 text-xs font-semibold text-background">
-                  Most Popular
-                </span>
-              )}
+            />
+          </button>
+          <span className={`text-sm font-medium ${annual ? "text-foreground" : "text-muted-foreground"}`}>
+            Annual
+            <span className="ml-1.5 rounded-full border border-success/30 bg-success/10 px-2 py-0.5 text-[11px] font-semibold text-success">
+              Save 2 months
+            </span>
+          </span>
+        </div>
 
-              {/* Plan name */}
-              <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{plan.name}</p>
+        {/* ── Plan cards ─────────────────────────────────────────────────────── */}
+        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {PLANS.map((plan) => {
+            const price = annual ? plan.annualPricePerMonth : plan.pricePerMonth;
+            const isPopular = plan.id === "starter";
+            const isEnterprise = plan.id === "enterprise";
 
-              {/* Price */}
-              <div className="mt-5 flex items-baseline gap-1">
-                {isEnterprise ? (
-                  <span className="text-3xl font-semibold tracking-tight text-foreground">Contact Sales</span>
-                ) : (
-                  <>
-                    <span className="text-4xl font-semibold tracking-tight text-foreground tabular-nums">
-                      {formatCurrency(price, "USD")}
-                    </span>
-                    <span className="text-sm text-muted-foreground">/mo</span>
-                  </>
-                )}
-              </div>
-
-              {/* Billing note */}
-              {isEnterprise ? (
-                <p className="mt-1.5 text-xs text-muted-foreground">Custom pricing for your organization</p>
-              ) : annual ? (
-                <p className="mt-1.5 text-xs text-muted-foreground tabular-nums">
-                  Billed annually at {formatCurrency(price * 12, "USD")}/yr
-                </p>
-              ) : (
-                <p className="mt-1.5 text-xs text-muted-foreground tabular-nums">
-                  {formatCurrency(plan.annualPricePerMonth, "USD")}/mo if billed annually
-                </p>
-              )}
-
-              {/* Divider */}
-              <div className="my-6 h-px bg-border" />
-
-              {/* Feature list */}
-              <ul className="flex-1 space-y-3">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-[13px] leading-snug text-foreground/80">
-                    <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-foreground/40" strokeWidth={2.5} />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTA */}
-              <div className="mt-8">
-                {isEnterprise ? (
-                  <Button asChild variant="outline" size="lg" className="w-full">
-                    <Link href="mailto:sales@westbridgetoday.com">Contact Sales</Link>
-                  </Button>
-                ) : isPopular ? (
-                  <Button asChild size="lg" className="w-full">
-                    <Link href={ROUTES.signup}>Start Free Trial</Link>
-                  </Button>
-                ) : (
-                  <Button asChild variant="outline" size="lg" className="w-full">
-                    <Link href={ROUTES.signup}>Start Free Trial</Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Trial note */}
-      <p className="mt-8 text-center text-sm text-muted-foreground">
-        All plans include a {TRIAL.days}-day free trial. No credit card required.
-      </p>
-
-      {/* ── FAQ ────────────────────────────────────────────────────────────── */}
-      <div className="mx-auto mt-24 max-w-2xl">
-        <h2 className="text-center font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-          Frequently Asked Questions
-        </h2>
-
-        <div className="mt-10 space-y-3">
-          {FAQ_ITEMS.map((item, i) => {
-            const isOpen = openFaq === i;
             return (
-              <div key={item.q} className="rounded-lg border border-border">
-                <button
-                  onClick={() => setOpenFaq(isOpen ? null : i)}
-                  className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-muted/30"
-                >
-                  <span className="text-sm font-medium text-foreground">{item.q}</span>
-                  <ChevronDown
-                    className={`ml-4 h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${
-                      isOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {isOpen && (
-                  <div className="px-4 pb-4">
-                    <p className="text-sm leading-relaxed text-muted-foreground">{item.a}</p>
-                  </div>
+              <div
+                key={plan.id}
+                className={`satin-card relative flex flex-col overflow-hidden rounded-xl p-6 md:p-8 ${
+                  isPopular ? "ring-2 ring-accent/60 shadow-xl" : ""
+                }`}
+              >
+                {/* Popular badge */}
+                {isPopular && (
+                  <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-accent/50 bg-accent px-4 py-1 text-xs font-semibold text-accent-foreground shadow-md">
+                    Most Popular
+                  </span>
                 )}
+
+                {/* Plan name */}
+                <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{plan.name}</p>
+
+                {/* Price */}
+                <div className="mt-5 flex items-baseline gap-1">
+                  {isEnterprise ? (
+                    <span className="text-3xl font-semibold tracking-tight text-foreground">Contact Sales</span>
+                  ) : (
+                    <>
+                      <span className="text-4xl font-semibold tracking-tight text-foreground tabular-nums">
+                        {formatCurrency(price, "USD")}
+                      </span>
+                      <span className="text-sm text-muted-foreground">/mo</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Billing note */}
+                {isEnterprise ? (
+                  <p className="mt-1.5 text-xs text-muted-foreground">Custom pricing for your organization</p>
+                ) : annual ? (
+                  <p className="mt-1.5 text-xs text-muted-foreground tabular-nums">
+                    Billed annually at {formatCurrency(price * 12, "USD")}/yr
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-xs text-muted-foreground tabular-nums">
+                    {formatCurrency(plan.annualPricePerMonth, "USD")}/mo if billed annually
+                  </p>
+                )}
+
+                {/* Divider */}
+                <div className="my-6 h-px bg-border" />
+
+                {/* Feature list */}
+                <ul className="flex-1 space-y-3">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-[13px] leading-snug text-foreground/85">
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-success" strokeWidth={2.5} />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA */}
+                <div className="mt-8">
+                  {isEnterprise ? (
+                    <Button asChild variant="outline" size="lg" className="w-full">
+                      <Link href="mailto:sales@westbridgetoday.com">Contact Sales</Link>
+                    </Button>
+                  ) : isPopular ? (
+                    <Button asChild size="lg" className="w-full shadow-lg">
+                      <Link href={ROUTES.signup}>Start Free Trial</Link>
+                    </Button>
+                  ) : (
+                    <Button asChild variant="outline" size="lg" className="w-full">
+                      <Link href={ROUTES.signup}>Start Free Trial</Link>
+                    </Button>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
-      </div>
 
-      {/* ── Bottom CTA ─────────────────────────────────────────────────────── */}
-      <div className="mt-24 bg-foreground px-8 py-20 text-center text-background md:py-28 -mx-6 md:rounded-xl md:mx-0">
-        <h2 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-          Still not sure? Start your free trial.
-        </h2>
-        <p className="mt-4 text-lg text-background/70">No credit card. No commitment. Cancel anytime.</p>
-        <Button
-          asChild
-          size="lg"
-          className="mt-8 h-12 rounded-lg bg-background px-8 text-base text-foreground hover:bg-background/90"
-        >
-          <Link href={ROUTES.signup}>Start {TRIAL.days}-Day Free Trial</Link>
-        </Button>
+        {/* Trial note */}
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          All plans include a {TRIAL.days}-day free trial. No credit card required.
+        </p>
+
+        {/* ── FAQ ────────────────────────────────────────────────────────────── */}
+        <div className="mx-auto mt-24 max-w-2xl">
+          <h2 className="text-center font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            Frequently Asked Questions
+          </h2>
+
+          <div className="mt-10 space-y-3">
+            {FAQ_ITEMS.map((item, i) => {
+              const isOpen = openFaq === i;
+              return (
+                <div key={item.q} className="satin-card rounded-lg">
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-accent/10"
+                  >
+                    <span className="text-sm font-medium text-foreground">{item.q}</span>
+                    <ChevronDown
+                      className={`ml-4 h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="px-4 pb-4">
+                      <p className="text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Bottom CTA ─────────────────────────────────────────────────────── */}
+        <div className="satin-card relative isolate mt-24 overflow-hidden rounded-xl px-8 py-20 text-center md:py-28">
+          <div className="hero-glow pointer-events-none absolute inset-0 -z-10" aria-hidden />
+          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+            Still not sure? <span className="text-gradient-accent">Start your free trial.</span>
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">No credit card. No commitment. Cancel anytime.</p>
+          <Button asChild size="lg" className="mt-8 h-12 rounded-lg px-8 text-base shadow-lg">
+            <Link href={ROUTES.signup}>Start {TRIAL.days}-Day Free Trial</Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -24,11 +24,11 @@ const NAV_ITEMS = [
 export default function DocsPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
-      <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">Documentation</p>
+      <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">Documentation</p>
       <h1 className="mt-4 font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
         Westbridge Docs
       </h1>
-      <p className="mt-3 text-base text-muted-foreground/60">
+      <p className="mt-3 text-base text-muted-foreground">
         Everything you need to set up, configure, and run your business on Westbridge.
       </p>
 
@@ -170,8 +170,8 @@ export default function DocsPage() {
               ].map((bundle) => (
                 <div key={bundle.name} className="bg-card p-6">
                   <p className="text-sm font-semibold text-foreground">{bundle.name}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground/50">{bundle.count} modules</p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground/60">{bundle.desc}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{bundle.count} modules</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{bundle.desc}</p>
                 </div>
               ))}
             </div>

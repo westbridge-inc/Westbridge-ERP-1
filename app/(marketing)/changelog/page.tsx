@@ -28,16 +28,16 @@ const RELEASES = [
 export default function ChangelogPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
-      <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/50">Changelog</p>
+      <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">Changelog</p>
       <h1 className="mt-4 font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
         What&apos;s New
       </h1>
-      <p className="mt-3 text-base text-muted-foreground/60">Release notes and platform updates.</p>
+      <p className="mt-3 text-base text-muted-foreground">Release notes and platform updates.</p>
 
       <div className="mt-12 space-y-12">
         {RELEASES.map((release) => (
           <section key={release.title} className="border-l-2 border-border pl-6">
-            <p className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground/50">{release.date}</p>
+            <p className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">{release.date}</p>
             <h2 className="mt-1 text-lg font-semibold tracking-tight text-foreground">{release.title}</h2>
             <ul className="mt-4 space-y-2">
               {release.items.map((item) => (

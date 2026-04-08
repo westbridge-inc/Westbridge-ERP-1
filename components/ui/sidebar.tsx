@@ -109,7 +109,7 @@ const Sidebar = React.forwardRef<
         ref={ref}
         data-sidebar={side}
         className={cn(
-          "flex h-full flex-col border-r bg-card text-card-foreground transition-[width] duration-200 ease-linear",
+          "flex h-full flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-200 ease-linear",
           isMobile && "fixed inset-y-0 left-0 z-50",
           !isMobile && "shrink-0",
           className,
@@ -198,8 +198,8 @@ const SidebarMenuButton = React.forwardRef<
       data-sidebar="menu-button"
       data-active={isActive}
       className={cn(
-        "flex w-full items-center gap-3 rounded-md px-2 text-[13px] outline-none transition-colors hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring h-9",
-        isActive && "bg-accent text-foreground font-medium",
+        "flex w-full items-center gap-3 rounded-md px-2 text-[13px] outline-none transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring h-9 text-sidebar-foreground/80",
+        isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium",
         className,
       )}
       {...(props as React.ComponentProps<"button">)}
