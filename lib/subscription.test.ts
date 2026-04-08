@@ -98,4 +98,49 @@ describe("deriveSubscriptionState", () => {
       expect(state.trialDaysLeft).toBeLessThanOrEqual(10);
     });
   });
+
+  // TrialBanner behavior: banner should only show when trialDaysLeft ≤ 7.
+  // On fresh signup with 14 days, the banner must stay hidden. It starts
+  // appearing exactly when 7 days or fewer remain.
+  describe("trial banner visibility threshold", () => {
+    const bannerShouldShow = (trialDaysLeft: number, status: string, isPaid: boolean) => {
+      // Mirror the TrialBanner early-return: hidden when paid, expired,
+      // active, or more than 7 days remain.
+      if (isPaid || status === "expired" || status === "active" || trialDaysLeft > 7) return false;
+      return true;
+    };
+
+    it("hides on day 14 (fresh signup)", () => {
+      const trialEnd = new Date(Date.now() + 14 * 86400000).toISOString();
+      const state = deriveSubscriptionState("2026-04-08T00:00:00Z", null, null, trialEnd);
+      expect(state.trialDaysLeft).toBe(14);
+      expect(bannerShouldShow(state.trialDaysLeft, state.status, state.isPaid)).toBe(false);
+    });
+
+    it("hides on day 10", () => {
+      const trialEnd = new Date(Date.now() + 10 * 86400000).toISOString();
+      const state = deriveSubscriptionState("2026-04-08T00:00:00Z", null, null, trialEnd);
+      expect(bannerShouldShow(state.trialDaysLeft, state.status, state.isPaid)).toBe(false);
+    });
+
+    it("shows on day 7", () => {
+      const trialEnd = new Date(Date.now() + 7 * 86400000).toISOString();
+      const state = deriveSubscriptionState("2026-04-08T00:00:00Z", null, null, trialEnd);
+      expect(state.trialDaysLeft).toBe(7);
+      expect(bannerShouldShow(state.trialDaysLeft, state.status, state.isPaid)).toBe(true);
+    });
+
+    it("shows on day 1", () => {
+      const trialEnd = new Date(Date.now() + 1 * 86400000).toISOString();
+      const state = deriveSubscriptionState("2026-04-08T00:00:00Z", null, null, trialEnd);
+      expect(bannerShouldShow(state.trialDaysLeft, state.status, state.isPaid)).toBe(true);
+    });
+
+    it("hides when paid (active subscription)", () => {
+      const trialEnd = new Date(Date.now() + 5 * 86400000).toISOString();
+      const state = deriveSubscriptionState("2026-04-08T00:00:00Z", "active", "Enterprise", trialEnd);
+      expect(state.isPaid).toBe(true);
+      expect(bannerShouldShow(state.trialDaysLeft, state.status, state.isPaid)).toBe(false);
+    });
+  });
 });

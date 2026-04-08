@@ -691,11 +691,10 @@ export const CATEGORIES = [
   "Business Tools",
 ] as const;
 
-export function getPlan(id: PlanId): Plan {
-  const normalized = (id as string)?.toLowerCase() as PlanId;
-  const p = PLANS.find((x) => x.id === normalized);
-  if (!p) throw new Error(`Unknown plan: ${id}`);
-  return p;
+export function getPlan(id: PlanId | string | null | undefined): Plan | null {
+  if (!id) return null;
+  const normalized = String(id).toLowerCase();
+  return PLANS.find((x) => x.id === normalized) ?? null;
 }
 
 export function getModule(id: string): Module | undefined {
@@ -707,7 +706,7 @@ export function getBundle(id: string): ModuleBundle | undefined {
 }
 
 export function isBundleIncludedInPlan(bundleId: string, planId: PlanId): boolean {
-  return getPlan(planId).includedBundleIds.includes(bundleId);
+  return getPlan(planId)?.includedBundleIds.includes(bundleId) ?? false;
 }
 
 export function isModuleIncludedInPlan(moduleId: string, planId: PlanId): boolean {

@@ -42,6 +42,13 @@ interface SessionUser {
   name: string;
   email: string;
   role: string;
+  companyName: string;
+  plan: string | null;
+}
+
+function planLabel(plan: string | null): string {
+  if (!plan) return "Free Trial";
+  return plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase();
 }
 
 /** Maps sidebar sections to module bundle IDs from lib/modules.ts */
@@ -157,20 +164,27 @@ function useSessionUser(): { user: SessionUser | null; loading: boolean } {
   useEffect(() => {
     fetch(`${API_BASE}/api/auth/validate`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d: { data?: { name?: string; email?: string; role?: string } }) => {
-        const raw = d?.data;
-        if (raw) {
-          // Use the first part of the email as name fallback if name is empty
-          const displayName = raw.name?.trim() || (raw.email ? raw.email.split("@")[0].replace(/[._-]/g, " ") : "");
-          setUser({
-            name: displayName,
-            email: raw.email ?? "",
-            role: raw.role ?? "member",
-          });
-        }
-      })
+      .then(
+        (d: {
+          data?: { name?: string; email?: string; role?: string; companyName?: string; plan?: string | null };
+        }) => {
+          const raw = d?.data;
+          if (raw) {
+            const displayName = raw.name?.trim() || (raw.email ? raw.email.split("@")[0].replace(/[._-]/g, " ") : "");
+            setUser({
+              name: displayName,
+              email: raw.email ?? "",
+              role: raw.role ?? "member",
+              companyName: raw.companyName?.trim() ?? "",
+              plan: raw.plan ?? null,
+            });
+          }
+        },
+      )
       .catch(() => {
-        setUser({ name: "?", email: "—", role: "" });
+        // Leave user as null on failure so the footer shows a neutral skeleton
+        // instead of literal "?" placeholders.
+        setUser(null);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -241,9 +255,12 @@ export function AppSidebar() {
     }
   }
 
-  const displayName = user?.name || "Loading…";
-  const displayRole = user?.role || "";
-  const initials = userLoading ? "…" : getInitials(user?.name || "?");
+  // Show company name + plan in the footer (not the user's name).
+  // If the company name hasn't loaded, fall back to the user name rather
+  // than rendering "?" placeholders.
+  const primaryLabel = user?.companyName || user?.name || "";
+  const secondaryLabel = planLabel(user?.plan ?? null);
+  const initials = userLoading ? "" : getInitials(primaryLabel);
 
   return (
     <Sidebar className="w-64 min-w-[256px] data-[state=collapsed]:w-16 data-[state=collapsed]:min-w-16">
@@ -305,24 +322,24 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-sidebar-border">
         <div className={cn("flex flex-col gap-2 p-2", collapsed && "items-center")}>
           <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
-            {userLoading ? (
+            {userLoading || !user ? (
               <div className="size-8 shrink-0 animate-pulse rounded-full bg-muted" />
             ) : (
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium">
-                {initials}
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                {initials || "•"}
               </div>
             )}
             {!collapsed && (
               <div className="min-w-0 flex-1">
-                {userLoading ? (
+                {userLoading || !user ? (
                   <>
                     <div className="h-2.5 w-24 animate-pulse rounded bg-muted" />
                     <div className="mt-1.5 h-2 w-14 animate-pulse rounded bg-muted" />
                   </>
                 ) : (
                   <>
-                    <p className="truncate text-[13px] font-medium">{displayName}</p>
-                    <p className="truncate text-[11px] uppercase tracking-wider text-muted-foreground">{displayRole}</p>
+                    <p className="truncate text-[13px] font-semibold text-sidebar-foreground">{primaryLabel}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">{secondaryLabel}</p>
                   </>
                 )}
               </div>

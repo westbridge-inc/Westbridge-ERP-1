@@ -56,7 +56,7 @@ export function ModulesTab() {
       .catch(() => {});
   }, []);
 
-  const currentPlan = getPlan(planId);
+  const currentPlan = getPlan(planId) ?? getPlan("starter")!;
   const [moduleActivateConfirm, setModuleActivateConfirm] = useState<{
     name: string;
     id: string;

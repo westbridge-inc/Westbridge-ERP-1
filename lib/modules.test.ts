@@ -20,11 +20,17 @@ describe("modules", () => {
     expect(PLANS.map((p) => p.id)).toEqual(["solo", "starter", "business", "enterprise"]);
   });
   it("getPlan returns plan by id", () => {
-    expect(getPlan("starter").name).toBe("Starter");
-    expect(getPlan("enterprise").limits.users).toBe(-1);
+    expect(getPlan("starter")?.name).toBe("Starter");
+    expect(getPlan("enterprise")?.limits.users).toBe(-1);
   });
-  it("getPlan throws for unknown id", () => {
-    expect(() => getPlan("unknown" as PlanId)).toThrow("Unknown plan");
+  it("getPlan is case-insensitive", () => {
+    expect(getPlan("Enterprise")?.name).toBe("Enterprise");
+    expect(getPlan("ENTERPRISE")?.name).toBe("Enterprise");
+  });
+  it("getPlan returns null for unknown id", () => {
+    expect(getPlan("unknown" as PlanId)).toBeNull();
+    expect(getPlan(null)).toBeNull();
+    expect(getPlan(undefined)).toBeNull();
   });
   it("getModule returns module or undefined", () => {
     expect(getModule("general-ledger")?.name).toBe("General Ledger");

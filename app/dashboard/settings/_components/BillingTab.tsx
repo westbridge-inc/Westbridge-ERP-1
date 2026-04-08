@@ -140,24 +140,33 @@ export function BillingTab() {
             <>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Current plan</p>
-                <p className="mt-1 text-xl leading-snug font-semibold text-foreground">
-                  {billingPlan?.name ??
-                    (onTrial
-                      ? `Free Trial`
-                      : billing?.plan
-                        ? billing.plan.charAt(0).toUpperCase() + billing.plan.slice(1)
+                <div className="mt-1 flex items-center gap-2">
+                  <p className="text-xl font-semibold leading-snug text-foreground">
+                    {billingPlan?.name ??
+                      (billing?.plan
+                        ? billing.plan.charAt(0).toUpperCase() + billing.plan.slice(1).toLowerCase()
                         : "\u2014")}
-                </p>
-                {billingPlan && (
+                  </p>
+                  {onTrial && <Badge variant="success">Free Trial</Badge>}
+                </div>
+                {billingPlan && !onTrial && (
                   <p className="mt-1 text-sm text-muted-foreground tabular-nums">
                     ${billingPlan.pricePerMonth.toLocaleString()}/mo
                     {nextBilling ? ` \u00b7 Next billing date ${nextBilling}` : ""}
                   </p>
                 )}
+                {billingPlan && onTrial && (
+                  <p className="mt-1 text-sm text-muted-foreground tabular-nums">
+                    ${billingPlan.pricePerMonth.toLocaleString()}/mo after trial
+                    {sub.trialEndsAt
+                      ? ` \u00b7 Trial ends ${sub.trialEndsAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+                      : ""}
+                  </p>
+                )}
                 {!billingPlan && onTrial && (
                   <p className="mt-1 text-sm text-muted-foreground">
                     {sub.trialDaysLeft > 0
-                      ? `${sub.trialDaysLeft} day${sub.trialDaysLeft !== 1 ? "s" : ""} remaining`
+                      ? `${sub.trialDaysLeft} day${sub.trialDaysLeft !== 1 ? "s" : ""} remaining in your trial`
                       : "Trial expired \u2014 choose a plan to continue"}
                   </p>
                 )}
@@ -169,13 +178,8 @@ export function BillingTab() {
                   </p>
                 )}
               </div>
-              <Button
-                variant="outline"
-                size="default"
-                className="rounded-md border border-input bg-background hover:bg-accent"
-                onClick={() => setManageOpen(true)}
-              >
-                {onTrial ? "Choose a plan" : "Manage subscription"}
+              <Button variant="outline" size="default" onClick={() => setManageOpen(true)}>
+                {onTrial ? "Upgrade plan" : "Manage subscription"}
               </Button>
             </>
           )}
