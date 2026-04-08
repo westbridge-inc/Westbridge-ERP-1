@@ -42,7 +42,14 @@ export function SubscriptionGate({ children }: { children: ReactNode }) {
         const accountCreatedAt = billing.status === "fulfilled" ? billing.value.accountCreatedAt : null;
         const trialEndsAt = billing.status === "fulfilled" ? billing.value.trialEndsAt : null;
         const subStatus = subscription.status === "fulfilled" ? subscription.value.status : null;
-        const planId = subscription.status === "fulfilled" ? subscription.value.planId : null;
+        // Prefer the subscription record's planId when present. Fall back to
+        // the account's `plan` field from /billing/history — otherwise
+        // Enterprise trial accounts (which may not yet have a Subscription row)
+        // would be treated as "no plan" and every gated feature (dashboards,
+        // modules) would lock, even though they signed up for Enterprise.
+        const subPlanId = subscription.status === "fulfilled" ? subscription.value.planId : null;
+        const accountPlan = billing.status === "fulfilled" ? billing.value.plan : null;
+        const planId = subPlanId ?? accountPlan;
 
         if (!cancelled) {
           setState(deriveSubscriptionState(accountCreatedAt, subStatus, planId, trialEndsAt));

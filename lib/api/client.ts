@@ -39,8 +39,11 @@ async function getCsrfToken(): Promise<string> {
   }
   const res = await fetch(`${API_BASE}/api/csrf`, { credentials: "include" });
   if (!res.ok) throw new Error("Failed to fetch CSRF token");
-  const body = (await res.json()) as { data?: { csrfToken?: string } };
-  const token = body.data?.csrfToken ?? "";
+  // Backend returns `{ data: { token } }`. Support the legacy `csrfToken`
+  // key too in case an older instance is still running during rollout.
+  const body = (await res.json()) as { data?: { token?: string; csrfToken?: string }; token?: string };
+  const token = body.data?.token ?? body.data?.csrfToken ?? body.token ?? "";
+  if (!token) throw new Error("CSRF token missing from response");
   csrfTokenCache = { token, expiresAt: Date.now() + 5 * 60 * 1000 };
   return token;
 }

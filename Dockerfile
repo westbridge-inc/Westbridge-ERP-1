@@ -19,9 +19,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build-time env vars — NEXT_PUBLIC_* must be baked in at build time
-# Default to production API URL; override with --build-arg for other envs
-ARG NEXT_PUBLIC_API_URL=https://api.westbridgetoday.com
+# Build-time env vars — NEXT_PUBLIC_* must be baked in at build time.
+# Default to empty so the client hits relative paths, which are proxied
+# to the backend by the Next.js middleware at /api/[[...path]]. This
+# keeps cookies on the same origin and avoids cross-subdomain CORS.
+ARG NEXT_PUBLIC_API_URL=
 ARG NEXT_PUBLIC_PADDLE_CLIENT_TOKEN=
 ARG NEXT_PUBLIC_PADDLE_SANDBOX=true
 ARG NEXT_PUBLIC_PADDLE_PRICE_SOLO=
