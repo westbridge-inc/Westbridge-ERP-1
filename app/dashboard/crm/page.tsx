@@ -69,7 +69,7 @@ function CRMPageInner() {
 export default function CRMPage() {
   return (
     <Suspense
-      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading...</div>}
+      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}
     >
       <CRMPageInner />
     </Suspense>

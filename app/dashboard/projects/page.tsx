@@ -126,7 +126,7 @@ function ProjectsPageInner() {
 export default function ProjectsPage() {
   return (
     <Suspense
-      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading...</div>}
+      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}
     >
       <ProjectsPageInner />
     </Suspense>

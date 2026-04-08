@@ -19,7 +19,7 @@ function AnalyticsPageInner() {
 export default function AnalyticsPage() {
   return (
     <Suspense
-      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading...</div>}
+      fallback={<div className="flex items-center justify-center py-16 text-sm text-muted-foreground">Loading…</div>}
     >
       <AnalyticsPageInner />
     </Suspense>

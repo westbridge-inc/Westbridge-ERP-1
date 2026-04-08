@@ -34,6 +34,7 @@ export function BillingTab() {
   const [manageOpen, setManageOpen] = useState(false);
   const [changingPlan, setChangingPlan] = useState<string | null>(null);
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [pendingPlanChange, setPendingPlanChange] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
@@ -257,7 +258,7 @@ export function BillingTab() {
                       variant="outline"
                       size="sm"
                       disabled={changingPlan !== null}
-                      onClick={() => handleChangePlan(plan.name)}
+                      onClick={() => setPendingPlanChange(plan.name)}
                     >
                       {changingPlan === plan.name ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : null}
                       {billingPlanId &&
@@ -293,6 +294,20 @@ export function BillingTab() {
         description="Your subscription will remain active until the end of the current billing period. After that, you will lose access to paid features."
         confirmLabel={cancelling ? "Cancelling..." : "Cancel subscription"}
         variant="destructive"
+      />
+
+      <ConfirmDialog
+        open={pendingPlanChange !== null}
+        onClose={() => setPendingPlanChange(null)}
+        onConfirm={async () => {
+          if (pendingPlanChange) {
+            await handleChangePlan(pendingPlanChange);
+            setPendingPlanChange(null);
+          }
+        }}
+        title={`Change plan to ${pendingPlanChange}?`}
+        description={`You'll be billed at the new plan rate on your next billing date. Plan changes take effect immediately and you'll have access to the new plan's features right away.`}
+        confirmLabel={changingPlan === pendingPlanChange ? "Changing..." : "Confirm change"}
       />
     </div>
   );
