@@ -38,6 +38,10 @@ const ALLOWED_PATH_PREFIXES = [
   "/api/settings/",
   "/api/document/",
   "/api/sso/",
+  // Cortex (AI-Native overhaul). Streaming SSE responses for /api/cortex/chat
+  // are detected via Content-Type below and forwarded as a ReadableStream
+  // instead of being buffered.
+  "/api/cortex/",
 ] as const;
 
 function isAllowedPath(pathname: string): boolean {
@@ -87,17 +91,33 @@ async function proxyRequest(request: NextRequest) {
     }
 
     const backendRes = await fetch(backendUrl, fetchOptions);
-    const body = await backendRes.text();
+    const backendContentType = backendRes.headers.get("content-type") ?? "application/json";
 
-    const responseHeaders = new Headers({
-      "Content-Type": backendRes.headers.get("content-type") ?? "application/json",
-    });
+    const responseHeaders = new Headers({ "Content-Type": backendContentType });
 
     // Forward Set-Cookie headers from backend
     for (const c of backendRes.headers.getSetCookie()) {
       responseHeaders.append("Set-Cookie", c);
     }
 
+    // Server-Sent Events: forward the ReadableStream directly so chunks reach
+    // the browser as the backend writes them. Buffering with .text() would
+    // collapse the stream into a single big payload and defeat the point of
+    // SSE for the Cortex chat endpoint.
+    if (backendContentType.startsWith("text/event-stream")) {
+      // Add the headers SSE clients depend on for incremental delivery.
+      responseHeaders.set("Cache-Control", "no-cache, no-transform");
+      responseHeaders.set("Connection", "keep-alive");
+      responseHeaders.set("X-Accel-Buffering", "no");
+      return new Response(backendRes.body, {
+        status: backendRes.status,
+        headers: responseHeaders,
+      });
+    }
+
+    // Default path: buffer the response. Keeps the existing behaviour for
+    // every JSON / form / file endpoint we already proxy.
+    const body = await backendRes.text();
     return new Response(body, {
       status: backendRes.status,
       headers: responseHeaders,
