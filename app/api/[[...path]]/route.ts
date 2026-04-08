@@ -7,7 +7,7 @@
  */
 import { NextRequest } from "next/server";
 
-const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:4000";
+import { BACKEND_URL } from "@/lib/env-server";
 
 /**
  * Allowlist of API path prefixes that may be proxied to the backend.

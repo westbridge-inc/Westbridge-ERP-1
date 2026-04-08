@@ -9,11 +9,25 @@ import { NextRequest, NextResponse } from "next/server";
 
 const SESSION_TOKEN_REGEX = /^[A-Za-z0-9\-_]+$/;
 
+/**
+ * Open redirect protection: only allow same-origin redirects to a path
+ * starting with a single forward slash. Reject anything else (//evil.com,
+ * https://evil.com, javascript:, etc.).
+ */
+function isSafeRedirect(redirect: string): boolean {
+  if (typeof redirect !== "string") return false;
+  if (!redirect.startsWith("/")) return false;
+  if (redirect.startsWith("//")) return false; // protocol-relative URL
+  if (redirect.startsWith("/\\")) return false; // backslash trick
+  return true;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as { token?: string; redirect?: string };
     const token = body?.token;
-    const redirect = body?.redirect ?? "/dashboard";
+    const requestedRedirect = body?.redirect;
+    const redirect = requestedRedirect && isSafeRedirect(requestedRedirect) ? requestedRedirect : "/dashboard";
 
     if (!token || typeof token !== "string" || !SESSION_TOKEN_REGEX.test(token)) {
       return NextResponse.json(

@@ -60,21 +60,29 @@ export default function LoginPage() {
         return;
       }
       // If the proxy returned a session token, set the httpOnly cookie via POST
-      // then navigate to the dashboard.
+      // then navigate to the dashboard. We MUST verify the session cookie was
+      // set successfully before redirecting — otherwise the user lands on a
+      // protected route without auth and gets bounced back to login.
       const sessionToken = data?.data?.sessionToken;
       if (sessionToken) {
-        const sessionRes = await fetch("/api/auth/session", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: sessionToken }),
-        });
-        if (!sessionRes.ok) {
+        try {
+          const sessionRes = await fetch("/api/auth/session", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: sessionToken }),
+          });
+          if (!sessionRes.ok) {
+            setError("Failed to establish session. Please try again.");
+            return;
+          }
+        } catch {
           setError("Failed to establish session. Please try again.");
           return;
         }
       }
-      router.push(ROUTES.dashboard);
+      // Use replace() instead of push() so the back button doesn't return to login
+      router.replace(ROUTES.dashboard);
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
