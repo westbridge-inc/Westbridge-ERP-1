@@ -75,13 +75,13 @@ export default async function DashboardPage() {
   /* --- error state --- */
   if (error || !data) {
     return (
-      <div>
-        <h1 className="text-2xl leading-tight tracking-tight font-display font-semibold text-foreground text-balance">
-          {getGreeting()}
-        </h1>
-        <p className="mt-1 text-sm leading-normal text-muted-foreground">
-          Here&apos;s what&apos;s happening with your business today.
-        </p>
+      <div className="flex flex-col gap-6">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{getGreeting()}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Here&apos;s what&apos;s happening with your business today.
+          </p>
+        </div>
         <DashboardError message={error ?? "Failed to load dashboard data."} />
       </div>
     );
@@ -89,15 +89,13 @@ export default async function DashboardPage() {
 
   /* --- success state --- */
   return (
-    <div>
+    <div className="flex flex-col gap-6">
       <DashboardWelcome />
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl leading-tight tracking-tight font-display font-semibold text-foreground text-balance">
-            {getGreeting()}
-          </h1>
-          <p className="mt-1 text-sm leading-normal text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{getGreeting()}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Here&apos;s what&apos;s happening with your business today.
           </p>
         </div>
@@ -114,7 +112,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-6 @container/main grid grid-cols-1 gap-4 *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           label="Total Revenue"
           value={formatCurrency(data.revenueMTD, "USD")}
@@ -132,8 +130,8 @@ export default async function DashboardPage() {
           subtextVariant={data.employeeDelta >= 0 ? "success" : "error"}
         />
         <MetricCard
-          label="Invoices"
-          value={`${data.outstandingCount} open`}
+          label="Open Invoices"
+          value={data.outstandingCount}
           icon={Receipt}
           subtext={data.outstandingCount > 0 ? "Requires follow-up" : "All clear"}
           subtextVariant={data.outstandingCount > 0 ? "error" : "success"}

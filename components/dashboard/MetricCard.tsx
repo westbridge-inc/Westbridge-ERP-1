@@ -1,6 +1,7 @@
 import React from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardFooter } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 
 interface MetricCardProps {
@@ -28,39 +29,33 @@ export const MetricCard = React.memo(function MetricCard({
         : "text-muted-foreground";
 
   const TrendIcon = trend != null ? (trend > 0 ? TrendingUp : trend < 0 ? TrendingDown : Minus) : null;
-
-  const trendClass =
-    trend != null ? (trend > 0 ? "text-success" : trend < 0 ? "text-destructive" : "text-muted-foreground") : "";
+  const showTrendBadge = trend != null && trend !== 0;
 
   return (
-    <Card className="hover:shadow-sm" role="region" aria-label={label}>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-muted-foreground tracking-wide truncate">{label}</p>
-            <p
-              className="mt-2 text-3xl font-semibold tracking-tight text-foreground font-display tabular-nums"
-              aria-label={`${label}: ${value}`}
-            >
-              {value}
-            </p>
-            {(subtext != null || trend != null) && (
-              <div className="mt-2 flex items-center gap-1">
-                {TrendIcon && <TrendIcon className={cn("size-3.5 shrink-0", trendClass)} aria-hidden="true" />}
-                {subtext != null && <p className={cn("text-xs", subtextClass)}>{subtext}</p>}
-              </div>
-            )}
-          </div>
-          {Icon && (
-            <div
-              className="ml-4 shrink-0 size-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center"
-              aria-hidden="true"
-            >
-              <Icon className="size-5" />
-            </div>
-          )}
-        </div>
-      </CardContent>
+    <Card className="@container/card" role="region" aria-label={label}>
+      <CardHeader>
+        <CardDescription>{label}</CardDescription>
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">{value}</CardTitle>
+        {showTrendBadge && TrendIcon && (
+          <CardAction>
+            <Badge variant="outline" className="gap-1">
+              <TrendIcon className="size-3" aria-hidden="true" />
+              {trend > 0 ? "+" : ""}
+              {trend}%
+            </Badge>
+          </CardAction>
+        )}
+        {Icon && !showTrendBadge && (
+          <CardAction>
+            <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
+          </CardAction>
+        )}
+      </CardHeader>
+      {subtext && (
+        <CardFooter className="flex-col items-start gap-1 text-sm">
+          <div className={cn("line-clamp-1 flex items-center gap-1.5 font-medium", subtextClass)}>{subtext}</div>
+        </CardFooter>
+      )}
     </Card>
   );
 });

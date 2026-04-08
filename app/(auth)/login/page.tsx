@@ -94,20 +94,23 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      {/* Left: brand panel — satin navy with accent glow, hidden on mobile */}
-      <div className="relative isolate hidden min-h-screen w-[50%] flex-col items-center justify-center overflow-hidden border-r border-border bg-sidebar md:flex">
-        <div className="hero-glow pointer-events-none absolute inset-0" aria-hidden />
-        <div className="grid-pattern pointer-events-none absolute inset-0" aria-hidden />
+      {/* Left: brand panel — muted bg with dot pattern + halo, hidden on mobile */}
+      <div className="relative isolate hidden min-h-screen w-[50%] flex-col items-center justify-center overflow-hidden border-r border-border bg-muted/30 md:flex">
+        <div className="dot-pattern pointer-events-none absolute inset-0" aria-hidden />
+        <div className="absolute left-1/2 top-1/2 h-[60%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl" />
         <div className="relative z-10 flex flex-col items-center text-center px-12">
-          <span className="text-foreground font-semibold text-2xl tracking-[0.25em] font-display mb-4">WESTBRIDGE</span>
-          <p className="text-muted-foreground text-sm leading-relaxed max-w-[280px]">
+          <div className="mb-4 flex size-14 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg">
+            <span className="text-xl font-bold">W</span>
+          </div>
+          <span className="mb-2 text-2xl font-bold tracking-tight text-foreground">WESTBRIDGE</span>
+          <p className="max-w-[280px] text-sm leading-relaxed text-muted-foreground">
             Your complete business management platform.
           </p>
           <div className="mt-12 w-full max-w-[280px] space-y-3">
             {["38 modules", "Enterprise-grade security", "AI-powered insights"].map((f) => (
               <div key={f} className="flex items-center gap-3">
-                <div className="size-1.5 rounded-full bg-accent shrink-0" />
-                <span className="text-muted-foreground text-xs">{f}</span>
+                <div className="size-1.5 shrink-0 rounded-full bg-primary" />
+                <span className="text-xs text-muted-foreground">{f}</span>
               </div>
             ))}
           </div>
@@ -122,7 +125,7 @@ export default function LoginPage() {
             <Logo variant="mark" size="md" className="text-foreground" />
           </div>
 
-          <h1 className="font-display text-[1.75rem] font-semibold tracking-tight text-foreground">Welcome back</h1>
+          <h1 className="text-[1.75rem] font-semibold tracking-tight text-foreground">Welcome back</h1>
           <p className="mt-2 text-sm text-muted-foreground">Sign in to your Westbridge account</p>
 
           {!csrfLoaded ? (

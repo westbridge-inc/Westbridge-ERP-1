@@ -13,11 +13,13 @@ import {
   Lock,
   Clock,
   BarChart3,
+  Check,
 } from "lucide-react";
 import { ROUTES, TRIAL } from "@/lib/config/site";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 
-/* ── Section 23: Features Grid ─────────────────────── */
+/* ── Features ─────────────────────────────────────── */
 const FEATURES = [
   {
     icon: Calculator,
@@ -51,7 +53,7 @@ const FEATURES = [
   },
 ];
 
-/* ── Section 24: How It Works ──────────────────────── */
+/* ── How it works ─────────────────────────────────── */
 const STEPS = [
   {
     num: 1,
@@ -70,7 +72,7 @@ const STEPS = [
   },
 ];
 
-/* ── Section 22: Stats Strip ───────────────────────── */
+/* ── Stats ────────────────────────────────────────── */
 const STATS = [
   { icon: Layers, value: "38", label: "Modules" },
   { icon: BarChart3, value: "7", label: "Bundles" },
@@ -81,76 +83,98 @@ const STATS = [
 export function HomeContent() {
   return (
     <>
-      {/* ── Section 21: Hero ─────────────────────────── */}
-      <section className="relative isolate overflow-hidden px-6 py-24 md:py-32 lg:py-40">
-        {/* Paddle-style glow + grid backdrop */}
-        <div className="hero-glow pointer-events-none absolute inset-0 -z-10" aria-hidden />
-        <div className="grid-pattern pointer-events-none absolute inset-0 -z-10" aria-hidden />
+      {/* ── Hero ─────────────────────────────────────── */}
+      <section className="relative isolate overflow-hidden pt-16 pb-16 sm:pt-20 md:pt-24">
+        {/* Dot pattern + halo glow backdrop */}
+        <div className="dot-pattern pointer-events-none absolute inset-0 -z-10" aria-hidden />
 
-        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-          <span className="fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-success" />
-            Built for the Caribbean & growing businesses
-          </span>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="fade-in mb-8 flex justify-center">
+              <Badge variant="outline" className="gap-2 px-4 py-2">
+                <span className="inline-block size-1.5 rounded-full bg-success" />
+                Built for growing businesses
+                <ArrowRight className="size-3" />
+              </Badge>
+            </div>
 
-          <h1 className="fade-in font-display text-4xl font-bold leading-[1.05] tracking-tight text-balance md:text-5xl lg:text-6xl">
-            <span className="text-gradient">The Enterprise ERP</span>
-            <br />
-            <span className="text-gradient-accent">for Growing Businesses</span>
-          </h1>
+            <h1 className="fade-in mb-6 text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
+              The Enterprise ERP
+              <br />
+              <span className="text-gradient-primary">for Growing Businesses</span>
+            </h1>
 
-          <p className="fade-in-delay-1 mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-            Manage invoicing, CRM, inventory, HR, and accounting — all in one platform built for modern teams.
-          </p>
+            <p className="fade-in-delay-1 mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+              Manage invoicing, CRM, inventory, HR, and accounting — all in one platform built for modern teams.
+            </p>
 
-          <div className="fade-in-delay-2 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button asChild size="lg" className="h-12 rounded-lg px-8 text-base shadow-lg">
-              <Link href={ROUTES.signup}>
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="h-12 rounded-lg px-8 text-base">
-              <Link href={ROUTES.pricing}>See Pricing</Link>
-            </Button>
+            <div className="fade-in-delay-2 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Button asChild size="lg" className="h-11 px-8 text-base">
+                <Link href={ROUTES.signup}>
+                  Get Started <ArrowRight className="ml-2 size-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="h-11 px-8 text-base">
+                <Link href={ROUTES.pricing}>See Pricing</Link>
+              </Button>
+            </div>
+
+            <p className="mt-5 text-sm text-muted-foreground">No credit card required.</p>
           </div>
 
-          <p className="mt-5 text-sm text-muted-foreground/70">No credit card required.</p>
-        </div>
-      </section>
-
-      {/* ── Section 22: Stats Strip ────────────────────── */}
-      <section className="border-y border-border bg-card/40 px-6 py-12 backdrop-blur-sm md:py-16">
-        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
-          {STATS.map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center text-center">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-accent/10 text-accent-foreground">
-                <stat.icon className="h-5 w-5" strokeWidth={1.75} />
+          {/* Hero visual — dashboard screenshot placeholder with halo glow */}
+          <div className="mx-auto mt-20 max-w-6xl">
+            <div className="relative">
+              <div className="absolute left-1/2 -top-8 -z-10 h-40 w-[90%] -translate-x-1/2 rounded-full bg-primary/30 blur-3xl lg:h-80" />
+              <div className="relative overflow-hidden rounded-xl border bg-card shadow-2xl">
+                <div className="aspect-[16/9] bg-gradient-to-br from-muted to-muted/30" />
+                <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-full bg-gradient-to-b from-transparent via-background/70 to-background md:h-40 lg:h-48" />
               </div>
-              <p className="font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">{stat.value}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
             </div>
-          ))}
+          </div>
         </div>
       </section>
 
-      {/* ── Section 23: Features Grid ─────────────────── */}
-      <section className="px-6 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="text-center font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Everything your business needs, <span className="text-gradient-accent">unified</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
-            One platform to replace your scattered spreadsheets, legacy tools, and disconnected workflows.
-          </p>
+      {/* ── Stats ────────────────────────────────────── */}
+      <section className="border-y border-border bg-muted/30 py-12 md:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4 md:gap-12">
+            {STATS.map((stat) => (
+              <div key={stat.label} className="flex flex-col items-center text-center">
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <stat.icon className="size-5" strokeWidth={1.75} />
+                </div>
+                <p className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">{stat.value}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+      {/* ── Features ─────────────────────────────────── */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <Badge variant="outline" className="mb-4">
+              Features
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Everything your business needs, unified
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              One platform to replace your scattered spreadsheets, legacy tools, and disconnected workflows.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-12 grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="satin-card group rounded-xl p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/60 md:p-8"
+                className="group rounded-xl border bg-card p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md md:p-8"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-accent/15 text-foreground transition-colors group-hover:border-accent group-hover:bg-accent/25">
-                  <f.icon className="h-5 w-5" strokeWidth={1.75} />
+                <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                  <f.icon className="size-5" strokeWidth={1.75} />
                 </div>
                 <h3 className="mt-5 text-lg font-semibold text-foreground">{f.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
@@ -160,17 +184,20 @@ export function HomeContent() {
         </div>
       </section>
 
-      {/* ── Section 24: How It Works ───────────────────── */}
-      <section className="border-t border-border px-6 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="text-center font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Get started in <span className="text-gradient-accent">minutes</span>
-          </h2>
+      {/* ── How it works ─────────────────────────────── */}
+      <section className="border-t border-border py-16 md:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <Badge variant="outline" className="mb-4">
+              How it works
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Get started in minutes</h2>
+          </div>
 
-          <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
+          <div className="mx-auto mt-12 grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3 md:gap-12">
             {STEPS.map((s) => (
               <div key={s.num} className="text-center md:text-left">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-accent/40 bg-accent/15 text-sm font-bold text-foreground md:mx-0">
+                <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground md:mx-0">
                   {s.num}
                 </div>
                 <h3 className="mt-4 text-xl font-semibold text-foreground">{s.title}</h3>
@@ -181,20 +208,36 @@ export function HomeContent() {
         </div>
       </section>
 
-      {/* ── Section 25: Final CTA ──────────────────────── */}
-      <section className="relative isolate overflow-hidden border-t border-border px-6 py-20 md:py-28">
-        <div className="hero-glow pointer-events-none absolute inset-0 -z-10" aria-hidden />
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Ready to <span className="text-gradient-accent">streamline</span> your business?
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">Start your {TRIAL.days}-day free trial today.</p>
-          <Button asChild size="lg" className="mt-8 h-12 rounded-lg px-8 text-base shadow-lg">
-            <Link href={ROUTES.signup}>
-              Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <p className="mt-4 text-sm text-muted-foreground/70">No credit card required.</p>
+      {/* ── Final CTA ────────────────────────────────── */}
+      <section className="border-t border-border bg-muted/30 py-20 md:py-28">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative mx-auto max-w-3xl overflow-hidden rounded-2xl border bg-card p-8 shadow-xl md:p-16">
+            <div className="absolute left-1/2 -top-20 -z-0 h-40 w-[80%] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+            <div className="relative text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                Ready to streamline your business?
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                Start your {TRIAL.days}-day free trial today. No credit card required.
+              </p>
+              <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-1.5">
+                  <Check className="size-4 text-success" /> No credit card
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <Check className="size-4 text-success" /> Cancel anytime
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <Check className="size-4 text-success" /> All features included
+                </li>
+              </ul>
+              <Button asChild size="lg" className="mt-8 h-12 px-8 text-base">
+                <Link href={ROUTES.signup}>
+                  Get Started Free <ArrowRight className="ml-2 size-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
     </>

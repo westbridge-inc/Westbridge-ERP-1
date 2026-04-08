@@ -30,14 +30,14 @@ const PRINCIPLES = [
 export default function AboutContent() {
   return (
     <div className="relative isolate mx-auto max-w-5xl px-6 py-24">
-      <div className="hero-glow pointer-events-none absolute inset-x-0 top-0 h-[500px] -z-10" aria-hidden />
+      <div className="dot-pattern pointer-events-none absolute inset-x-0 top-0 h-[500px] -z-10" aria-hidden />
       {/* Headline */}
       <div className="max-w-3xl">
         <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">About Westbridge</p>
         <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.15] tracking-tight md:text-5xl">
           <span className="text-gradient">Every business deserves enterprise-grade tools</span>
           <br />
-          <span className="text-gradient-accent">without the enterprise price tag.</span>
+          <span className="text-gradient-primary">without the enterprise price tag.</span>
         </h1>
       </div>
 
@@ -117,10 +117,10 @@ export default function AboutContent() {
       <div className="my-24 h-px bg-border/60" />
 
       {/* CTA */}
-      <div className="satin-card relative isolate overflow-hidden rounded-2xl px-8 py-20 text-center">
-        <div className="hero-glow pointer-events-none absolute inset-0 -z-10" aria-hidden />
-        <h2 className="font-display text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-          Ready to <span className="text-gradient-accent">get started?</span>
+      <div className="relative isolate overflow-hidden rounded-2xl border bg-card px-8 py-20 text-center shadow-xl">
+        <div className="absolute left-1/2 -top-20 -z-10 h-40 w-[80%] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+        <h2 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+          Ready to <span className="text-gradient-primary">get started?</span>
         </h2>
         <p className="mt-4 text-muted-foreground">No credit card required. {TRIAL.days}-day free trial.</p>
         <Button asChild size="lg" className="mt-8 h-12 rounded-lg px-8 shadow-lg">

@@ -54,14 +54,14 @@ export default function ModulesContent() {
 
   return (
     <div className="relative isolate overflow-hidden">
-      <div className="hero-glow pointer-events-none absolute inset-x-0 top-0 h-[500px] -z-10" aria-hidden />
+      <div className="dot-pattern pointer-events-none absolute inset-x-0 top-0 h-[500px] -z-10" aria-hidden />
       <div className="mx-auto max-w-5xl px-6 py-20">
         {/* Header */}
         <div className="text-center">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">Modules</p>
           <h1 className="mt-3 font-display text-3xl font-bold tracking-tight md:text-4xl">
             <span className="text-gradient">7 bundles. 38 modules.</span>{" "}
-            <span className="text-gradient-accent">One platform.</span>
+            <span className="text-gradient-primary">One platform.</span>
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-base text-muted-foreground">
             Every bundle includes AI-powered insights. Pick the bundles you need, or get them all with Enterprise.
@@ -190,9 +190,9 @@ export default function ModulesContent() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="satin-card mt-20 rounded-2xl px-8 py-12 text-center">
+        <div className="mt-20 rounded-2xl border bg-card px-8 py-12 text-center shadow-sm">
           <h2 className="font-display text-xl font-semibold text-foreground">
-            Need everything? <span className="text-gradient-accent">Go Enterprise.</span>
+            Need everything? <span className="text-gradient-primary">Go Enterprise.</span>
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Enterprise includes all 38 modules, unlimited AI, and a dedicated account manager.

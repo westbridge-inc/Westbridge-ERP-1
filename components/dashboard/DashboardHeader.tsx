@@ -33,6 +33,7 @@ const CommandPalette = dynamic(
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { ShortcutsModal } from "@/components/dashboard/ShortcutsModal";
 import { useShortcuts } from "@/components/dashboard/ShortcutsContext";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useKeyboardShortcuts } from "@/lib/hooks/useKeyboardShortcuts";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
@@ -130,7 +131,7 @@ export function DashboardHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-4 border-b border-border bg-background/80 backdrop-blur-md px-4 md:px-6">
+      <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-4 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           {isMobile && (
             <Button
@@ -194,6 +195,16 @@ export function DashboardHeader() {
             {/* Notifications */}
             <NotificationBell />
 
+            {/* Theme toggle */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <ThemeToggle />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Toggle theme</TooltipContent>
+            </Tooltip>
+
             {/* User Menu */}
             <DropdownMenu>
               <Tooltip>
@@ -201,7 +212,7 @@ export function DashboardHeader() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" aria-label="User menu">
                       {user ? (
-                        <span className="flex size-7 items-center justify-center rounded-full bg-foreground text-[11px] font-medium text-background">
+                        <span className="flex size-7 items-center justify-center rounded-full bg-primary text-[11px] font-medium text-primary-foreground">
                           {getInitials(user.name)}
                         </span>
                       ) : (

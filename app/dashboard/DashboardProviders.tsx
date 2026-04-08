@@ -36,7 +36,7 @@ export function DashboardProviders({ children }: { children: React.ReactNode }) 
                   <DashboardHeader />
                   <ErpConnectionBanner />
                   <WebVitalsReporter />
-                  <main id="main-content" className="flex-1 overflow-y-auto bg-muted/30 p-6">
+                  <main id="main-content" className="flex-1 overflow-y-auto bg-background p-4 md:p-6">
                     <PageTransition>{children}</PageTransition>
                   </main>
                 </SidebarInset>

@@ -95,7 +95,7 @@ const Sidebar = React.forwardRef<
     <>
       {isMobile && (
         <div
-          className="fixed inset-0 z-40 bg-black/50"
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
           aria-hidden
           onClick={() => setOpenMobile(false)}
           style={{
@@ -198,8 +198,8 @@ const SidebarMenuButton = React.forwardRef<
       data-sidebar="menu-button"
       data-active={isActive}
       className={cn(
-        "flex w-full items-center gap-3 rounded-md px-2 text-[13px] outline-none transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring h-9 text-sidebar-foreground/80",
-        isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium",
+        "peer/menu-button flex h-9 w-full items-center gap-2 overflow-hidden rounded-md px-2 text-sm outline-none ring-sidebar-ring transition-[width,height,padding] text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0 [&>span:last-child]:truncate",
+        isActive && "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
         className,
       )}
       {...(props as React.ComponentProps<"button">)}
@@ -211,7 +211,7 @@ const SidebarMenuButton = React.forwardRef<
 SidebarMenuButton.displayName = "SidebarMenuButton";
 
 const SidebarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">>(({ className, ...props }, ref) => (
-  <main ref={ref} className={cn("flex flex-1 flex-col overflow-hidden", className)} {...props} />
+  <div ref={ref} className={cn("relative flex min-h-svh flex-1 flex-col bg-background", className)} {...props} />
 ));
 SidebarInset.displayName = "SidebarInset";
 

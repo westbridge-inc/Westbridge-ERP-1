@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "next-themes";
-import { Inter, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { SITE } from "@/lib/config/site";
 import { ToastsProvider } from "@/components/ui/Toasts";
@@ -13,19 +13,8 @@ import { PaddleInit } from "@/components/payments/PaddleInit";
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-body",
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-  variable: "--font-display-family",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-serif",
+  display: "swap",
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -59,24 +48,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakarta.variable} ${playfair.variable} dark`} suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className="antialiased">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-foreground focus:text-background focus:px-4 focus:py-2 focus:rounded-md focus:text-sm focus:font-medium focus:shadow-lg"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-md focus:text-sm focus:font-medium focus:shadow-lg"
         >
           Skip to main content
         </a>
         <Script src="https://cdn.paddle.com/paddle/v2/paddle.js" strategy="lazyOnload" />
         <PaddleInit />
         <PHProvider />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange
-          forcedTheme="dark"
-        >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <ToastsProvider>
             {children}
             <Toaster
@@ -85,8 +68,9 @@ export default function RootLayout({
               duration={4000}
               toastOptions={{
                 classNames: {
-                  toast: "rounded-md font-sans text-sm border border-border shadow-lg",
-                  success: "border-l-4 border-l-green-500",
+                  toast:
+                    "rounded-md font-sans text-sm border border-border bg-popover text-popover-foreground shadow-lg",
+                  success: "border-l-4 border-l-success",
                   error: "border-l-4 border-l-destructive",
                   info: "border-l-4 border-l-primary",
                 },

@@ -18,8 +18,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import { ROUTES } from "@/lib/config/site";
-import { LogoLink } from "@/components/brand/Logo";
+import { ROUTES, SITE } from "@/lib/config/site";
 import {
   Sidebar,
   SidebarHeader,
@@ -250,7 +249,17 @@ export function AppSidebar() {
     <Sidebar className="w-64 min-w-[256px] data-[state=collapsed]:w-16 data-[state=collapsed]:min-w-16">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex h-14 items-center justify-between gap-2 px-2">
-          <LogoLink variant="mark" size="sm" className="text-foreground" />
+          <Link href={ROUTES.dashboard} className="flex min-w-0 items-center gap-2 px-1">
+            <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <span className="font-bold text-sm">W</span>
+            </div>
+            {!collapsed && (
+              <div className="grid flex-1 text-left leading-tight">
+                <span className="truncate text-sm font-semibold">{SITE.name}</span>
+                <span className="truncate text-[11px] text-muted-foreground">Enterprise ERP</span>
+              </div>
+            )}
+          </Link>
           <SidebarTrigger className="size-8" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
             {collapsed ? <ChevronsRight className="size-4" /> : <ChevronsLeft className="size-4" />}
           </SidebarTrigger>
