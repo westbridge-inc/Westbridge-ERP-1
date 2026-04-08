@@ -1,6 +1,5 @@
 "use client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -43,7 +42,7 @@ function InviteContent() {
   const [csrfToken, setCsrfToken] = useState("");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/csrf`, { credentials: "include" })
+    fetch(`/api/csrf`, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setCsrfToken(d?.data?.token ?? ""))
       .catch(() => {});
@@ -55,7 +54,7 @@ function InviteContent() {
       setLoading(false);
       return;
     }
-    fetch(`${API_BASE}/api/invite?token=${encodeURIComponent(token)}`, { credentials: "include" })
+    fetch(`/api/invite?token=${encodeURIComponent(token)}`, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => {
         if (!d.ok && d.error) {
@@ -77,7 +76,7 @@ function InviteContent() {
     setFormError(null);
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE}/api/invite/accept`, {
+      const res = await fetch(`/api/invite/accept`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
@@ -91,7 +90,7 @@ function InviteContent() {
 
       // Try to auto-login after accepting the invite
       try {
-        const loginRes = await fetch(`${API_BASE}/api/auth/login`, {
+        const loginRes = await fetch(`/api/auth/login`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
@@ -101,7 +100,7 @@ function InviteContent() {
           const loginData = await loginRes.json().catch(() => ({}));
           const sessionToken = loginData?.data?.sessionToken;
           if (sessionToken) {
-            await fetch(`${API_BASE}/api/auth/session`, {
+            await fetch(`/api/auth/session`, {
               method: "POST",
               credentials: "include",
               headers: { "Content-Type": "application/json" },

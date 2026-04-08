@@ -1,6 +1,5 @@
 "use client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Mail } from "lucide-react";
@@ -18,7 +17,8 @@ export default function ForgotPasswordPage() {
   const [csrfToken, setCsrfToken] = useState("");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/csrf`, { credentials: "include" })
+    // Use relative URL through Next.js proxy — avoids CORS issues
+    fetch("/api/csrf", { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setCsrfToken(d?.data?.token ?? ""))
       .catch(() => {});
@@ -29,13 +29,13 @@ export default function ForgotPasswordPage() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+      const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
         body: JSON.stringify({ email }),
       });
-      if (res.status >= 500) {
+      if (!res.ok) {
         setError("Something went wrong. Please try again.");
         return;
       }

@@ -7,7 +7,6 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useToasts } from "@/components/ui/Toasts";
 import { MODULES, MODULE_BUNDLES, CATEGORIES, getPlan, isModuleIncludedInPlan, type PlanId } from "@/lib/modules";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 const HIDDEN_SECTIONS_KEY = "westbridge_hidden_sections";
 
 /** Map category names to bundle IDs for sidebar filtering */
@@ -48,7 +47,7 @@ export function ModulesTab() {
   const [planId, setPlanId] = useState<PlanId>("starter");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/billing/history`, { credentials: "include" })
+    fetch(`/api/billing/history`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d: { data?: { plan?: string } }) => {
         const p = d?.data?.plan?.toLowerCase() as PlanId | undefined;

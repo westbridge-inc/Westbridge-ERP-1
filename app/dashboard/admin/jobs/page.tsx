@@ -1,7 +1,5 @@
 "use client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -45,7 +43,7 @@ export default function AdminJobsPage() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/admin/jobs`, { credentials: "include" });
+      const res = await fetch(`/api/admin/jobs`, { credentials: "include" });
       if (!res.ok) {
         if (res.status === 403) {
           toast.error("Admin access required to view job queues.");
@@ -71,13 +69,13 @@ export default function AdminJobsPage() {
   async function retryJob(jobId: string, queueName: string) {
     setRetrying(jobId);
     try {
-      const csrfRes = await fetch(`${API_BASE}/api/csrf`, { credentials: "include" });
+      const csrfRes = await fetch(`/api/csrf`, { credentials: "include" });
       const csrfData = await csrfRes.json().catch(() => ({}));
       const csrfToken = (csrfData as Record<string, unknown>)?.data
         ? ((csrfData as { data: { token?: string } }).data.token ?? "")
         : ((csrfData as { token?: string }).token ?? "");
 
-      const res = await fetch(`${API_BASE}/api/admin/jobs/${jobId}/retry?queue=${queueName}`, {
+      const res = await fetch(`/api/admin/jobs/${jobId}/retry?queue=${queueName}`, {
         method: "POST",
         credentials: "include",
         headers: { "X-CSRF-Token": csrfToken },

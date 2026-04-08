@@ -1,6 +1,5 @@
 "use client";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 import Link from "next/link";
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -24,7 +23,7 @@ function ResetPasswordContent() {
   const [csrfToken, setCsrfToken] = useState("");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/csrf`, { credentials: "include" })
+    fetch(`/api/csrf`, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setCsrfToken(d?.data?.token ?? ""))
       .catch(() => {});
@@ -39,7 +38,7 @@ function ResetPasswordContent() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
+      const res = await fetch(`/api/auth/reset-password`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },

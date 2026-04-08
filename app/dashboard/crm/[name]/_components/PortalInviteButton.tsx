@@ -8,8 +8,6 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
-
 interface PortalInviteButtonProps {
   customerName: string;
 }
@@ -29,11 +27,11 @@ export function PortalInviteButton({ customerName }: PortalInviteButtonProps) {
     setSending(true);
     try {
       // Fetch CSRF token
-      const csrfRes = await fetch(`${API_BASE}/api/csrf`, { credentials: "include" });
+      const csrfRes = await fetch(`/api/csrf`, { credentials: "include" });
       const csrfBody = (await csrfRes.json()) as { data?: { csrfToken?: string } };
       const csrfToken = csrfBody.data?.csrfToken ?? "";
 
-      const res = await fetch(`${API_BASE}/api/portal/invite`, {
+      const res = await fetch(`/api/portal/invite`, {
         method: "POST",
         credentials: "include",
         headers: {
