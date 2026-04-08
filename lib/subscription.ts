@@ -29,7 +29,10 @@ export function deriveSubscriptionState(
   // (set at signup as createdAt + 14 days). Fall back to computing it
   // from accountCreatedAt for older accounts that don't have the field.
   let trialEndsAt: Date | null = null;
-  let trialDaysLeft = 0;
+  // Default to full trial length when we have no data yet — otherwise a
+  // transient API failure would flash "0 days left in your free trial" to
+  // users who just signed up.
+  let trialDaysLeft: number = TRIAL.days;
   let isTrialExpired = false;
 
   if (trialEndsAtIso) {

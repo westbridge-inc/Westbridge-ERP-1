@@ -368,12 +368,31 @@ async function deleteApiKey(id: string): Promise<void> {
 
 export interface SubscriptionData {
   planId: string | null;
-  status: string;
+  status: string | null;
   currentPeriodEnd: string | null;
 }
 
+/**
+ * Backend returns `{ subscription: null | { id, planId, status, ... } }`.
+ * We flatten it here so callers can read `status`, `planId`, and
+ * `currentPeriodEnd` directly without having to know the envelope shape.
+ */
 async function getSubscription(): Promise<SubscriptionData> {
-  return request<SubscriptionData>("/api/billing/subscription");
+  const wrapper = await request<{
+    subscription: {
+      id: string;
+      planId: string;
+      status: string;
+      currentPeriodStart?: string | null;
+      currentPeriodEnd?: string | null;
+    } | null;
+  }>("/api/billing/subscription");
+  const sub = wrapper?.subscription ?? null;
+  return {
+    planId: sub?.planId ?? null,
+    status: sub?.status ?? null,
+    currentPeriodEnd: sub?.currentPeriodEnd ?? null,
+  };
 }
 
 async function changePlan(planId: string): Promise<{ success: boolean }> {
