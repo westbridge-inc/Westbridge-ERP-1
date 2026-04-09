@@ -40,7 +40,8 @@ export function TrustContent() {
           recorded and exportable.
         </FactCard>
         <FactCard icon={<Users className="h-4 w-4" />} title="Authentication">
-          bcrypt password hashing (cost ≥10), TOTP MFA, SAML 2.0 / OIDC SSO, account lockout after 5 failed attempts.
+          bcrypt password hashing (cost 14), opt-in TOTP MFA with backup codes, SAML 2.0 / OIDC SSO, account lockout
+          after 5 failed attempts, 7-day session expiry with idle timeout and fingerprint validation.
         </FactCard>
       </div>
 
@@ -81,10 +82,17 @@ export function TrustContent() {
 
       <h2 className={sectionTitle}>2. Access control</h2>
       <p className={p}>
-        Westbridge supports four customer-facing roles (owner, admin, member, viewer), TOTP-based two-factor
-        authentication, account lockout after 5 failed login attempts, and Single Sign-On via SAML 2.0 and OIDC.
-        Sessions are HttpOnly, SameSite-secure, and revoked automatically on password change. Every state-changing
-        request is gated by a CSRF token bound to the session.
+        Westbridge supports four customer-facing roles (owner, admin, member, viewer), opt-in TOTP-based two-factor
+        authentication with single-use backup codes, account lockout after 5 failed login attempts, and Single Sign-On
+        via SAML 2.0 and OIDC. Sessions have a 7-day absolute expiry, a 30-minute idle timeout, and a fingerprint
+        (User-Agent + IP /24 hash) that&apos;s validated on every request to detect hijacking. Sessions are HttpOnly,
+        SameSite-secure, and revoked automatically on password change. Every state-changing request is gated by a CSRF
+        token bound to the session.
+      </p>
+      <p className={p}>
+        <strong className={strong}>Honest note:</strong> two-factor authentication is currently opt-in for all roles.
+        Org-wide enforcement for owner and admin roles is on the roadmap for 2026-Q3. Customers who want to enforce MFA
+        on their own users today can do so via SSO with their identity provider&apos;s MFA policy.
       </p>
       <p className={p}>
         Internally, all Westbridge personnel access production through MFA-enforced consoles. Database access uses
