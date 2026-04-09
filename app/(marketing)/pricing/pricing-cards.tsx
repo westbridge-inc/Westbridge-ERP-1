@@ -11,7 +11,7 @@ const USAGE_ROWS = [
   { label: "Users", key: "users" as const, unit: "users" },
   { label: "Storage", key: "storageGB" as const, unit: "GB" },
   { label: "ERP records / mo", key: "erpRecordsPerMonth" as const, unit: "" },
-  { label: "AI queries / mo", key: "aiQueriesPerMonth" as const, unit: "" },
+  { label: "AI operations / mo", key: "aiQueriesPerMonth" as const, unit: "" },
   { label: "API calls / mo", key: "apiCallsPerMonth" as const, unit: "" },
 ];
 
@@ -157,7 +157,7 @@ export function PricingCards() {
                   ))}
                 </tr>
                 <tr>
-                  <td className="py-3 pl-5 font-semibold text-foreground">Overage — extra AI query</td>
+                  <td className="py-3 pl-5 font-semibold text-foreground">Overage — extra AI operation</td>
                   {PLANS.map((p) => (
                     <td key={p.id} className="py-3 px-4 text-center text-muted-foreground">
                       {p.overageRates.perExtraAiQuery === 0 ? "—" : `$${p.overageRates.perExtraAiQuery}/query`}

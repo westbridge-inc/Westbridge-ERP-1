@@ -200,7 +200,7 @@ export function RefundPolicyContent() {
       <h2 className={h2}>9. Non-Refundable Items</h2>
       <p className={p}>The following are not eligible for refunds under any circumstances:</p>
       <ul className={ul}>
-        <li>Overage charges for additional users, AI queries, storage, or API calls</li>
+        <li>Overage charges for additional users, AI operations, storage, or API calls</li>
         <li>Custom integration work, onboarding services, or professional services already delivered</li>
         <li>Subscriptions outside their refund window (see Section 3)</li>
         <li>Accounts terminated by Westbridge for breach of the Terms of Service</li>
