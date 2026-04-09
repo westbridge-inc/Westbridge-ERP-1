@@ -21,8 +21,12 @@ const ALLOWED_PATH_PREFIXES = [
   "/api/erp/",
   "/api/invite",
   "/api/admin/",
-  "/api/audit/",
-  "/api/team/",
+  // Bare-path variants for routes that have BOTH a top-level handler (e.g.
+  // GET /api/audit listing) AND sub-paths (GET /api/audit/export). The
+  // trailing-slash entry only matches sub-paths via startsWith — the bare
+  // entry catches the listing endpoint that would otherwise 404.
+  "/api/audit",
+  "/api/team",
   "/api/account/",
   "/api/billing/",
   "/api/ai/",
@@ -33,7 +37,9 @@ const ALLOWED_PATH_PREFIXES = [
   "/api/health",
   "/api/events/",
   "/api/webhooks/",
-  "/api/reports/",
+  // Bare /api/reports lists generated reports; /api/reports/:jobId fetches one.
+  // Same trailing-slash gotcha as audit / team.
+  "/api/reports",
   "/api/leads/",
   "/api/signup",
   "/api/modules",
