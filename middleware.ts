@@ -90,17 +90,33 @@ export async function middleware(request: NextRequest) {
         signal: AbortSignal.timeout(15_000),
       });
 
-      if (res.status === 401 || res.status === 403) {
-        // Explicit auth rejection — session is invalid, redirect to login
-        const response = NextResponse.redirect(new URL("/login", request.url));
-        response.cookies.delete(COOKIE.SESSION_NAME);
+      if (!res.ok) {
+        // FAIL CLOSED — auth gating MUST NOT depend on backend being healthy.
+        // 401/403: session is invalid → redirect.
+        // 5xx / any other non-ok: we cannot prove the session is valid →
+        // redirect to /login with a maintenance hint instead of letting an
+        // unauthenticated request reach the dashboard. Do NOT clear the
+        // cookie here — a transient backend hiccup should not log the user
+        // out permanently; they can retry once the backend recovers.
+        const loginUrl = new URL("/login", request.url);
+        if (res.status >= 500) {
+          loginUrl.searchParams.set("reason", "session_check_unavailable");
+        }
+        const response = NextResponse.redirect(loginUrl);
+        if (res.status === 401 || res.status === 403) {
+          // Only clear the cookie on an explicit auth rejection.
+          response.cookies.delete(COOKIE.SESSION_NAME);
+        }
         return addSecurityHeaders(response);
       }
-      // For any other non-ok status (500, 502, 503), let the user through
-      // — the dashboard will show an error state rather than a login loop
     } catch {
-      // Network error or timeout — don't kick the user out.
-      // Let them through; client-side will handle if session is truly invalid.
+      // Network error or timeout — fail CLOSED. Same rationale as above:
+      // we cannot validate the session, so we must not authorize access.
+      // The cookie is preserved so the user can retry immediately when the
+      // backend recovers, without re-entering credentials.
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("reason", "session_check_unavailable");
+      return addSecurityHeaders(NextResponse.redirect(loginUrl));
     }
   }
 
