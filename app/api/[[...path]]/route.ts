@@ -27,7 +27,10 @@ const ALLOWED_PATH_PREFIXES = [
   "/api/billing/",
   "/api/ai/",
   "/api/analytics/",
-  "/api/health/",
+  // Both `/api/health` (bare — load balancer probes) AND `/api/health/live`
+  // + `/api/health/ready` (k8s-style sub-paths). The trailing-slash variant
+  // covers the latter; the bare variant covers the former.
+  "/api/health",
   "/api/events/",
   "/api/webhooks/",
   "/api/reports/",
