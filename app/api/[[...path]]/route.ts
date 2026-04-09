@@ -51,6 +51,11 @@ const ALLOWED_PATH_PREFIXES = [
   "/api/usage",
   // Backend OpenAPI doc viewer linked from the API tab in settings.
   "/api/docs",
+  // Browser-emitted CSP violation reports (helmet sets `report-uri
+  // /api/v1/csp-report`). Both the versioned and unversioned form are
+  // allowed so a future helmet config change does not silently break.
+  "/api/csp-report",
+  "/api/v1/csp-report",
   // Cortex (AI-Native overhaul). Streaming SSE responses for /api/cortex/chat
   // are detected via Content-Type below and forwarded as a ReadableStream
   // instead of being buffered.
