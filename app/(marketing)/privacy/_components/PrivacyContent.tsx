@@ -218,7 +218,14 @@ export function PrivacyContent() {
 
       <h3 className="text-base font-semibold mt-6 mb-2">Sub-Processors</h3>
       <p className="text-[15px] text-muted-foreground leading-relaxed mb-4">
-        We engage the following categories of sub-processors to deliver the Service:
+        We engage the following categories of sub-processors to deliver the Service. Business customers subject to the
+        GDPR may also wish to review our standalone{" "}
+        <Link href={ROUTES.dpa} className="underline text-foreground">
+          Data Processing Agreement
+        </Link>{" "}
+        which sets out the controller / processor terms required by Article 28, the security measures we apply to
+        Customer Personal Data, our breach-notification commitments, and the Standard Contractual Clauses we rely on for
+        international transfers.
       </p>
       <ul className="text-[15px] text-muted-foreground list-disc pl-6 space-y-2">
         <li>

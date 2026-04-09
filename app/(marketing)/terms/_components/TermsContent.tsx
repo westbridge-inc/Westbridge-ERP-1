@@ -324,6 +324,19 @@ export function TermsContent() {
         for informational purposes only and should be independently verified before making business decisions.
       </p>
 
+      <h3 className={h3}>8.6 Data Processing Agreement (GDPR Art. 28)</h3>
+      <p className={p}>
+        For business customers subject to the EU General Data Protection Regulation, the UK GDPR, or equivalent data
+        protection laws, our standalone{" "}
+        <Link href={ROUTES.dpa} className="underline text-foreground">
+          Data Processing Agreement
+        </Link>{" "}
+        sets out the controller / processor terms required by GDPR Article 28. The DPA forms part of these Terms by
+        reference and applies automatically when you process personal data of EEA, UK, or Swiss data subjects on the
+        Service. It covers our security measures, sub-processor obligations, data subject rights assistance,
+        breach-notification commitments, audit rights, and the Standard Contractual Clauses for international transfers.
+      </p>
+
       {/* ================================================================ */}
       {/*  9. Service Level Agreement                                      */}
       {/* ================================================================ */}
