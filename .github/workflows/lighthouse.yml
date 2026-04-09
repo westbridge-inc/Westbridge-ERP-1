@@ -57,8 +57,22 @@ jobs:
             const results = JSON.parse(fs.readFileSync(`${resultsPath}/${files[0]}`, 'utf8'));
             const categories = results.categories;
 
+            // Defensive: Lighthouse can produce a result file with no categories
+            // when the page failed to load (timeout, 4xx/5xx, network error).
+            // Without this guard the script crashes the whole job; better to
+            // post a degraded comment so the dev sees something went wrong.
+            if (!categories || typeof categories !== 'object') {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '## Lighthouse Results\n\nLighthouse ran but produced no category scores — the test page likely failed to load. Check the workflow logs for details.',
+              });
+              return;
+            }
+
             const score = (cat) => cat ? Math.round(cat.score * 100) : 'N/A';
-            const emoji = (s) => s >= 90 ? '🟢' : s >= 50 ? '🟡' : '🔴';
+            const emoji = (s) => typeof s === 'number' && s >= 90 ? '🟢' : typeof s === 'number' && s >= 50 ? '🟡' : '🔴';
 
             const perf = score(categories.performance);
             const a11y = score(categories.accessibility);
