@@ -66,6 +66,11 @@ export function SignupStep3({
           companyName: signupData.company || signupData.name,
           plan: planId.charAt(0).toUpperCase() + planId.slice(1),
           modulesSelected: [],
+          // Age + ToS gate (Big-4 audit B3). User reached step 3 only after
+          // checking the combined age/ToS box on Step 1, so we can safely
+          // assert true here. The backend signupBodySchema enforces this as
+          // a literal-true field — sending false or omitting it is rejected.
+          ageConfirmed: true,
         }),
       });
       const data = await res.json().catch(() => ({}));

@@ -15,6 +15,16 @@ export interface SignupStep1Props {
   setEmail: (v: string) => void;
   password: string;
   setPassword: (v: string) => void;
+  /**
+   * Combined age + terms confirmation. Set to `true` when the user ticks
+   * the single legal checkbox, which states explicitly that they are 18+
+   * AND that they accept the ToS + Privacy Policy. The backend signup
+   * schema (signupBodySchema in /types/schemas/signup.ts) requires this
+   * value to be literal `true` — sending false or omitting it is rejected
+   * to satisfy the COPPA / GDPR-K age gate (Big-4 audit blocker B3).
+   */
+  ageAndTermsAccepted: boolean;
+  setAgeAndTermsAccepted: (v: boolean) => void;
   onNext: () => void;
 }
 
@@ -33,9 +43,18 @@ function getPasswordChecks(pw: string): PasswordCheck[] {
   ];
 }
 
-export function SignupStep1({ name, setName, email, setEmail, password, setPassword, onNext }: SignupStep1Props) {
+export function SignupStep1({
+  name,
+  setName,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  ageAndTermsAccepted,
+  setAgeAndTermsAccepted,
+  onNext,
+}: SignupStep1Props) {
   const [showPassword, setShowPassword] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
 
   const validateEmail = useCallback((value: string) => {
@@ -45,7 +64,7 @@ export function SignupStep1({ name, setName, email, setEmail, password, setPassw
   const checks = getPasswordChecks(password);
   const allChecksMet = checks.every((c) => c.met);
   const emailValid = validateEmail(email);
-  const formValid = name.trim().length > 0 && emailValid && allChecksMet && termsAccepted;
+  const formValid = name.trim().length > 0 && emailValid && allChecksMet && ageAndTermsAccepted;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,17 +157,21 @@ export function SignupStep1({ name, setName, email, setEmail, password, setPassw
           )}
         </div>
 
-        {/* Terms checkbox */}
+        {/*
+          Combined age + terms checkbox.
+          Required for COPPA / GDPR-K age gate compliance (Big-4 audit blocker B3).
+          The single checkbox keeps the UX one-click while still self-attesting age.
+        */}
         <div className="flex items-start gap-3 pt-2">
           <input
             type="checkbox"
             id="signup-terms"
-            checked={termsAccepted}
-            onChange={(e) => setTermsAccepted(e.target.checked)}
+            checked={ageAndTermsAccepted}
+            onChange={(e) => setAgeAndTermsAccepted(e.target.checked)}
             className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded-sm border border-primary accent-foreground"
           />
           <label htmlFor="signup-terms" className="cursor-pointer text-sm text-muted-foreground leading-snug">
-            I agree to the{" "}
+            I confirm I am <span className="text-foreground font-medium">18 or older</span> and agree to the{" "}
             <Link
               href={ROUTES.terms}
               target="_blank"

@@ -78,6 +78,10 @@ function SignupContent() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // Single combined age + ToS acceptance flag, lifted into the parent so the
+  // value survives back/forward navigation across steps and is available to
+  // SignupStep3 when it submits the create-account API call (B3 age gate).
+  const [ageAndTermsAccepted, setAgeAndTermsAccepted] = useState(false);
   const [company, setCompany] = useState("");
   const [industry, setIndustry] = useState("");
   const [country, setCountry] = useState("");
@@ -155,6 +159,8 @@ function SignupContent() {
             setEmail={setEmail}
             password={password}
             setPassword={setPassword}
+            ageAndTermsAccepted={ageAndTermsAccepted}
+            setAgeAndTermsAccepted={setAgeAndTermsAccepted}
             onNext={() => setStep(2)}
           />
         )}
