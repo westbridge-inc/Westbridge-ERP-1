@@ -47,6 +47,10 @@ const ALLOWED_PATH_PREFIXES = [
   "/api/settings/",
   "/api/document/",
   "/api/sso/",
+  // Per-account usage stats (TeamTab in dashboard settings reads this).
+  "/api/usage",
+  // Backend OpenAPI doc viewer linked from the API tab in settings.
+  "/api/docs",
   // Cortex (AI-Native overhaul). Streaming SSE responses for /api/cortex/chat
   // are detected via Content-Type below and forwarded as a ReadableStream
   // instead of being buffered.
