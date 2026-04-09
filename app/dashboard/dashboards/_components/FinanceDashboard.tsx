@@ -395,7 +395,7 @@ export function FinanceDashboard() {
             <p className="mt-8 text-sm text-muted-foreground">No transactions yet.</p>
           ) : (
             <div className="mt-4 overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full min-w-[720px] text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs uppercase tracking-wider text-muted-foreground">
                     <th className="py-2 pr-3 font-medium">Invoice</th>

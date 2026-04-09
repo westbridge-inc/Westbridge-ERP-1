@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/Button";
 
@@ -93,6 +94,13 @@ interface ConfirmDialogProps {
   cancelLabel?: string;
   /** Visual style of the confirm button; use "destructive" for dangerous actions. */
   variant?: "default" | "destructive";
+  /**
+   * When true: confirm button shows a spinner and is disabled, cancel button is
+   * disabled, and backdrop dismiss is blocked. Use while an in-flight async
+   * operation is running (M11 audit fix — prevents the user from double-
+   * clicking the confirm button or accidentally closing the dialog mid-action).
+   */
+  loading?: boolean;
 }
 
 function ConfirmDialog({
@@ -104,20 +112,42 @@ function ConfirmDialog({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   variant = "default",
+  loading = false,
 }: ConfirmDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={(v) => !v && onClose()}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(v) => {
+        // Block dismiss while loading so an inadvertent backdrop click can't
+        // tear the dialog down mid-mutation.
+        if (!v && !loading) onClose();
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           {description && <AlertDialogDescription>{description}</AlertDialogDescription>}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>{cancelLabel}</AlertDialogCancel>
+          <AlertDialogCancel
+            onClick={onClose}
+            disabled={loading}
+            aria-disabled={loading}
+            className={cn(loading && "pointer-events-none opacity-50")}
+          >
+            {cancelLabel}
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className={cn(variant === "destructive" && buttonVariants({ variant: "destructive" }))}
+            disabled={loading}
+            aria-busy={loading}
+            className={cn(
+              variant === "destructive" && buttonVariants({ variant: "destructive" }),
+              loading && "cursor-not-allowed opacity-70",
+              "inline-flex items-center gap-2",
+            )}
           >
+            {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
             {confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>

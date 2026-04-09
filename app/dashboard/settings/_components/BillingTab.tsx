@@ -297,6 +297,7 @@ export function BillingTab() {
         title="Cancel subscription?"
         description="Your subscription will remain active until the end of the current billing period. After that, you will lose access to paid features."
         confirmLabel={cancelling ? "Cancelling..." : "Cancel subscription"}
+        loading={cancelling}
         variant="destructive"
       />
 
@@ -312,6 +313,7 @@ export function BillingTab() {
         title={`Change plan to ${pendingPlanChange}?`}
         description={`You'll be billed at the new plan rate on your next billing date. Plan changes take effect immediately and you'll have access to the new plan's features right away.`}
         confirmLabel={changingPlan === pendingPlanChange ? "Changing..." : "Confirm change"}
+        loading={changingPlan === pendingPlanChange}
       />
     </div>
   );
