@@ -90,7 +90,7 @@ jobs:
 
       - name: Setup Fly.io CLI
         if: env.FLY_API_TOKEN != '' && env.RAILWAY_TOKEN == ''
-        uses: superfly/flyctl-actions/setup-flyctl@1.5
+        uses: superfly/flyctl-actions/setup-flyctl@1.6
 
       - name: Deploy canary (1 machine)
         id: fly_canary
