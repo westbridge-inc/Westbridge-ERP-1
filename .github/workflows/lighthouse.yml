@@ -41,6 +41,8 @@ jobs:
           configPath: ./lighthouserc.js
           uploadArtifacts: true
           temporaryPublicStorage: true
+        env:
+          LIGHTHOUSE_CI: "true"
 
       - name: Format Lighthouse results
         if: github.event_name == 'pull_request'

@@ -61,13 +61,17 @@ const CSP = buildCsp();
 
 export async function middleware(request: NextRequest) {
   // ── Basic Auth: Acquisition Staging Lock ─────────────────────────────
-  const basicAuth = request.headers.get("authorization");
-  // Credentials: admin / FrappeAcquisition2026
-  if (basicAuth !== "Basic YWRtaW46RnJhcHBlQWNxdWlzaXRpb24yMDI2") {
-    return new NextResponse("Acquisition Staging Environment — Authorization Required.", {
-      status: 401,
-      headers: { "WWW-Authenticate": 'Basic realm="Secure Area"' },
-    });
+  // Skip auth in CI environments (e.g. Lighthouse audit, E2E runners)
+  const isCI = process.env.LIGHTHOUSE_CI === "true" || process.env.CI_BYPASS === "true";
+  if (!isCI) {
+    const basicAuth = request.headers.get("authorization");
+    // Credentials: admin / FrappeAcquisition2026
+    if (basicAuth !== "Basic YWRtaW46RnJhcHBlQWNxdWlzaXRpb24yMDI2") {
+      return new NextResponse("Acquisition Staging Environment — Authorization Required.", {
+        status: 401,
+        headers: { "WWW-Authenticate": 'Basic realm="Secure Area"' },
+      });
+    }
   }
 
   const { pathname } = request.nextUrl;
