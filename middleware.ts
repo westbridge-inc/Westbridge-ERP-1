@@ -60,6 +60,16 @@ const CSP = buildCsp();
 // ─── Middleware ──────────────────────────────────────────────────────────────
 
 export async function middleware(request: NextRequest) {
+  // ── Basic Auth: Acquisition Staging Lock ─────────────────────────────
+  const basicAuth = request.headers.get("authorization");
+  // Credentials: admin / FrappeAcquisition2026
+  if (basicAuth !== "Basic YWRtaW46RnJhcHBlQWNxdWlzaXRpb24yMDI2") {
+    return new NextResponse("Acquisition Staging Environment — Authorization Required.", {
+      status: 401,
+      headers: { "WWW-Authenticate": 'Basic realm="Secure Area"' },
+    });
+  }
+
   const { pathname } = request.nextUrl;
   const sessionToken = request.cookies.get(COOKIE.SESSION_NAME)?.value;
 
