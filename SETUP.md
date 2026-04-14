@@ -1,11 +1,11 @@
 # Westbridge Frontend — Local setup
 
-This is the **frontend** application. It requires the [Westbridge Backend API](https://github.com/westbridgeinc/Westbridge-ERP-2) to be running for authentication, data, and ERP functionality.
+This is the **frontend** application. It requires the [Westbridge Backend API](https://github.com/westbridge-inc/Westbridge-ERP-2) to be running for authentication, data, and ERP functionality.
 
 ## Prerequisites
 
 - **Node.js** 20+
-- **Westbridge Backend API** running (see [Westbridge-ERP-2](https://github.com/westbridgeinc/Westbridge-ERP-2) for setup)
+- **Westbridge Backend API** running (see [Westbridge-ERP-2](https://github.com/westbridge-inc/Westbridge-ERP-2) for setup)
 - **Git**
 
 ## Quick setup
@@ -36,7 +36,7 @@ Open **http://localhost:3000**.
 
 To run the entire Westbridge platform locally:
 
-1. **Start the backend** — Follow setup in [Westbridge-ERP-2](https://github.com/westbridgeinc/Westbridge-ERP-2). This starts the API server, PostgreSQL, Redis, and ERPNext.
+1. **Start the backend** — Follow setup in [Westbridge-ERP-2](https://github.com/westbridge-inc/Westbridge-ERP-2). This starts the API server, PostgreSQL, Redis, and ERPNext.
 
 2. **Start this frontend:**
 

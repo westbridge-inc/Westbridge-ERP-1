@@ -28,7 +28,7 @@
 
 ## Depends on backend
 
-The following are handled by [Westbridge-ERP-2](https://github.com/westbridgeinc/Westbridge-ERP-2):
+The following are handled by [Westbridge-ERP-2](https://github.com/westbridge-inc/Westbridge-ERP-2):
 
 - Authentication and session management
 - CSRF token generation and validation

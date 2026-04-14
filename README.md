@@ -3,8 +3,8 @@
   <p><strong>Enterprise Resource Planning — Modern, Fast, Intelligent</strong></p>
 
   <p>
-    <a href="https://github.com/westbridgeinc/Westbridge-ERP-1/actions/workflows/ci.yml"><img src="https://github.com/westbridgeinc/Westbridge-ERP-1/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-    <a href="https://github.com/westbridgeinc/Westbridge-ERP-1/actions/workflows/security.yml"><img src="https://github.com/westbridgeinc/Westbridge-ERP-1/actions/workflows/security.yml/badge.svg" alt="Security"></a>
+    <a href="https://github.com/westbridge-inc/Westbridge-ERP-1/actions/workflows/ci.yml"><img src="https://github.com/westbridge-inc/Westbridge-ERP-1/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+    <a href="https://github.com/westbridge-inc/Westbridge-ERP-1/actions/workflows/security.yml"><img src="https://github.com/westbridge-inc/Westbridge-ERP-1/actions/workflows/security.yml/badge.svg" alt="Security"></a>
     <img src="https://img.shields.io/badge/next.js-16-black" alt="Next.js 16">
     <img src="https://img.shields.io/badge/react-19-blue" alt="React 19">
     <img src="https://img.shields.io/badge/license-proprietary-red" alt="License">
@@ -26,7 +26,7 @@
 
 Westbridge ERP is a full-featured business management platform that unifies accounting, CRM, inventory, HR, manufacturing, and project management into a single application. Built with Next.js 16 and React 19, it delivers a fast, responsive experience across desktop and mobile.
 
-This repository contains the **frontend** application. It is a pure client that communicates with the [Westbridge Backend API](https://github.com/westbridgeinc/Westbridge-ERP-2) for all data, authentication, and business logic.
+This repository contains the **frontend** application. It is a pure client that communicates with the [Westbridge Backend API](https://github.com/westbridge-inc/Westbridge-ERP-2) for all data, authentication, and business logic.
 
 ## Features
 
@@ -70,13 +70,19 @@ This repository contains the **frontend** application. It is a pure client that 
 ### Prerequisites
 
 - **Node.js** 22+ (20.19+ minimum)
-- **Running backend API** — see [Westbridge-ERP-2](https://github.com/westbridgeinc/Westbridge-ERP-2) for setup
+- **Running backend API** — see [Westbridge-ERP-2](https://github.com/westbridge-inc/Westbridge-ERP-2) for setup
+
+## Domains (Production)
+
+- **Marketing site**: `https://westbridgetoday.com`
+- **Web app**: `https://app.westbridgetoday.com`
+- **Backend API**: `https://api.westbridgetoday.com`
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/westbridgeinc/Westbridge-ERP-1.git
+git clone https://github.com/westbridge-inc/Westbridge-ERP-1.git
 cd Westbridge-ERP-1
 
 # Install dependencies
@@ -240,7 +246,7 @@ See `DEPLOY.md` for Fly.io deployment scripts and configuration.
 
 ## API Reference
 
-This frontend communicates exclusively with the Westbridge Backend API. For API documentation, endpoint schemas, and authentication details, see the [Westbridge-ERP-2](https://github.com/westbridgeinc/Westbridge-ERP-2) repository.
+This frontend communicates exclusively with the Westbridge Backend API. For API documentation, endpoint schemas, and authentication details, see the [Westbridge-ERP-2](https://github.com/westbridge-inc/Westbridge-ERP-2) repository.
 
 ## Related Documentation
 
