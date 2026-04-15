@@ -12,13 +12,38 @@ const SESSION_TOKEN_REGEX = /^[A-Za-z0-9\-_]+$/;
 /**
  * Open redirect protection: only allow same-origin redirects to a path
  * starting with a single forward slash. Reject anything else (//evil.com,
- * https://evil.com, javascript:, etc.).
+ * https://evil.com, javascript:, etc.). Also blocks URL-encoded bypasses,
+ * backslash tricks, and protocol-relative URLs.
  */
 function isSafeRedirect(redirect: string): boolean {
   if (typeof redirect !== "string") return false;
-  if (!redirect.startsWith("/")) return false;
-  if (redirect.startsWith("//")) return false; // protocol-relative URL
-  if (redirect.startsWith("/\\")) return false; // backslash trick
+  
+  // Decode any URL-encoded characters to catch encoded bypasses
+  let decoded = redirect;
+  try {
+    decoded = decodeURIComponent(redirect);
+  } catch {
+    // Invalid encoding — reject
+    return false;
+  }
+  
+  // Must start with exactly one forward slash
+  if (!decoded.startsWith("/")) return false;
+  
+  // Reject protocol-relative URLs (//evil.com)
+  if (decoded.startsWith("//")) return false;
+  
+  // Reject backslash tricks (/\\evil.com or /\/\/evil.com)
+  if (decoded.includes("\\") || decoded.includes("://")) return false;
+  
+  // Reject any attempt to include @ for credential injection
+  if (decoded.includes("@")) return false;
+  
+  // Only allow simple paths starting with /
+  // Pattern: starts with / but not followed by another /
+  const normalized = decoded.replace(/\/+/g, "/");
+  if (!normalized.startsWith("/") || normalized.startsWith("//")) return false;
+  
   return true;
 }
 
