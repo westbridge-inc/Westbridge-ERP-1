@@ -66,7 +66,7 @@ export async function middleware(request: NextRequest) {
   if (!isCI) {
     const basicAuth = request.headers.get("authorization");
     // Credentials: admin / FrappeAcquisition2026
-    if (basicAuth !== "Basic YWRtaW46RnJhcHBlQWNxdWlzaXRpb24yMDI2") {
+    if (basicAuth !== "Basic process.env.BASIC_AUTH_CREDENTIALS") {
       return new NextResponse("Acquisition Staging Environment — Authorization Required.", {
         status: 401,
         headers: { "WWW-Authenticate": 'Basic realm="Secure Area"' },
