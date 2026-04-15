@@ -65,8 +65,9 @@ export async function middleware(request: NextRequest) {
   const isCI = process.env.LIGHTHOUSE_CI === "true" || process.env.CI_BYPASS === "true";
   if (!isCI) {
     const basicAuth = request.headers.get("authorization");
-    // Credentials: admin / FrappeAcquisition2026
-    if (basicAuth !== "Basic YWRtaW46RnJhcHBlQWNxdWlzaXRpb24yMDI2") {
+    // Credentials loaded from environment variable — never hardcode secrets
+    const expectedAuth = process.env.STAGING_BASIC_AUTH;
+    if (!expectedAuth || basicAuth !== expectedAuth) {
       return new NextResponse("Acquisition Staging Environment — Authorization Required.", {
         status: 401,
         headers: { "WWW-Authenticate": 'Basic realm="Secure Area"' },

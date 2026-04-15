@@ -1,13 +1,17 @@
 /**
  * Catch-all API proxy route handler.
  * Proxies allowed /api/* requests to the backend, forwarding cookies and security headers.
+ * 
+ * SECURITY: Validates CSRF tokens on all state-changing requests (POST, PUT, DELETE, PATCH)
+ * to prevent cross-site request forgery attacks.
  *
  * Only paths matching ALLOWED_PATH_PREFIXES are forwarded. All other paths
  * return 404 to prevent exposure of internal backend routes.
  */
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { BACKEND_URL } from "@/lib/env-server";
+import { validateCsrfToken, createCsrfErrorResponse } from "@/lib/middleware/csrf";
 
 /**
  * Allowlist of API path prefixes that may be proxied to the backend.
@@ -69,6 +73,11 @@ function isAllowedPath(pathname: string): boolean {
 async function proxyRequest(request: NextRequest) {
   const url = new URL(request.url);
 
+  // CSRF validation for state-changing requests
+  if (!validateCsrfToken(request)) {
+    return createCsrfErrorResponse();
+  }
+
   // Reject paths not in the allowlist
   if (!isAllowedPath(url.pathname)) {
     return new Response(JSON.stringify({ error: { code: "NOT_FOUND", message: "Route not found" } }), {
@@ -91,8 +100,29 @@ async function proxyRequest(request: NextRequest) {
   const xff = request.headers.get("x-forwarded-for");
   if (xff) headers["X-Forwarded-For"] = xff;
 
+  // Validate and forward Content-Type to prevent content smuggling
   const contentType = request.headers.get("content-type");
-  if (contentType) headers["Content-Type"] = contentType;
+  if (contentType) {
+    // Only allow standard content types to prevent MIME confusion attacks
+    const allowedContentTypes = [
+      "application/json",
+      "application/x-www-form-urlencoded",
+      "multipart/form-data",
+      "text/plain",
+      "text/event-stream",
+    ];
+    
+    // Extract base content type (without charset, boundary, etc.)
+    const baseContentType = contentType.split(";")[0].trim().toLowerCase();
+    if (!allowedContentTypes.some((t) => baseContentType === t || baseContentType.startsWith(t))) {
+      return new Response(
+        JSON.stringify({ error: { code: "INVALID_CONTENT_TYPE", message: "Unsupported content type" } }),
+        { status: 415, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    
+    headers["Content-Type"] = contentType;
+  }
 
   const csrfToken = request.headers.get("x-csrf-token");
   if (csrfToken) headers["x-csrf-token"] = csrfToken;
