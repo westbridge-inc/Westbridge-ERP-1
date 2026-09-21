@@ -52,17 +52,17 @@
   },
   "devDependencies": {
     "vite": "^8.0.8",
-    "@playwright/test": "^1.58.2",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/react": "^16.3.2",
-    "@types/node": "^20",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26",
     "@types/pg": "^8.18.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitest/coverage-v8": "^4.0.18",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.3",
+    "@vitest/coverage-v8": "^5.0.1",
+    "eslint": "^10",
+    "eslint-config-next": "16.3.5",
     "happy-dom": "^20.8.4",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
@@ -70,8 +70,8 @@
     "prettier": "^3.8.1",
     "tailwindcss": "^4",
     "tsc-files": "^1.1.4",
-    "typescript": "^5",
-    "vitest": "^4.1.4"
+    "typescript": "^7",
+    "vitest": "^5.0.1"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
