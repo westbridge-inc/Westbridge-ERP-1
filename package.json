@@ -63,7 +63,7 @@
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
-    "happy-dom": "^20.8.4",
+    "happy-dom": "^21.0.4",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
     "pg": "^8.20.0",
